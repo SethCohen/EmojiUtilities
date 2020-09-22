@@ -33,15 +33,18 @@ async def createdb(message):
     db_cursor = db_conn.cursor()
     db_cursor.execute("""
         CREATE TABLE IF NOT EXISTS db (
-        emoji TEXT,
+        emoji TEXT UNIQUE,
         occurrence INT
         )
         """)
 
-    insert = """INSERT INTO db
-        (emoji, occurrence)
-        VALUES
-        (?, 0);"""
+    insert = """
+        INSERT
+            OR REPLACE
+        INTO
+            db(emoji, occurrence)
+        VALUES(?, 0);
+    """
 
     for emoji in message.guild.emojis:
         db_cursor.execute(insert, [str(emoji)])
