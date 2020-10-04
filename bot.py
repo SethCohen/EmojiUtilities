@@ -5,7 +5,29 @@ import sqlite3
 import re
 import json
 
+def sayLongLineSplitted(text,wrap_at=2000):
+    """Splits text at spaces and joins it to strings that are as long as
+    possible without overshooting wrap_at.
 
+    Returns a list of strings shorter then wrap_at."""
+    splitted = text.split(" ")
+    def gimme():
+        """Yields sentences of correct lenght."""
+        len_parts = 0
+        parts = []
+        for p in splitted:
+            len_p = len(p)
+            if len_parts + len_p < wrap_at:
+                parts.append(p)
+                len_parts += len_p + 1
+            else:
+                yield ' '.join(parts).strip()
+                parts = [p]
+                len_parts = len_p
+        if parts:
+            yield ' '.join(parts).strip()
+
+    return list(gimme())
 
 client = commands.Bot(command_prefix = 'ES ')
 
@@ -23,12 +45,11 @@ async def display(message):
 async def listEmojis(message):
     emojis_list = '';
     for emoji in message.guild.emojis:
-        emojis_list += str(emoji) + ' '
+        if emoji.is_usable():
+            emojis_list += str(emoji) + ' '
 
-    emojis_list = re.sub(r'<:\w*:>', '', emojis_list)
-    print(emojis_list)
-    #for splicedList in chunks:
-    await message.send(emojis_list)
+    for part in sayLongLineSplitted(emojis_list):
+        await message.send(part)
 
 @client.command()
 async def createdb(message):
