@@ -17,14 +17,18 @@ async def on_ready():
 
 @client.command()
 async def display(message):
-    await message.send(f'Pong! {round(client.latency * 1000)}ms')
+    await message.send('Available commands:\nES createdb\nES listEmojis')
 
 @client.command()
-async def emojis(message):
-    print(message.guild.emojis)
-
+async def listEmojis(message):
+    emojis_list = '';
     for emoji in message.guild.emojis:
-        print(emoji)
+        emojis_list += str(emoji) + ' '
+
+    emojis_list = re.sub(r'<:\w*:>', '', emojis_list)
+    print(emojis_list)
+    #for splicedList in chunks:
+    await message.send(emojis_list)
 
 @client.command()
 async def createdb(message):
@@ -38,24 +42,13 @@ async def createdb(message):
         )
         """)
 
-    insert = """
-        INSERT
-            OR REPLACE
-        INTO
-            db(emoji, occurrence)
-        VALUES(?, 0);
-    """
+    insert = """INSERT OR IGNORE INTO db(emoji, occurrence) VALUES(?, 0);"""
 
     for emoji in message.guild.emojis:
         db_cursor.execute(insert, [str(emoji)])
 
     db_conn.commit()
     db_cursor.close()
-
-
-@client.command()
-async def updatedb(message):
-    await message.send(f'In Progress')
 
 @client.event
 async def on_message(message):
@@ -68,20 +61,20 @@ async def on_message(message):
     if any(str(emoji) in message.content for emoji in message.guild.emojis):
         print("local emojis in message found")
         emojis = re.findall(r'<:\w*:\d*>', message.content) #finds ALL emoji IDs, not just local emojis
-        for emoji in emojis:
-            print(emoji)
+        for strEmoji in emojis:
+            print(strEmoji)
 
+            db_path = str(message.guild.id) + '.sqlite'
+            db_conn = sqlite3.connect(db_path)
+            db_cursor = db_conn.cursor()
+            db_cursor.execute("""
+                UPDATE db
+                SET occurrence = occurrence + 1
+                WHERE emoji = ?
+                """, (strEmoji,))
 
-
-
-        '''
-
-        print(type(emojis)) #prints list
-        print(type(message.guild.emojis))
-        x = list(message.guild.emojis)
-        print(type(x))
-
-        print(x)'''
+            db_conn.commit()
+            db_cursor.close()
     else:
         print('no local emoji found')
 
