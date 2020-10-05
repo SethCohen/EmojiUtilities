@@ -5,6 +5,9 @@ import sqlite3
 import re
 import json
 
+client = commands.Bot(command_prefix = 'ES ')
+client.remove_command('help')
+
 def diff(list1, list2):
     return (list(list(set(list1)-set(list2)) + list(set(list2)-set(list1))))
 
@@ -32,17 +35,27 @@ def sayLongLineSplitted(text,wrap_at=2000):
 
     return list(gimme())
 
-client = commands.Bot(command_prefix = 'ES ')
-
 @client.event
 async def on_ready():
-    await client.change_presence(activity=discord.Game('ES display'))
+    await client.change_presence(activity=discord.Game('ES help'))
     print('Bot is online.')
     print()
 
 @client.command()
 async def display(message):
-    await message.send('Available commands:\nES createdb\nES listEmojis')
+    
+
+@client.command()
+async def help(message):
+    embed = discord.Embed(
+        colour = discord.Colour.orange()
+    )
+    embed.set_author(name='Command List:')
+    embed.add_field(name='ES createdb', value='Creates database to start tracking.', inline=False)
+    embed.add_field(name='ES display', value='Prints emoji usage statistics.', inline=False)
+    embed.add_field(name='ES listemojis', value='Prints all usable server emotes to chat.', inline=False)
+
+    await message.send(embed=embed)
 
 @client.command()
 async def listemojis(message):
@@ -56,23 +69,28 @@ async def listemojis(message):
 
 @client.command()
 async def createdb(message):
-    db_path = str(message.guild.id) + '.sqlite'
-    db_conn = sqlite3.connect(db_path)
-    db_cursor = db_conn.cursor()
-    db_cursor.execute("""
-        CREATE TABLE IF NOT EXISTS db (
-        emoji TEXT UNIQUE,
-        occurrence INT
-        )
-        """)
+    try:
+        db_path = str(message.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("""
+            CREATE TABLE IF NOT EXISTS db (
+            emoji TEXT UNIQUE,
+            occurrence INT
+            )
+            """)
 
-    insert = """INSERT OR IGNORE INTO db(emoji, occurrence) VALUES(?, 0);"""
+        insert = """INSERT OR IGNORE INTO db(emoji, occurrence) VALUES(?, 0);"""
 
-    for emoji in message.guild.emojis:
-        db_cursor.execute(insert, [str(emoji)])
+        for emoji in message.guild.emojis:
+            db_cursor.execute(insert, [str(emoji)])
 
-    db_conn.commit()
-    db_cursor.close()
+        db_conn.commit()
+        db_cursor.close()
+
+        await message.send('Database created.')
+    except sqlite3.Error as error:
+        print("Failed to create sqlite table", error)
 
 @client.event
 async def on_message(message):
@@ -80,14 +98,9 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    print(f'User input:\n{message.content}\n')
-
     if any(str(emoji) in message.content for emoji in message.guild.emojis):
-        print("local emojis in message found")
         emojis = re.findall(r'<:\w*:\d*>', message.content) #finds ALL emoji IDs, not just local emojis
         for strEmoji in emojis:
-            print(strEmoji)
-
             db_path = str(message.guild.id) + '.sqlite'
             db_conn = sqlite3.connect(db_path)
             db_cursor = db_conn.cursor()
@@ -99,8 +112,6 @@ async def on_message(message):
 
             db_conn.commit()
             db_cursor.close()
-    else:
-        print('no local emoji found')
 
     await client.process_commands(message)
 
