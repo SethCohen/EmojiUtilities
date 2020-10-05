@@ -4,6 +4,7 @@ from discord import Message, Emoji
 import sqlite3
 import re
 import json
+import math
 
 client = commands.Bot(command_prefix = 'ES ')
 client.remove_command('help')
@@ -42,8 +43,34 @@ async def on_ready():
     print()
 
 @client.command()
-async def display(message):
-    
+async def displaystats(message):
+    embed = discord.Embed(
+        colour = discord.Colour.orange()
+    )
+    embed.set_author(name='Statistics (All-time usage, emoji : occurrence)')
+
+
+    try:
+        db_path = str(message.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("""SELECT * FROM db ORDER BY occurrence DESC;""")
+        rows = db_cursor.fetchall()
+    except sqlite3.Error as error:
+        print("Failed to display sqlite table", error)
+    finally:
+        db_conn.commit()
+        db_cursor.close()
+
+    pages_count = math.ceil(len(rows)/25)
+
+    #get needed pages count
+    #iterate through rows
+    #when
+
+
+    print(pages_count)
+
 
 @client.command()
 async def help(message):
@@ -52,7 +79,7 @@ async def help(message):
     )
     embed.set_author(name='Command List:')
     embed.add_field(name='ES createdb', value='Creates database to start tracking.', inline=False)
-    embed.add_field(name='ES display', value='Prints emoji usage statistics.', inline=False)
+    embed.add_field(name='ES displaystats', value='Prints emoji usage statistics to chat.', inline=False)
     embed.add_field(name='ES listemojis', value='Prints all usable server emotes to chat.', inline=False)
 
     await message.send(embed=embed)
