@@ -5,9 +5,14 @@ import sqlite3
 import re
 import json
 import math
+import numpy
 
 client = commands.Bot(command_prefix = 'ES ')
 client.remove_command('help')
+
+def chunks(l, n):
+    n = max(1, n)
+    return list(l[i:i+n] for i in range(0, len(l), n))
 
 def diff(list1, list2):
     return (list(list(set(list1)-set(list2)) + list(set(list2)-set(list1))))
@@ -62,22 +67,39 @@ async def displaystats(message):
         db_conn.commit()
         db_cursor.close()
 
-    pages_count = math.ceil(len(rows)/25)
+    pages_count = math.ceil(len(rows)/24)
+    print(pages_count)
+    rows = chunks(rows, 24)
+
+    for i in range(pages_count):
+        print(len(rows[i]))
+        embed = discord.Embed(
+            colour = discord.Colour.orange()
+        )
+        embed.set_author(name='Statistics (All-time usage, emoji : occurrence)')
+
+        for row in rows[i]:
+            emoji = await commands.EmojiConverter().convert(message, row[0])
+            if emoji.is_usable():
+                embed.add_field(name=row[0], value=row[1], inline=True)
+
+        await message.send(embed=embed)
+
+
 
     #get needed pages count
     #iterate through rows
     #when
 
 
-    print(pages_count)
-
 
 @client.command()
 async def help(message):
     embed = discord.Embed(
-        colour = discord.Colour.orange()
+        colour = discord.Colour.orange(),
+        description = "[Github](https://github.com/SethCohen/EmojiStatistics)"
     )
-    embed.set_author(name='Command List:')
+    embed.set_author(name='Help & Commands:')
     embed.add_field(name='ES createdb', value='Creates database to start tracking.', inline=False)
     embed.add_field(name='ES displaystats', value='Prints emoji usage statistics to chat.', inline=False)
     embed.add_field(name='ES listemojis', value='Prints all usable server emotes to chat.', inline=False)
