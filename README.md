@@ -1,9 +1,16 @@
 # EmojiStatistics
 Discord.py Bot for tracking server-specific emoji usage
 
-> * [What The Bot Does](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#what-the-bot-specifically-does)
-> * [Screenshots](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#Screenshots
 > * [List of Commands](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#list-of-commands)
+> * [What The Bot Does](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#what-the-bot-specifically-does)
+> * [Screenshots](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#screenshots)
+
+## List Of Commands:
+
+1. `ES help` - Prints a list of all commands to chat.
+2. `ES createdb` - Creates a server-specific database (The first command you should run when adding the bot to your server to get started)
+3. `ES listemojis` - Prints all server emojis to chat.
+4. `ES displaystats` - Prints the database to chat.
 
 ## What The Bot Specifically Does:
 
@@ -14,12 +21,7 @@ The bot reads live every new message/reaction from every channel checking for if
 ## Screenshots:
 
 ![Screenshot1](https://i.imgur.com/fOpoffn.png)
+
 ![Screenshot2](https://i.imgur.com/popPDaB.png)
+
 ![Screenshot3](https://i.imgur.com/Bvf9QT6.png)
-
-## List Of Commands:
-
-1. `ES help` - Prints a list of all commands to chat.
-2. `ES createdb` - Creates a server-specific database (The first command you should run when adding the bot to your server to get started)
-3. `ES listemojis` - Prints all server emojis to chat.
-4. `ES displaystats` - Prints the database to chat.
