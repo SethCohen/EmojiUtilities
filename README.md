@@ -1,9 +1,9 @@
 # EmojiStatistics
 Discord.py Bot for tracking server-specific emoji usage
 
-> * [What The Bot Does]
+> * [What The Bot Does](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#what-the-bot-specifically-does)
 > * [Screenshots]
-> * [List of Commands]
+> * [List of Commands](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#list-of-commands)
 
 ## What The Bot Specifically Does:
 Each server gets its own specific database. The database is just two columns: Emoji, Occurrence. The database is initialized with all the server's emojis with the emoji name/id under the Emoji column and the number 0 under the Occurrence column.
