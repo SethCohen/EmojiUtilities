@@ -3,6 +3,7 @@ Discord.py Bot for tracking server-specific emoji usage
 
 > * [List of Commands](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#list-of-commands)
 > * [What The Bot Does](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#what-the-bot-specifically-does)
+> * [How To Use](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#how-to-use)
 > * [Screenshots](https://github.com/SethCohen/EmojiStatistics/blob/master/README.md#screenshots)
 
 ## List Of Commands:
