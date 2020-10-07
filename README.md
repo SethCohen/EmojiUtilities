@@ -18,6 +18,10 @@ Each server gets its own specific database. The database is just two columns: Em
 The database is also live cleaned/updated as well; whenever a new emoji is added to the server, a new row of the emoji also gets added to the database. And when an emoji is deleted from the server, it's row gets deleted from the database.
 The bot reads live every new message/reaction from every channel checking for if said message/reaction is/has any server-specific emojis. If any server-specific emojis are found, it selects the emoji from the database and increases the Occurrence value.
 
+## How To Use:
+
+Simply add the bot to your discord using this invite link and then run `ES createdb`. Thats it! The bot should be given permission to view/read every channel for the highest accuracy.
+
 ## Screenshots:
 
 ![Screenshot1](https://i.imgur.com/fOpoffn.png)
