@@ -21,7 +21,7 @@ The bot reads live every new message/reaction from every channel checking for if
 
 ## How To Use:
 
-Simply add the bot to your discord using this invite link and then run `ES createdb`. Thats it! The bot should be given permission to view/read every channel for the highest accuracy.
+Simply add the bot to your discord using this invite link and then run `ES createdb`. Thats it! The bot should be given permission to view/read every channel for the highest accuracy. Now just wait for users to use server emojis and check the database whenever you wish using `ES displaystats`.
 
 ## Screenshots:
 
