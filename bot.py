@@ -89,7 +89,7 @@ async def displaystats(message):
 async def help(message):
     embed = discord.Embed(
         colour = discord.Colour.orange(),
-        description = "[Github](https://github.com/SethCohen/EmojiStatistics)"
+        description = "[Invite To Server](https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=84992&scope=bot)\n[Github](https://github.com/SethCohen/EmojiStatistics)"
     )
     embed.set_author(name='Help & Commands:')
     embed.add_field(name='ES createdb', value='Creates database to start tracking.', inline=False)
@@ -208,6 +208,13 @@ async def on_guild_emojis_update(guild, before, after):
         except sqlite3.Error as error:
             print("Failed to add record to sqlite table", error)
 
+
+@client.event
+async def on_guild_join(guild):
+    for channel in guild.text_channels:
+        if channel.permissions_for(guild.me).send_messages:
+            await channel.send("Hey, thanks for adding me to your server!\nType `ES createdb` to get started and if you need anymore help, type `ES help`.\nThanks again and have a nice day!")
+        break
 
 f = open('config.json',)
 data = json.load(f)
