@@ -56,7 +56,7 @@ async def displaystats(message):
 
 
     try:
-        db_path = str(message.guild.id) + '.sqlite'
+        db_path = 'databases/' + str(message.guild.id) + '.sqlite'
         db_conn = sqlite3.connect(db_path)
         db_cursor = db_conn.cursor()
         db_cursor.execute("""SELECT * FROM db ORDER BY occurrence DESC;""")
@@ -85,14 +85,6 @@ async def displaystats(message):
 
         await message.send(embed=embed)
 
-
-
-    #get needed pages count
-    #iterate through rows
-    #when
-
-
-
 @client.command()
 async def help(message):
     embed = discord.Embed(
@@ -119,7 +111,7 @@ async def listemojis(message):
 @client.command()
 async def createdb(message):
     try:
-        db_path = str(message.guild.id) + '.sqlite'
+        db_path = 'databases/' + str(message.guild.id) + '.sqlite'
         db_conn = sqlite3.connect(db_path)
         db_cursor = db_conn.cursor()
         db_cursor.execute("""
@@ -150,7 +142,7 @@ async def on_message(message):
     if any(str(emoji) in message.content for emoji in message.guild.emojis):
         emojis = re.findall(r'<:\w*:\d*>', message.content) #finds ALL emoji IDs, not just local emojis
         for strEmoji in emojis:
-            db_path = str(message.guild.id) + '.sqlite'
+            db_path = 'databases/' + str(message.guild.id) + '.sqlite'
             db_conn = sqlite3.connect(db_path)
             db_cursor = db_conn.cursor()
             db_cursor.execute("""
@@ -164,9 +156,23 @@ async def on_message(message):
 
     await client.process_commands(message)
 
-f = open('config.json',)
-data = json.load(f)
+@client.event
+async def on_reaction_add(reaction, user):
+    strEmoji = str(reaction.emoji)
 
+    for emoji in reaction.message.guild.emojis:
+        if strEmoji == str(emoji):
+            db_path = 'databases/' + str(reaction.message.guild.id) + '.sqlite'
+            db_conn = sqlite3.connect(db_path)
+            db_cursor = db_conn.cursor()
+            db_cursor.execute("""
+                UPDATE db
+                SET occurrence = occurrence + 1
+                WHERE emoji = ?
+                """, (strEmoji,))
+
+            db_conn.commit()
+            db_cursor.close()
 @client.event
 async def on_guild_emojis_update(guild, before, after):
     emoji = diff(before, after)
@@ -174,7 +180,7 @@ async def on_guild_emojis_update(guild, before, after):
     if (len(before) > len(after)):
         print("Deleting from db...")
         try:
-            db_path = str(guild.id) + '.sqlite'
+            db_path = 'databases/' + str(guild.id) + '.sqlite'
             db_conn = sqlite3.connect(db_path)
             db_cursor = db_conn.cursor()
             db_cursor.execute("""
@@ -188,7 +194,7 @@ async def on_guild_emojis_update(guild, before, after):
     elif (len(before) < len(after)):
         print("Adding to db...")
         try:
-            db_path = str(guild.id) + '.sqlite'
+            db_path = 'databases/' + str(guild.id) + '.sqlite'
             db_conn = sqlite3.connect(db_path)
             db_cursor = db_conn.cursor()
 
@@ -202,4 +208,7 @@ async def on_guild_emojis_update(guild, before, after):
         except sqlite3.Error as error:
             print("Failed to add record to sqlite table", error)
 
+
+f = open('config.json',)
+data = json.load(f)
 client.run(data['token'])
