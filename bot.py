@@ -6,25 +6,33 @@ import re
 import json
 import math
 import numpy
+import asyncio
 
 client = commands.Bot(command_prefix = 'ES ')
 client.remove_command('help')
 
 def chunks(l, n):
+    """Splits a list into evenly sized chunks where l is the list and n is the
+    size of chunk. The last chunk gets any remainders."""
+
     n = max(1, n)
     return list(l[i:i+n] for i in range(0, len(l), n))
 
 def diff(list1, list2):
+    """Gets the difference between two lists.
+    e.g. list1 = [1, 2, 3, 4, 5, 6]   list2 = [1, 2, 3, 4]
+    returns [5, 6]"""
+
     return (list(list(set(list1)-set(list2)) + list(set(list2)-set(list1))))
 
 def sayLongLineSplitted(text,wrap_at=2000):
     """Splits text at spaces and joins it to strings that are as long as
     possible without overshooting wrap_at.
-
     Returns a list of strings shorter then wrap_at."""
+
     splitted = text.split(" ")
     def gimme():
-        """Yields sentences of correct lenght."""
+        """Yields sentences of correct length."""
         len_parts = 0
         parts = []
         for p in splitted:
@@ -43,17 +51,14 @@ def sayLongLineSplitted(text,wrap_at=2000):
 
 @client.event
 async def on_ready():
+    """Sets bots activity status and prints to console bots live"""
+
     await client.change_presence(activity=discord.Game('ES help'))
     print('Bot is online.')
-    print()
 
 @client.command()
 async def displaystats(message):
-    embed = discord.Embed(
-        colour = discord.Colour.orange()
-    )
-    embed.set_author(name='Statistics (All-time usage, emoji : occurrence)')
-
+    """Formats sqlite database for chat."""
 
     try:
         db_path = 'databases/' + str(message.guild.id) + '.sqlite'
@@ -68,22 +73,44 @@ async def displaystats(message):
         db_cursor.close()
 
     pages_count = math.ceil(len(rows)/24)
-    print(pages_count)
     rows = chunks(rows, 24)
+    list = []
 
     for i in range(pages_count):
-        print(len(rows[i]))
         embed = discord.Embed(
             colour = discord.Colour.orange()
         )
-        embed.set_author(name='Statistics (All-time usage, emoji : occurrence)')
+        embed.set_author(name='Server Statistics (All-time usage, emoji : occurrence)')
 
         for row in rows[i]:
             emoji = await commands.EmojiConverter().convert(message, row[0])
             if emoji.is_usable():
                 embed.add_field(name=row[0], value=row[1], inline=True)
+        embed.set_footer(text="Page " + str(i+1) + "/" + str(pages_count))
+        list.append(embed)
 
-        await message.send(embed=embed)
+    embed_message = await message.send(embed=list[0])
+    await embed_message.add_reaction('◀')
+    await embed_message.add_reaction('▶')
+
+    index = 0
+
+    def checkreact(reaction, user):
+        return user == message.author and str(reaction.emoji) in ['◀', '▶']
+
+    while True:
+        try:
+            reaction, user = await client.wait_for('reaction_add', timeout=60.0, check=checkreact)
+
+            if str(reaction.emoji) == '◀' and index>0:
+                index-=1
+                await embed_message.edit(embed=list[index])
+            elif str(reaction.emoji) == '▶' and index<pages_count:
+                index+=1
+                await embed_message.edit(embed=list[index])
+        except asyncio.TimeoutError:
+            break
+            print('Reaction wait timeout.')
 
 @client.command()
 async def help(message):
