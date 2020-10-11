@@ -25,8 +25,6 @@ Simply add the bot to your discord [using this invite link](https://discord.com/
 
 ## Screenshots:
 
-![Screenshot1](https://i.imgur.com/fOpoffn.png)
+![Screenshot1](https://i.imgur.com/popPDaB.png)
 
-![Screenshot2](https://i.imgur.com/popPDaB.png)
-
-![Screenshot3](https://i.imgur.com/Bvf9QT6.png)
+![Screenshot2](https://i.imgur.com/Bvf9QT6.png)
