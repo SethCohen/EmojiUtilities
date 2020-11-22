@@ -297,7 +297,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                 if emoji.is_usable():
                     embed.add_field(name=row[0], value=row[1], inline=True)
             embed.set_footer(text="Page " + str(i + 1) + "/" + str(pages_count))
-        list.append(embed)                                  # Adds embed to page
+            list.append(embed)                                  # Adds embed to page
 
         embed_message = await message.send(embed=list[0])   # Sends embed to chat.
         await embed_message.add_reaction('◀')
@@ -308,6 +308,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
 
         def check_react(reaction, user):
             return user == message.author and str(reaction.emoji) in ['◀', '▶']
+
         while True:
             try:
                 reaction, user = await client.wait_for('reaction_add', timeout=60.0, check=check_react)
