@@ -27,6 +27,5 @@ Thats it! The bot should be given permission to view/read every channel for the 
 
 ## Screenshots:
 
-![Screenshot1](https://i.imgur.com/popPDaB.png)
+![Screenshot1](https://i.imgur.com/yYfvf4E.png)
 
-![Screenshot2](https://i.imgur.com/Bvf9QT6.png)
