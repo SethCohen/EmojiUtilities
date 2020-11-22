@@ -1,3 +1,4 @@
+from collections import Counter
 import discord
 from discord.ext import commands
 import sqlite3
@@ -12,8 +13,70 @@ intents.members = True
 client = commands.Bot(command_prefix='ES ', intents=intents)
 client.remove_command('help')
 
+# Non-Event/Command Functions:
+
+
+def insert_query(context, str_emoji):
+    """
+    Inserts a list of emojis into database.
+    """
+    try:
+        # Inserts new record with found emoji, user who posted emoji, and time when emoji was posted.
+        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("""
+                INSERT INTO emojiActivity(emoji, person, datetime)
+                VALUES(?, ?, ?)
+                """, (str_emoji, str(context.author), context.created_at.strftime('%Y-%m-%d')))
+        print(f"Record has been inserted: ({str_emoji}, "
+              f"{str(context.author)}, "
+              f"{context.created_at.strftime('%Y-%m-%d')})")
+    except sqlite3.Error as error:
+        print("Failed to insert record", error)
+    finally:
+        db_conn.commit()
+        db_cursor.close()
+
+
+def delete_query(context, str_emoji):
+    """
+    Deletes a list of emojis from database.
+    """
+
+    try:
+        # Deletes record with found emoji, user who posted emoji, and time when emoji was posted.
+        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("""
+                    DELETE FROM emojiActivity
+                    WHERE rowid = 
+                    (
+                        SELECT rowid
+                        FROM emojiActivity
+                        WHERE 
+                            emoji = ? AND 
+                            person = ? AND 
+                            datetime = ?
+                        LIMIT 1
+                    )
+                    """, (str_emoji, str(context.author), context.created_at.strftime('%Y-%m-%d')))
+        print(f"Record has been removed: ({str_emoji}, "
+              f"{str(context.author)}, "
+              f"{context.created_at.strftime('%Y-%m-%d')})")
+    except sqlite3.Error as error:
+        print("Failed to delete record.", error)
+    finally:
+        db_conn.commit()
+        db_cursor.close()
+
 
 def displaystats_query(context, query):
+    """
+    Queries db for specified user input, returns rows of query.
+    """
+
     try:
         db_path = 'databases/' + str(context.guild.id) + '.sqlite'
         db_conn = sqlite3.connect(db_path)
@@ -30,30 +93,36 @@ def displaystats_query(context, query):
 
 
 def chunks(l, n):
-    """Splits a list into evenly sized chunks where l is the list and n is the
-    size of chunk. The last chunk gets any remainders."""
+    """
+    Splits a list into evenly sized chunks where l is the list and n is the
+    size of chunk. The last chunk gets any remainders.
+    """
 
     n = max(1, n)
     return list(l[i:i + n] for i in range(0, len(l), n))
 
 
 def diff(list1, list2):
-    """Gets the difference between two lists.
+    """
+    Gets the difference between two lists.
     e.g. list1 = [1, 2, 3, 4, 5, 6]   list2 = [1, 2, 3, 4]
-    returns [5, 6]"""
+    returns [5, 6]
+    """
 
-    return list(list(set(list1) - set(list2)) + list(set(list2) - set(list1)))
+    return list((Counter(list1) - Counter(list2)).elements())
 
 
 def split_message(text, wrap_at=2000):
-    """Splits text at spaces and joins it to strings that are as long as
+    """
+    Splits text at spaces and joins it to strings that are as long as
     possible without overshooting wrap_at.
-    Returns a list of strings shorter then wrap_at."""
+    Returns a list of strings shorter then wrap_at.
+    """
 
     split_text = text.split(" ")
 
     def gimme():
-        """Yields sentences of correct length."""
+        # Yields sentences of correct length.
         len_parts = 0
         parts = []
         for p in split_text:
@@ -71,16 +140,45 @@ def split_message(text, wrap_at=2000):
     return list(gimme())
 
 
+# ---------------------------------------
+
 @client.event
 async def on_ready():
-    """Sets bots activity status and prints to console bots live"""
+    """
+    Sets bots activity status and prints to console bots live.
+    """
 
     await client.change_presence(activity=discord.Game('ES help'))
     print('Bot is online.')
 
 
 @client.command()
+async def help(message):
+    """
+    Displays list of commands and other useful info to chat.
+    """
+
+    embed = discord.Embed(
+        colour=discord.Colour.orange(),
+        description="[Invite To Server]"
+                    "(https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=84992&scope=bot)"
+                    "\n[Github]"
+                    "(https://github.com/SethCohen/EmojiStatistics)"
+    )
+    embed.set_author(name='Help & Commands:')
+    embed.add_field(name='ES displaystats', value='Prints emoji usage statistics to chat.', inline=False)
+    embed.add_field(name='ES listemojis', value='Prints all usable server emotes to chat.', inline=False)
+
+    await message.send(embed=embed)
+
+
+@client.command()
 async def displaystats(message, date_range=None, member: discord.Member = None):
+    """
+    Formats specified query to send to chat.
+    """
+
+    # Selects query.
     if member is not None:
         author_type = member.display_name + "'s"
         if date_range == 'all':
@@ -176,18 +274,21 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                          """
             rows = displaystats_query(message, query)
 
-    # Tries to display an output if possible.
     try:
+        # Initializes the amount of embeds needed to display activity to chat.
         pages_count = math.ceil(len(rows) / 24)
         rows = chunks(rows, 24)
         list = []
 
+        # Loops through needed pages
         for i in range(pages_count):
+            # Initializes a new embed for each page
             embed = discord.Embed(
                 colour=discord.Colour.orange()
             )
             embed.set_author(name=f'{author_type} Statistics ({date_type} usage, emoji : occurrence)')
 
+            # Gets emojis from query and adds to embed
             for row in rows[i]:
                 try:
                     emoji = await commands.EmojiConverter().convert(message, row[0])
@@ -196,33 +297,38 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                 if emoji.is_usable():
                     embed.add_field(name=row[0], value=row[1], inline=True)
             embed.set_footer(text="Page " + str(i + 1) + "/" + str(pages_count))
-            list.append(embed)
+        list.append(embed)                                  # Adds embed to page
 
-        embed_message = await message.send(embed=list[0])
+        embed_message = await message.send(embed=list[0])   # Sends embed to chat.
         await embed_message.add_reaction('◀')
         await embed_message.add_reaction('▶')
 
+        # Gets and waits for user embed page changing.
         index = 0
 
         def check_react(reaction, user):
             return user == message.author and str(reaction.emoji) in ['◀', '▶']
-
         while True:
             try:
                 reaction, user = await client.wait_for('reaction_add', timeout=60.0, check=check_react)
 
                 if str(reaction.emoji) == '◀' and index > 0:
+                    # Goes to previous page
                     index -= 1
                     await embed_message.edit(embed=list[index])
                 elif str(reaction.emoji) == '▶' and index < pages_count:
+                    # Goes to next page
                     index += 1
                     await embed_message.edit(embed=list[index])
-            except asyncio.TimeoutError:
+            except asyncio.TimeoutError:    # Break while loop when 60 seconds pass
                 print('Reaction wait timeout.')
                 break
             except IndexError:
                 print("No next/prev page to go to.")
-    except IndexError:
+        # -------------------------------------------
+    except IndexError as error:
+        # Catch for invalid output, outputs an embed to chat.
+        print(error)
         embed = discord.Embed(
             colour=discord.Colour.orange()
         )
@@ -235,6 +341,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                         )
         await message.send(embed=embed)
     except UnboundLocalError as error:
+        # Catch for invalid input, outputs an embed to chat.
         print(error)
         embed = discord.Embed(
             colour=discord.Colour.orange()
@@ -248,23 +355,11 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
 
 
 @client.command()
-async def help(message):
-    embed = discord.Embed(
-        colour=discord.Colour.orange(),
-        description="[Invite To Server]"
-                    "(https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=84992&scope=bot)"
-                    "\n[Github]"
-                    "(https://github.com/SethCohen/EmojiStatistics)"
-    )
-    embed.set_author(name='Help & Commands:')
-    embed.add_field(name='ES displaystats', value='Prints emoji usage statistics to chat.', inline=False)
-    embed.add_field(name='ES listemojis', value='Prints all usable server emotes to chat.', inline=False)
-
-    await message.send(embed=embed)
-
-
-@client.command()
 async def listemojis(message):
+    """
+    Lists all usable emojis in server to chat.
+    """
+
     emojis_list = ''
     for emoji in message.guild.emojis:
         if emoji.is_usable():
@@ -276,92 +371,131 @@ async def listemojis(message):
 
 @client.event
 async def on_message(message):
-    # Checks if bot is sender
+    """
+    Reads every message sent in server. Used to check if any message has an emoji.
+    """
+
+    # Checks if bot is sender, if true then pass
     if message.author == client.user:
         return
 
     # Reads emojis in message
     if any(str(emoji) in message.content for emoji in message.guild.emojis):
-        emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # finds ALL emoji IDs, not just local emojis
+        emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)     # Finds emojis in message and server
         print('Detected emojis in message', message.id, ':', emojis)
-        for strEmoji in emojis:
-            # Inserts new record
-            try:
-                db_path = 'databases/' + str(message.guild.id) + '.sqlite'
-                db_conn = sqlite3.connect(db_path)
-                db_cursor = db_conn.cursor()
-                db_cursor.execute("""
-                    INSERT INTO emojiActivity(emoji, person, datetime)
-                    VALUES(?, ?, ?)
-                    """, (strEmoji, str(message.author), message.created_at.strftime('%Y-%m-%d')))
-            except sqlite3.Error as error:
-                print("Failed to insert", error, "into db.")
-            finally:
-                db_conn.commit()
-                db_cursor.close()
+        for str_emoji in emojis:
+            insert_query(message, str_emoji)
 
     await client.process_commands(message)
 
 
 @client.event
+async def on_message_delete(message):
+    """
+    Reads every message deleted in server. Used to check if any deleted message has an emoji.
+    """
+
+    # Checks if bot is sender, if true then pass
+    if message.author == client.user:
+        return
+
+    # Reads emojis in message
+    if any(str(emoji) in message.content for emoji in message.guild.emojis):
+        emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds emojis in message and server
+        print('Detected emojis in message', message.id, ':', emojis)
+        for str_emoji in emojis:
+            delete_query(message, str_emoji)
+
+    # Removes reactions in deleted message from database
+    for reaction in message.reactions:
+        str_emoji = str(reaction.emoji)
+        for x in range(reaction.count):
+            for emoji in reaction.message.guild.emojis:
+                if str_emoji == str(emoji):
+                    delete_query(reaction.message, str_emoji)
+
+
+@client.event
+async def on_message_edit(before, after):
+    """
+    Reads every message edited in server.
+    Used to check if any edited message has either added or removed emojis from message.
+    """
+
+    if any(str(emoji) in before.content for emoji in before.guild.emojis):
+        before_emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', before.content)
+    else:
+        before_emojis = []
+
+    if any(str(emoji) in after.content for emoji in after.guild.emojis):
+        after_emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', after.content)
+    else:
+        after_emojis = []
+
+    # print('Before:', before_emojis)
+    # print('After:', after_emojis)
+    if len(before_emojis) > len(after_emojis):      # Subtraction diff
+        emojis = diff(before_emojis, after_emojis)
+        for str_emoji in emojis:
+            delete_query(after, str_emoji)
+    elif len(before_emojis) < len(after_emojis):    # Addition diff
+        emojis = diff(after_emojis, before_emojis)
+        for str_emoji in emojis:
+            insert_query(after, str_emoji)
+    else:
+        emojis = []
+
+    # print('Diff:', emojis)
+
+
+@client.event
 async def on_reaction_add(reaction, user):
+    """
+    Reads every reaction on message, gets who added the reaction, and adds that record into database.
+    """
+
     str_emoji = str(reaction.emoji)
 
     for emoji in reaction.message.guild.emojis:
         if str_emoji == str(emoji):
-            try:
-                db_path = 'databases/' + str(reaction.message.guild.id) + '.sqlite'
-                db_conn = sqlite3.connect(db_path)
-                db_cursor = db_conn.cursor()
-                db_cursor.execute("""
-                        INSERT INTO emojiActivity(emoji, person, datetime)
-                        VALUES(?, ?, ?)
-                        """, (str_emoji, str(reaction.message.author), reaction.message.created_at.strftime('%Y-%m-%d')))
-                print(f"Record has been inserted: ({str_emoji}, "
-                      f"{str(reaction.message.author)}, "
-                      f"{reaction.message.created_at.strftime('%Y-%m-%d')})")
-            except sqlite3.Error as error:
-                print('Failed to insert reaction to db:', error)
-            finally:
-                db_conn.commit()
-                db_cursor.close()
+            insert_query(reaction.message, str_emoji)
 
 
 @client.event
 async def on_reaction_remove(reaction, user):
+    """
+    Reads every reaction on message, gets the reaction owner, and removes that record from the database.
+    """
+
     str_emoji = str(reaction.emoji)
 
     for emoji in reaction.message.guild.emojis:
         if str_emoji == str(emoji):
-            try:
-                db_path = 'databases/' + str(reaction.message.guild.id) + '.sqlite'
-                db_conn = sqlite3.connect(db_path)
-                db_cursor = db_conn.cursor()
-                db_cursor.execute("""
-                        DELETE FROM emojiActivity
-                        WHERE rowid = 
-                        (
-                            SELECT rowid
-                            FROM emojiActivity
-                            WHERE 
-                                emoji = ? AND 
-                                person = ? AND 
-                                datetime = ?
-                            LIMIT 1
-                        )
-                        """, (str_emoji, str(reaction.message.author), reaction.message.created_at.strftime('%Y-%m-%d')))
-                print(f"Record has been removed: ({str_emoji}, "
-                      f"{str(reaction.message.author)}, "
-                      f"{reaction.message.created_at.strftime('%Y-%m-%d')})")
-            except sqlite3.Error as error:
-                print('Failed to delete record from db:', error)
-            finally:
-                db_conn.commit()
-                db_cursor.close()
+            delete_query(reaction.message, str_emoji)
+
+
+@client.event
+async def on_reaction_clear(message, reactions):
+    """
+    Reads a messages reactions and if they've all been cleared.
+    Loops through each reaction in the message and gets the count of each reaction
+    then removes each individual row.
+    """
+    for reaction in reactions:
+        str_emoji = str(reaction.emoji)
+        for x in range(reaction.count):
+            for emoji in reaction.message.guild.emojis:
+                if str_emoji == str(emoji):
+                    delete_query(reaction.message, str_emoji)
 
 
 @client.event
 async def on_guild_join(guild):
+    """
+    Initializes db for server.
+    """
+
+    # Sends basic greeting message on guild join to first available channel
     for channel in guild.text_channels:
         if channel.permissions_for(guild.me).send_messages:
             await channel.send(
@@ -371,6 +505,7 @@ async def on_guild_join(guild):
         break
 
     try:
+        # Creates database for server
         db_path = 'databases/' + str(guild.id) + '.sqlite'
         db_conn = sqlite3.connect(db_path)
         db_cursor = db_conn.cursor()
@@ -381,14 +516,15 @@ async def on_guild_join(guild):
             datetime TEXT 
             )
             """)
+        print('Database created for', guild.id)
     except sqlite3.Error as error:
         print("Failed to create sqlite table", error)
     finally:
         db_conn.commit()
         db_cursor.close()
-        print('Database created for', guild.id)
 
 
+# Bot authorization
 f = open('config.json', )
 data = json.load(f)
 client.run(data['token'])
