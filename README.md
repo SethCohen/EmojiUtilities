@@ -9,22 +9,23 @@ Discord.py Bot for tracking server-specific emoji usage
 ## List Of Commands:
 
 1. `ES help` - Prints a list of all commands to chat.
-2. `ES createdb` - Creates a server-specific database (The first command you should run when adding the bot to your server to get started)
+2. `ES displaystats` - Prints the database to chat.
 3. `ES listemojis` - Prints all server emojis to chat.
-4. `ES displaystats` - Prints the database to chat.
 
 ## What The Bot Specifically Does:
 
-Each server gets its own specific database. The database is just two columns: Emoji, Occurrence. The database is initialized with all the server's emojis with the emoji name/id under the Emoji column and the number 0 under the Occurrence column.
-The database is also live cleaned/updated as well; whenever a new emoji is added to the server, a new row of the emoji also gets added to the database. And when an emoji is deleted from the server, it's row gets deleted from the database.
-The bot reads live every new message/reaction from every channel checking for if said message/reaction is/has any server-specific emojis. If any server-specific emojis are found, it selects the emoji from the database and increases the Occurrence value.
+Upon joining a server the bot creates an empty database with columns (emoji, person, datetime).
+The bot reads chat for whenever any emojis are entered into chat eitehr via reactions or messages. If an emoji is found, a new row is entered into the database with the emoji name, the person who posted the emoji, and the time the emoji was added to chat.
+Whenever any emojis are removed from chat (either via reactions cleared or message deleted/edited), the corresponding records in the database are also deleted.
+
+Tl;dr, the bot adds/removes emoji activity records in live-time to each servers unique database.
 
 ## How To Use:
 
-Simply add the bot to your discord [using this invite link](https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=84992&scope=bot) and then run `ES createdb`. Thats it! The bot should be given permission to view/read every channel for the highest accuracy. Now just wait for users to use server emojis and check the database whenever you wish using `ES displaystats`.
+Simply add the bot to your discord [using this invite link](https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=84992&scope=bot) and then...
+Thats it! The bot should be given permission to view/read every channel for the highest accuracy. Now just wait for users to use server emojis and check the database whenever you wish using `ES displaystats`.
 
 ## Screenshots:
 
-![Screenshot1](https://i.imgur.com/popPDaB.png)
+![Screenshot1](https://i.imgur.com/yYfvf4E.png)
 
-![Screenshot2](https://i.imgur.com/Bvf9QT6.png)
