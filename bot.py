@@ -172,7 +172,7 @@ async def help(message):
     await message.send(embed=embed)
 
 
-@client.command()
+@client.command(aliases=['ds'])
 async def displaystats(message, date_range=None, member: discord.Member = None):
     """
     Formats specified query to send to chat.
@@ -181,7 +181,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
     # Selects query.
     if member is not None:
         author_type = member.display_name + "'s"
-        if date_range == 'all':
+        if date_range == 'all' or date_range == 'a':
             date_type = 'All-time'
             query = f"""
                  SELECT 
@@ -196,7 +196,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                  ORDER BY COUNT(emoji) DESC
                  """
             rows = displaystats_query(message, query)
-        elif date_range == 'monthly':
+        elif date_range == 'monthly' or date_range == 'm':
             date_type = 'Monthly'
             query = f"""
                          SELECT 
@@ -212,7 +212,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                          ORDER BY COUNT(emoji) DESC
                          """
             rows = displaystats_query(message, query)
-        elif date_range == 'weekly':
+        elif date_range == 'weekly' or date_range == 'w':
             date_type = 'Weekly'
             query = f"""
                          SELECT 
@@ -230,7 +230,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
             rows = displaystats_query(message, query)
     else:
         author_type = 'Server'
-        if date_range == 'all':
+        if date_range == 'all' or date_range == 'a':
             date_type = 'All-time'
             query = """
                  SELECT 
@@ -243,7 +243,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                  ORDER BY COUNT(emoji) DESC
                  """
             rows = displaystats_query(message, query)
-        elif date_range == 'monthly':
+        elif date_range == 'monthly' or date_range == 'm':
             date_type = 'Monthly'
             query = """
                          SELECT 
@@ -258,7 +258,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                          ORDER BY COUNT(emoji) DESC
                          """
             rows = displaystats_query(message, query)
-        elif date_range == 'weekly':
+        elif date_range == 'weekly' or date_range == 'w':
             date_type = 'Weekly'
             query = """
                          SELECT 
@@ -292,10 +292,11 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
             for row in rows[i]:
                 try:
                     emoji = await commands.EmojiConverter().convert(message, row[0])
+                    if emoji.is_usable():
+                        # print(str(emoji), ' is usable')
+                        embed.add_field(name=row[0], value=row[1], inline=True)
                 except discord.ext.commands.errors.EmojiNotFound as error:
                     print("Emoji not found: ", error)
-                if emoji.is_usable():
-                    embed.add_field(name=row[0], value=row[1], inline=True)
             embed.set_footer(text="Page " + str(i + 1) + "/" + str(pages_count))
             list.append(embed)                                  # Adds embed to page
 
@@ -348,14 +349,15 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
             colour=discord.Colour.orange()
         )
         embed.set_author(name='Improper Command Usage.')
-        embed.add_field(name='Usage:', value='```ES displaystats <date range> <optional:@user>```', inline=True)
-        embed.add_field(name='Possible date ranges:', value='```\nall\nmonthly\nweekly```', inline=False)
+        embed.add_field(name='Usage:', value='```ES displaystats <date range> <optional:@user>'
+                                             '\nES ds <date range> <optional:@user>```', inline=True)
+        embed.add_field(name='Possible date range values:', value='```\nall\na\nmonthly\nm\nweekly\nw```', inline=False)
         embed.add_field(name='Examples:',
-                        value='```ES displaystats all\nES displaystats weekly @EmojiStatistics```', inline=False)
+                        value='```ES displaystats all\nES displaystats weekly @EmojiStatistics\nES ds all```', inline=False)
         await message.send(embed=embed)
 
 
-@client.command()
+@client.command(aliases=['le'])
 async def listemojis(message):
     """
     Lists all usable emojis in server to chat.
@@ -381,11 +383,21 @@ async def on_message(message):
         return
 
     # Reads emojis in message
-    if any(str(emoji) in message.content for emoji in message.guild.emojis):
+    emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds all emojis in message
+    # print('Detected emojis in message', message.id, ':', emojis)
+
+    for str_emoji in emojis:
+        for emoji in message.guild.emojis:
+            if str_emoji == str(emoji):
+
+                insert_query(message, str_emoji)
+
+    """if any(str(emoji) in message.content for emoji in message.guild.emojis):
         emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)     # Finds emojis in message and server
-        print('Detected emojis in message', message.id, ':', emojis)
+
         for str_emoji in emojis:
-            insert_query(message, str_emoji)
+            if str_emoji in str(message.guild.emojis):
+                insert_query(message, str_emoji)"""
 
     await client.process_commands(message)
 
