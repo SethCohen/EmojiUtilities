@@ -324,6 +324,8 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                     await embed_message.edit(embed=list[index])
             except asyncio.TimeoutError:    # Break while loop when 60 seconds pass
                 print('Reaction wait timeout.')
+                await message.clear_reaction('◀')
+                await message.clear_reaction('▶')
                 break
             except IndexError:
                 print("No next/prev page to go to.")
