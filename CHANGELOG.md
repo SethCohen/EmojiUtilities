@@ -1,5 +1,8 @@
 # Changelog
 
+### 1.2.3 - Dec 11, 2020
+- Fix for previous changelog; NOW checks & PROPERLY removes for if bot is on leaderboad.
+
 ### 1.2.2 - Dec 11, 2020
 - Quick fix for 'leaderboard', checks & removes for if bot is on leaderboard.
 

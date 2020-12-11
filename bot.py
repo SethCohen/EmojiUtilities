@@ -208,6 +208,7 @@ async def leaderboard(message, emoji: discord.Emoji):
                 emojiActivity
             WHERE 
                 emoji = '{emoji}'
+                AND person IS NOT 'Emoji Statistics#2293'
             GROUP BY 
                 person
             ORDER BY 
@@ -229,8 +230,7 @@ async def leaderboard(message, emoji: discord.Emoji):
         embed.set_author(name=emoji.name + ' Leaderboard')
         embed.set_thumbnail(url=emoji.url)
         for row in rows:
-            if row[0] != 'Emoji Statistics#2293':
-                embed.add_field(name=str(row[0]), value=str(row[1]), inline=False)
+            embed.add_field(name=str(row[0]), value=str(row[1]), inline=False)
 
         await message.send(embed=embed)
     except IndexError as error:
