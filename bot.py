@@ -194,6 +194,66 @@ async def help(message):
     await message.send(embed=embed)
 
 
+@client.command(aliases=['lb'])
+async def leaderboard(message, emoji: discord.Emoji):
+    try:
+        db_path = 'databases/' + str(message.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute(f"""
+            SELECT 
+                person,
+                COUNT(emoji) 
+            FROM 
+                emojiActivity
+            WHERE 
+                emoji = '{emoji}'
+            GROUP BY 
+                person
+            ORDER BY 
+                COUNT(emoji) DESC
+            LIMIT 10;
+        """)
+        rows = db_cursor.fetchall()
+        # print(rows)
+    except sqlite3.Error as error:
+        print(error)
+    finally:
+        db_conn.commit()
+        db_cursor.close()
+
+    try:
+        embed = discord.Embed(
+            colour=discord.Colour.orange()
+        )
+        embed.set_author(name=emoji.name + ' Leaderboard')
+        embed.set_thumbnail(url=emoji.url)
+        for row in rows:
+            embed.add_field(name=str(row[0]), value=str(row[1]))
+
+        await message.send(embed=embed)
+    except IndexError as error:
+        # Catch for invalid output, outputs an embed to chat.
+        print(error)
+        embed = discord.Embed(
+            colour=discord.Colour.orange()
+        )
+        embed.set_author(name='Nothing To Display!')
+        embed.add_field(name='User input has no valid output.',
+                        value='Possible reasons:'
+                              '\n- Empty database'
+                              '\n- No emoji-usage records at specified date range'
+                              '\n- No emoji-usage records by specified user'
+                        )
+        await message.send(embed=embed)
+
+
+
+@leaderboard.error
+async def leaderboard_error(message, error):
+    print(str(error))
+
+
 @client.command(aliases=['gc'])
 async def getcount(message, member: discord.Member = None):
     if member is not None:
@@ -256,8 +316,6 @@ async def getcount(message, member: discord.Member = None):
                                  datetime > date('now', '-7 day')
                              """
         output_weekly = getcount_query(message, query)
-
-        print(output_all_time[0], output_monthly[0], output_weekly[0])
 
     embed = discord.Embed(
         colour=discord.Colour.orange()
@@ -456,20 +514,6 @@ async def displaystats(message, date_range = None, member: discord.Member = None
                               '\n- No emoji-usage records by specified user'
                         )
         await message.send(embed=embed)
-    except UnboundLocalError as error:
-        # Catch for invalid input, outputs an embed to chat.
-        print(error)
-        embed = discord.Embed(
-            colour=discord.Colour.orange()
-        )
-        embed.set_author(name='Improper Command Usage.')
-        embed.add_field(name='Usage:', value='```ES displaystats <date range> <optional:@user>'
-                                             '\nES ds <date range> <optional:@user>```', inline=True)
-        embed.add_field(name='Possible date range values:', value='```\nall\na\nmonthly\nm\nweekly\nw```', inline=False)
-        embed.add_field(name='Examples:',
-                        value='```ES displaystats all\nES displaystats weekly @EmojiStatistics\nES ds all```',
-                        inline=False)
-        await message.send(embed=embed)
 
 
 @displaystats.error
@@ -477,7 +521,6 @@ async def displaystats_error(message, error):
     embed = discord.Embed(
         colour=discord.Colour.orange()
     )
-    embed.set_author(name='Improper Command Usage.')
     embed.add_field(name='Usage:', value='```ES displaystats <date range> <optional:@user>'
                                          '\nES ds <date range> <optional:@user>```', inline=True)
     embed.add_field(name='Possible date range values:', value='```\nall\na\nmonthly\nm\nweekly\nw```', inline=False)

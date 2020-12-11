@@ -1,5 +1,10 @@
 # Changelog
 
+### 1.2.0 - Dec 11, 2020
+- Added `leaderboard` command
+	- Displays the top ten users who use the specified emoji the most
+- Fixed `getcount` error handling
+
 ### 1.1.1 - Dec 11, 2020
 - Added error handling for `getcount` and `displaystats`
 
