@@ -13,6 +13,7 @@ intents.members = True
 client = commands.Bot(command_prefix='ES ', intents=intents)
 client.remove_command('help')
 
+
 # Non-Event/Command Functions:
 
 
@@ -70,6 +71,26 @@ def delete_query(context, str_emoji):
     finally:
         db_conn.commit()
         db_cursor.close()
+
+
+def getcount_query(context, query):
+    """
+    Queries db for specified user input, returns rows of query.
+    """
+
+    try:
+        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute(query)
+        count = db_cursor.fetchone()
+        # print(rows)
+    except sqlite3.Error as error:
+        print(error)
+    finally:
+        db_conn.commit()
+        db_cursor.close()
+        return count
 
 
 def displaystats_query(context, query):
@@ -172,8 +193,84 @@ async def help(message):
     await message.send(embed=embed)
 
 
+@client.command(aliases=['gc'])
+async def getcount(message, member: discord.Member = None):
+    if member is not None:
+        author_type = member.display_name + "'s"
+        query = f"""
+             SELECT 
+                 COUNT(emoji) 
+             FROM 
+                 emojiActivity
+             WHERE 
+                 person = '{member}'
+             """
+        output_all_time = getcount_query(message, query)
+        query = f"""
+                     SELECT 
+                         COUNT(emoji) 
+                     FROM 
+                         emojiActivity
+                     WHERE
+                         person = '{member}' AND
+                         datetime > date('now', '-1 month')
+                     """
+        output_monthly = getcount_query(message, query)
+        query = f"""
+                     SELECT 
+                         COUNT(emoji) 
+                     FROM 
+                         emojiActivity
+                     WHERE
+                         person = '{member}' AND
+                         datetime > date('now', '-7 day')
+                     """
+        output_weekly = getcount_query(message, query)
+
+        print(output_all_time[0], output_monthly[0], output_weekly[0])
+    else:
+        author_type = "Server's"
+        query = f"""
+                     SELECT 
+                         COUNT(emoji) 
+                     FROM 
+                         emojiActivity
+                     """
+        output_all_time = getcount_query(message, query)
+        query = f"""
+                             SELECT 
+                                 COUNT(emoji) 
+                             FROM 
+                                 emojiActivity
+                             WHERE
+                                 datetime > date('now', '-1 month')
+                             """
+        output_monthly = getcount_query(message, query)
+        query = f"""
+                             SELECT 
+                                 COUNT(emoji) 
+                             FROM 
+                                 emojiActivity
+                             WHERE
+                                 datetime > date('now', '-7 day')
+                             """
+        output_weekly = getcount_query(message, query)
+
+        print(output_all_time[0], output_monthly[0], output_weekly[0])
+
+    embed = discord.Embed(
+        colour=discord.Colour.orange()
+    )
+    embed.set_author(name=f'{author_type} Total Count Statistics')
+    embed.add_field(name='All-Time', value=str(output_all_time[0]), inline=True)
+    embed.add_field(name='Monthly', value=str(output_monthly[0]), inline=True)
+    embed.add_field(name='Weekly', value=str(output_weekly[0]), inline=True)
+
+    await message.send(embed=embed)  # Sends embed to chat.
+
+
 @client.command(aliases=['ds'])
-async def displaystats(message, date_range=None, member: discord.Member = None):
+async def displaystats(message, date_range = None, member: discord.Member = None):
     """
     Formats specified query to send to chat.
     """
@@ -298,9 +395,9 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                 except discord.ext.commands.errors.EmojiNotFound as error:
                     print("Emoji not found: ", error)
             embed.set_footer(text="Page " + str(i + 1) + "/" + str(pages_count))
-            list.append(embed)                                  # Adds embed to page
+            list.append(embed)  # Adds embed to page
 
-        embed_message = await message.send(embed=list[0])   # Sends embed to chat.
+        embed_message = await message.send(embed=list[0])  # Sends embed to chat.
         await embed_message.add_reaction('◀')
         await embed_message.add_reaction('▶')
 
@@ -322,7 +419,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                     # Goes to next page
                     index += 1
                     await embed_message.edit(embed=list[index])
-            except asyncio.TimeoutError:    # Break while loop when 60 seconds pass
+            except asyncio.TimeoutError:  # Break while loop when 60 seconds pass
                 print('Reaction wait timeout.')
                 await embed_message.clear_reaction('◀')
                 await embed_message.clear_reaction('▶')
@@ -355,7 +452,8 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                                              '\nES ds <date range> <optional:@user>```', inline=True)
         embed.add_field(name='Possible date range values:', value='```\nall\na\nmonthly\nm\nweekly\nw```', inline=False)
         embed.add_field(name='Examples:',
-                        value='```ES displaystats all\nES displaystats weekly @EmojiStatistics\nES ds all```', inline=False)
+                        value='```ES displaystats all\nES displaystats weekly @EmojiStatistics\nES ds all```',
+                        inline=False)
         await message.send(embed=embed)
 
 
@@ -391,7 +489,6 @@ async def on_message(message):
     for str_emoji in emojis:
         for emoji in message.guild.emojis:
             if str_emoji == str(emoji):
-
                 insert_query(message, str_emoji)
 
     """if any(str(emoji) in message.content for emoji in message.guild.emojis):
@@ -449,11 +546,11 @@ async def on_message_edit(before, after):
 
     # print('Before:', before_emojis)
     # print('After:', after_emojis)
-    if len(before_emojis) > len(after_emojis):      # Subtraction diff
+    if len(before_emojis) > len(after_emojis):  # Subtraction diff
         emojis = diff(before_emojis, after_emojis)
         for str_emoji in emojis:
             delete_query(after, str_emoji)
-    elif len(before_emojis) < len(after_emojis):    # Addition diff
+    elif len(before_emojis) < len(after_emojis):  # Addition diff
         emojis = diff(after_emojis, before_emojis)
         for str_emoji in emojis:
             insert_query(after, str_emoji)
@@ -538,6 +635,11 @@ async def on_guild_join(guild):
         db_conn.commit()
         db_cursor.close()
 
+
+@client.event
+async def on_command_error(message, error):
+    if isinstance(error, commands.MemberNotFound):
+        await message.send('Invalid input. Member not found...')
 
 # Bot authorization
 f = open('config.json', )
