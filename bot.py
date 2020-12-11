@@ -187,7 +187,8 @@ async def help(message):
                     "(https://github.com/SethCohen/EmojiStatistics)"
     )
     embed.set_author(name='Help & Commands:')
-    embed.add_field(name='ES displaystats', value='Prints emoji usage statistics to chat.', inline=False)
+    embed.add_field(name='ES displaystats <date range> <optional:@user>', value='Prints emoji usage statistics to chat.', inline=False)
+    embed.add_field(name='ES getcount <optional:@user>', value='Prints emoji usage statistics to chat.', inline=False)
     embed.add_field(name='ES listemojis', value='Prints all usable server emotes to chat.', inline=False)
 
     await message.send(embed=embed)
@@ -267,6 +268,20 @@ async def getcount(message, member: discord.Member = None):
     embed.add_field(name='Weekly', value=str(output_weekly[0]), inline=True)
 
     await message.send(embed=embed)  # Sends embed to chat.
+
+
+@getcount.error
+async def getcount_error(message, error):
+    embed = discord.Embed(
+        colour=discord.Colour.orange()
+    )
+    embed.set_author(name='Improper Command Usage.')
+    embed.add_field(name='Usage:', value='```ES getcount <optional:@user>'
+                                         '\nES gc <optional:@user>```', inline=True)
+    embed.add_field(name='Examples:',
+                    value='```ES getcount\nES gc @EmojiStatistics```',
+                    inline=False)
+    await message.send(embed=embed)
 
 
 @client.command(aliases=['ds'])
@@ -457,6 +472,21 @@ async def displaystats(message, date_range = None, member: discord.Member = None
         await message.send(embed=embed)
 
 
+@displaystats.error
+async def displaystats_error(message, error):
+    embed = discord.Embed(
+        colour=discord.Colour.orange()
+    )
+    embed.set_author(name='Improper Command Usage.')
+    embed.add_field(name='Usage:', value='```ES displaystats <date range> <optional:@user>'
+                                         '\nES ds <date range> <optional:@user>```', inline=True)
+    embed.add_field(name='Possible date range values:', value='```\nall\na\nmonthly\nm\nweekly\nw```', inline=False)
+    embed.add_field(name='Examples:',
+                    value='```ES displaystats all\nES displaystats weekly @EmojiStatistics\nES ds all```',
+                    inline=False)
+    await message.send(embed=embed)
+
+
 @client.command(aliases=['le'])
 async def listemojis(message):
     """
@@ -635,11 +665,6 @@ async def on_guild_join(guild):
         db_conn.commit()
         db_cursor.close()
 
-
-@client.event
-async def on_command_error(message, error):
-    if isinstance(error, commands.MemberNotFound):
-        await message.send('Invalid input. Member not found...')
 
 # Bot authorization
 f = open('config.json', )

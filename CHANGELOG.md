@@ -1,5 +1,8 @@
 # Changelog
 
+### 1.1.1 - Dec 11, 2020
+- Added error handling for `getcount` and `displaystats`
+
 ### 1.1.0 - Dec 11, 2020
 - Added `getcount` command.
 	- Displays total emoji count usage at all-time, monthly, and weekly usage; defaults to server's usage if user is not specified.
