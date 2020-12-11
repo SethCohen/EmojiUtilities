@@ -187,8 +187,9 @@ async def help(message):
                     "(https://github.com/SethCohen/EmojiStatistics)"
     )
     embed.set_author(name='Help & Commands:')
-    embed.add_field(name='ES displaystats <date range> <optional:@user>', value='Prints emoji usage statistics to chat.', inline=False)
-    embed.add_field(name='ES getcount <optional:@user>', value='Prints emoji usage statistics to chat.', inline=False)
+    embed.add_field(name='ES displaystats <date range> <optional:@user>', value='Prints specific emoji usage statistics to chat.', inline=False)
+    embed.add_field(name='ES getcount <optional:@user>', value='Prints total emoji usage statistics to chat.', inline=False)
+    embed.add_field(name='ES leaderboard <emoji>', value='Prints most used emoji usage by persons to chat.', inline=False)
     embed.add_field(name='ES listemojis', value='Prints all usable server emotes to chat.', inline=False)
 
     await message.send(embed=embed)
@@ -229,7 +230,7 @@ async def leaderboard(message, emoji: discord.Emoji):
         embed.set_author(name=emoji.name + ' Leaderboard')
         embed.set_thumbnail(url=emoji.url)
         for row in rows:
-            embed.add_field(name=str(row[0]), value=str(row[1]))
+            embed.add_field(name=str(row[0]), value=str(row[1]), inline=False)
 
         await message.send(embed=embed)
     except IndexError as error:

@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.2.1 - Dec 11, 2020
+- Added `leaderboard` command to `ES help`
+- Fixed `leaderboard` inline display; set to False
+
 ### 1.2.0 - Dec 11, 2020
 - Added `leaderboard` command
 	- Displays the top ten users who use the specified emoji the most
