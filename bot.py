@@ -16,7 +16,6 @@ client.remove_command('help')
 
 # Non-Event/Command Functions:
 
-
 def insert_query(context, str_emoji):
     """
     Inserts a list of emojis into database.
@@ -230,7 +229,8 @@ async def leaderboard(message, emoji: discord.Emoji):
         embed.set_author(name=emoji.name + ' Leaderboard')
         embed.set_thumbnail(url=emoji.url)
         for row in rows:
-            embed.add_field(name=str(row[0]), value=str(row[1]), inline=False)
+            if row[0] != 'Emoji Statistics#2293':
+                embed.add_field(name=str(row[0]), value=str(row[1]), inline=False)
 
         await message.send(embed=embed)
     except IndexError as error:

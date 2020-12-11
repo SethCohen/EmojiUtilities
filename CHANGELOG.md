@@ -1,5 +1,8 @@
 # Changelog
 
+### 1.2.2 - Dec 11, 2020
+- Quick fix for 'leaderboard', checks & removes for if bot is on leaderboard.
+
 ### 1.2.1 - Dec 11, 2020
 - Added `leaderboard` command to `ES help`
 - Fixed `leaderboard` inline display; set to False
