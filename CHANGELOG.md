@@ -1,5 +1,8 @@
 # Changelog
 
+### 1.2.4 - Dec 13, 2020
+- Added position indicator to leaderboard.
+
 ### 1.2.3 - Dec 11, 2020
 - Fix for previous changelog; NOW checks & PROPERLY removes for if bot is on leaderboad.
 

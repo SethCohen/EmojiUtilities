@@ -229,8 +229,10 @@ async def leaderboard(message, emoji: discord.Emoji):
         )
         embed.set_author(name=emoji.name + ' Leaderboard')
         embed.set_thumbnail(url=emoji.url)
+        position = 1
         for row in rows:
-            embed.add_field(name=str(row[0]), value=str(row[1]), inline=False)
+            embed.add_field(name=str(position) + ". " + str(row[0]), value=str(row[1]), inline=False)
+            position+=1
 
         await message.send(embed=embed)
     except IndexError as error:
