@@ -11,6 +11,8 @@ Discord.py Bot for tracking server-specific emoji usage
 1. `ES help` - Prints a list of all commands to chat.
 2. `ES displaystats` - Prints the database to chat.
 3. `ES listemojis` - Prints all server emojis to chat.
+4. `ES getcount` - Prints total emoji usage statistics to chat.
+5. `ES leaderboard` - Prints most used emoji usage by persons to chat.
 
 ## What The Bot Specifically Does:
 
