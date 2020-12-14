@@ -1,5 +1,8 @@
 # Changelog
 
+### 1.2.5 - Dec 13, 2020
+- Added help subcommand to `ES help`
+
 ### 1.2.4 - Dec 13, 2020
 - Added position indicator to leaderboard.
 
