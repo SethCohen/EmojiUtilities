@@ -1,5 +1,13 @@
 # Changelog
 
+### 1.3.0 - May 22, 2021
+- Start of Extensions-based commands
+	- Created `getcount.py`
+	- Created `leaderboard.py`
+- Start of separating sqlite queries into its own file
+	- Created `db_model.py`
+- Refactored a lot of code
+
 ### 1.2.5 - Dec 13, 2020
 - Added help subcommand to `ES help`
 

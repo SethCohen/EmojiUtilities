@@ -7,8 +7,6 @@ import json
 import math
 import asyncio
 
-from discord.ext.commands import MissingPermissions
-
 intents = discord.Intents.default()
 intents.members = True
 
@@ -72,26 +70,6 @@ def delete_query(context, str_emoji):
     finally:
         db_conn.commit()
         db_cursor.close()
-
-
-def getcount_query(context, query):
-    """
-    Queries db for specified user input, returns rows of query.
-    """
-
-    try:
-        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
-        db_conn = sqlite3.connect(db_path)
-        db_cursor = db_conn.cursor()
-        db_cursor.execute(query)
-        count = db_cursor.fetchone()
-        # print(rows)
-    except sqlite3.Error as error:
-        print(error)
-    finally:
-        db_conn.commit()
-        db_cursor.close()
-        return count
 
 
 def displaystats_query(context, query):
@@ -172,6 +150,8 @@ async def on_ready():
 
     await client.change_presence(activity=discord.Game('ES help'))
     print('Bot is online.')
+    client.load_extension('commands.leaderboard')
+    client.load_extension('commands.getcount')
 
 
 @client.command()
@@ -239,156 +219,6 @@ async def delete(message):
             await message.send('un-k.')
     except asyncio.TimeoutError:
         print('Wait timeout.')
-
-
-@client.command(aliases=['lb'])
-async def leaderboard(message, emoji: discord.Emoji):
-    try:
-        db_path = 'databases/' + str(message.guild.id) + '.sqlite'
-        db_conn = sqlite3.connect(db_path)
-        db_cursor = db_conn.cursor()
-        db_cursor.execute(f"""
-            SELECT 
-                person,
-                COUNT(emoji) 
-            FROM 
-                emojiActivity
-            WHERE 
-                emoji = '{emoji}'
-                AND person IS NOT 'Emoji Statistics#2293'
-            GROUP BY 
-                person
-            ORDER BY 
-                COUNT(emoji) DESC
-            LIMIT 10;
-        """)
-        rows = db_cursor.fetchall()
-        # print(rows)
-    except sqlite3.Error as error:
-        print(error)
-    finally:
-        db_conn.commit()
-        db_cursor.close()
-
-    try:
-        embed = discord.Embed(
-            colour=discord.Colour.orange()
-        )
-        embed.set_author(name=emoji.name + ' Leaderboard')
-        embed.set_thumbnail(url=emoji.url)
-        position = 1
-        for row in rows:
-            embed.add_field(name=str(position) + ". " + str(row[0]), value=str(row[1]), inline=False)
-            position+=1
-
-        await message.send(embed=embed)
-    except IndexError as error:
-        # Catch for invalid output, outputs an embed to chat.
-        print(error)
-        embed = discord.Embed(
-            colour=discord.Colour.orange()
-        )
-        embed.set_author(name='Nothing To Display!')
-        embed.add_field(name='User input has no valid output.',
-                        value='Possible reasons:'
-                              '\n- Empty database'
-                              '\n- No emoji-usage records at specified date range'
-                              '\n- No emoji-usage records by specified user'
-                        )
-        await message.send(embed=embed)
-
-
-@leaderboard.error
-async def leaderboard_error(message, error):
-    print(str(error))
-
-
-@client.command(aliases=['gc'])
-async def getcount(message, member: discord.Member = None):
-    if member is not None:
-        author_type = member.display_name + "'s"
-        query = f"""
-             SELECT 
-                 COUNT(emoji) 
-             FROM 
-                 emojiActivity
-             WHERE 
-                 person = '{member}'
-             """
-        output_all_time = getcount_query(message, query)
-        query = f"""
-                     SELECT 
-                         COUNT(emoji) 
-                     FROM 
-                         emojiActivity
-                     WHERE
-                         person = '{member}' AND
-                         datetime > date('now', '-1 month')
-                     """
-        output_monthly = getcount_query(message, query)
-        query = f"""
-                     SELECT 
-                         COUNT(emoji) 
-                     FROM 
-                         emojiActivity
-                     WHERE
-                         person = '{member}' AND
-                         datetime > date('now', '-7 day')
-                     """
-        output_weekly = getcount_query(message, query)
-
-        print(output_all_time[0], output_monthly[0], output_weekly[0])
-    else:
-        author_type = "Server's"
-        query = f"""
-                     SELECT 
-                         COUNT(emoji) 
-                     FROM 
-                         emojiActivity
-                     """
-        output_all_time = getcount_query(message, query)
-        query = f"""
-                             SELECT 
-                                 COUNT(emoji) 
-                             FROM 
-                                 emojiActivity
-                             WHERE
-                                 datetime > date('now', '-1 month')
-                             """
-        output_monthly = getcount_query(message, query)
-        query = f"""
-                             SELECT 
-                                 COUNT(emoji) 
-                             FROM 
-                                 emojiActivity
-                             WHERE
-                                 datetime > date('now', '-7 day')
-                             """
-        output_weekly = getcount_query(message, query)
-
-    embed = discord.Embed(
-        colour=discord.Colour.orange()
-    )
-    embed.set_author(name=f'{author_type} Total Count Statistics')
-    embed.add_field(name='All-Time', value=str(output_all_time[0]), inline=True)
-    embed.add_field(name='Monthly', value=str(output_monthly[0]), inline=True)
-    embed.add_field(name='Weekly', value=str(output_weekly[0]), inline=True)
-
-    await message.send(embed=embed)  # Sends embed to chat.
-
-
-@getcount.error
-async def getcount_error(message, error):
-    embed = discord.Embed(
-        colour=discord.Colour.orange()
-    )
-    embed.set_author(name='Improper Command Usage.')
-    embed.add_field(name='Usage:', value='```ES getcount <optional:@user>'
-                                         '\nES gc <optional:@user>```', inline=True)
-    embed.add_field(name='Examples:',
-                    value='```ES getcount\nES gc @EmojiStatistics```',
-                    inline=False)
-    await message.send(embed=embed)
 
 
 @client.command(aliases=['ds'])

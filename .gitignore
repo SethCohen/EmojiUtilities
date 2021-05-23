@@ -2,3 +2,4 @@
 *.json
 convertdatabases.py
 .idea/
+*.pyc
