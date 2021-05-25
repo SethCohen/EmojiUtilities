@@ -153,3 +153,177 @@ def get_getcount_server_weekly(context):
         return count
     except sqlite3.Error as error:
         print(error)
+
+
+def get_displaystats_member_all(context, member):
+    """
+    Queries db for specified user input, returns rows of query.
+    """
+
+    try:
+        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute(f"""
+                 SELECT 
+                     emoji,
+                     COUNT(emoji) 
+                 FROM 
+                     emojiActivity
+                 WHERE 
+                     person = '{member}'
+                 GROUP BY 
+                     emoji
+                 ORDER BY COUNT(emoji) DESC
+                 """)
+        rows = db_cursor.fetchall()
+        db_conn.commit()
+        db_cursor.close()
+        return rows
+    except sqlite3.Error as error:
+        print(error)
+
+
+def get_displaystats_member_monthly(context, member):
+    """
+    Queries db for specified user input, returns rows of query.
+    """
+
+    try:
+        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute(f"""
+                         SELECT 
+                             emoji,
+                             COUNT(emoji) 
+                         FROM 
+                             emojiActivity
+                         WHERE
+                             person = '{member}' AND
+                             datetime > date('now', '-1 month')
+                         GROUP BY 
+                             emoji        
+                         ORDER BY COUNT(emoji) DESC
+                         """)
+        rows = db_cursor.fetchall()
+        db_conn.commit()
+        db_cursor.close()
+        return rows
+    except sqlite3.Error as error:
+        print(error)
+
+
+def get_displaystats_member_weekly(context, member):
+    """
+    Queries db for specified user input, returns rows of query.
+    """
+
+    try:
+        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute(f"""
+                         SELECT 
+                             emoji,
+                             COUNT(emoji) 
+                         FROM 
+                             emojiActivity
+                         WHERE
+                             person = '{member}' AND
+                             datetime > date('now', '-7 day')
+                         GROUP BY 
+                             emoji        
+                         ORDER BY COUNT(emoji) DESC
+                         """)
+        rows = db_cursor.fetchall()
+        db_conn.commit()
+        db_cursor.close()
+        return rows
+    except sqlite3.Error as error:
+        print(error)
+
+
+def get_displaystats_server_all(context):
+    """
+    Queries db for specified user input, returns rows of query.
+    """
+
+    try:
+        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("""
+                 SELECT 
+                     emoji,
+                     COUNT(emoji) 
+                 FROM 
+                     emojiActivity
+                 GROUP BY 
+                     emoji        
+                 ORDER BY COUNT(emoji) DESC
+                 """)
+        rows = db_cursor.fetchall()
+        db_conn.commit()
+        db_cursor.close()
+        return rows
+    except sqlite3.Error as error:
+        print(error)
+
+
+def get_displaystats_server_monthly(context):
+    """
+    Queries db for specified user input, returns rows of query.
+    """
+
+    try:
+        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("""
+                         SELECT 
+                             emoji,
+                             COUNT(emoji) 
+                         FROM 
+                             emojiActivity
+                         WHERE
+                             datetime > date('now', '-1 month')
+                         GROUP BY 
+                             emoji        
+                         ORDER BY COUNT(emoji) DESC
+                         """)
+        rows = db_cursor.fetchall()
+        db_conn.commit()
+        db_cursor.close()
+        return rows
+    except sqlite3.Error as error:
+        print(error)
+
+
+def get_displaystats_server_weekly(context):
+    """
+    Queries db for specified user input, returns rows of query.
+    """
+
+    try:
+        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
+        db_conn = sqlite3.connect(db_path)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("""
+                         SELECT 
+                             emoji,
+                             COUNT(emoji) 
+                         FROM 
+                             emojiActivity
+                         WHERE
+                             datetime > date('now', '-7 day')
+                         GROUP BY 
+                             emoji        
+                         ORDER BY COUNT(emoji) DESC
+                         """)
+        rows = db_cursor.fetchall()
+        db_conn.commit()
+        db_cursor.close()
+        return rows
+    except sqlite3.Error as error:
+        print(error)

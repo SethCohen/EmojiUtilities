@@ -4,7 +4,6 @@ from discord.ext import commands
 import sqlite3
 import re
 import json
-import math
 import asyncio
 
 intents = discord.Intents.default()
@@ -72,36 +71,6 @@ def delete_query(context, str_emoji):
         db_cursor.close()
 
 
-def displaystats_query(context, query):
-    """
-    Queries db for specified user input, returns rows of query.
-    """
-
-    try:
-        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
-        db_conn = sqlite3.connect(db_path)
-        db_cursor = db_conn.cursor()
-        db_cursor.execute(query)
-        rows = db_cursor.fetchall()
-        # print(rows)
-    except sqlite3.Error as error:
-        print("Failed to get from table:", error)
-    finally:
-        db_conn.commit()
-        db_cursor.close()
-        return rows
-
-
-def chunks(l, n):
-    """
-    Splits a list into evenly sized chunks where l is the list and n is the
-    size of chunk. The last chunk gets any remainders.
-    """
-
-    n = max(1, n)
-    return list(l[i:i + n] for i in range(0, len(l), n))
-
-
 def diff(list1, list2):
     """
     Gets the difference between two lists.
@@ -110,34 +79,6 @@ def diff(list1, list2):
     """
 
     return list((Counter(list1) - Counter(list2)).elements())
-
-
-def split_message(text, wrap_at=2000):
-    """
-    Splits text at spaces and joins it to strings that are as long as
-    possible without overshooting wrap_at.
-    Returns a list of strings shorter then wrap_at.
-    """
-
-    split_text = text.split(" ")
-
-    def gimme():
-        # Yields sentences of correct length.
-        len_parts = 0
-        parts = []
-        for p in split_text:
-            len_p = len(p)
-            if len_parts + len_p < wrap_at:
-                parts.append(p)
-                len_parts += len_p + 1
-            else:
-                yield ' '.join(parts).strip()
-                parts = [p]
-                len_parts = len_p
-        if parts:
-            yield ' '.join(parts).strip()
-
-    return list(gimme())
 
 
 # ---------------------------------------
@@ -152,6 +93,8 @@ async def on_ready():
     print('Bot is online.')
     client.load_extension('commands.leaderboard')
     client.load_extension('commands.getcount')
+    client.load_extension('commands.displaystats')
+    client.load_extension('commands.listemojis')
 
 
 @client.command()
@@ -219,209 +162,6 @@ async def delete(message):
             await message.send('un-k.')
     except asyncio.TimeoutError:
         print('Wait timeout.')
-
-
-@client.command(aliases=['ds'])
-async def displaystats(message, date_range = None, member: discord.Member = None):
-    """
-    Formats specified query to send to chat.
-    """
-
-    # Selects query.
-    if member is not None:
-        author_type = member.display_name + "'s"
-        if date_range == 'all' or date_range == 'a':
-            date_type = 'All-time'
-            query = f"""
-                 SELECT 
-                     emoji,
-                     COUNT(emoji) 
-                 FROM 
-                     emojiActivity
-                 WHERE 
-                     person = '{member}'
-                 GROUP BY 
-                     emoji
-                 ORDER BY COUNT(emoji) DESC
-                 """
-            rows = displaystats_query(message, query)
-        elif date_range == 'monthly' or date_range == 'm':
-            date_type = 'Monthly'
-            query = f"""
-                         SELECT 
-                             emoji,
-                             COUNT(emoji) 
-                         FROM 
-                             emojiActivity
-                         WHERE
-                             person = '{member}' AND
-                             datetime > date('now', '-1 month')
-                         GROUP BY 
-                             emoji        
-                         ORDER BY COUNT(emoji) DESC
-                         """
-            rows = displaystats_query(message, query)
-        elif date_range == 'weekly' or date_range == 'w':
-            date_type = 'Weekly'
-            query = f"""
-                         SELECT 
-                             emoji,
-                             COUNT(emoji) 
-                         FROM 
-                             emojiActivity
-                         WHERE
-                             person = '{member}' AND
-                             datetime > date('now', '-7 day')
-                         GROUP BY 
-                             emoji        
-                         ORDER BY COUNT(emoji) DESC
-                         """
-            rows = displaystats_query(message, query)
-    else:
-        author_type = 'Server'
-        if date_range == 'all' or date_range == 'a':
-            date_type = 'All-time'
-            query = """
-                 SELECT 
-                     emoji,
-                     COUNT(emoji) 
-                 FROM 
-                     emojiActivity
-                 GROUP BY 
-                     emoji        
-                 ORDER BY COUNT(emoji) DESC
-                 """
-            rows = displaystats_query(message, query)
-        elif date_range == 'monthly' or date_range == 'm':
-            date_type = 'Monthly'
-            query = """
-                         SELECT 
-                             emoji,
-                             COUNT(emoji) 
-                         FROM 
-                             emojiActivity
-                         WHERE
-                             datetime > date('now', '-1 month')
-                         GROUP BY 
-                             emoji        
-                         ORDER BY COUNT(emoji) DESC
-                         """
-            rows = displaystats_query(message, query)
-        elif date_range == 'weekly' or date_range == 'w':
-            date_type = 'Weekly'
-            query = """
-                         SELECT 
-                             emoji,
-                             COUNT(emoji) 
-                         FROM 
-                             emojiActivity
-                         WHERE
-                             datetime > date('now', '-7 day')
-                         GROUP BY 
-                             emoji        
-                         ORDER BY COUNT(emoji) DESC
-                         """
-            rows = displaystats_query(message, query)
-
-    try:
-        # Initializes the amount of embeds needed to display activity to chat.
-        pages_count = math.ceil(len(rows) / 24)
-        rows = chunks(rows, 24)
-        list = []
-
-        # Loops through needed pages
-        for i in range(pages_count):
-            # Initializes a new embed for each page
-            embed = discord.Embed(
-                colour=discord.Colour.orange()
-            )
-            embed.set_author(name=f'{author_type} Statistics ({date_type} usage, emoji : occurrence)')
-
-            # Gets emojis from query and adds to embed
-            for row in rows[i]:
-                try:
-                    emoji = await commands.EmojiConverter().convert(message, row[0])
-                    if emoji.is_usable():
-                        # print(str(emoji), ' is usable')
-                        embed.add_field(name=row[0], value=row[1], inline=True)
-                except discord.ext.commands.errors.EmojiNotFound as error:
-                    print("Emoji not found: ", error)
-            embed.set_footer(text="Page " + str(i + 1) + "/" + str(pages_count))
-            list.append(embed)  # Adds embed to page
-
-        embed_message = await message.send(embed=list[0])  # Sends embed to chat.
-        await embed_message.add_reaction('◀')
-        await embed_message.add_reaction('▶')
-
-        # Gets and waits for user embed page changing.
-        index = 0
-
-        def check_react(reaction, user):
-            return user == message.author and str(reaction.emoji) in ['◀', '▶']
-
-        while True:
-            try:
-                reaction, user = await client.wait_for('reaction_add', timeout=60.0, check=check_react)
-
-                if str(reaction.emoji) == '◀' and index > 0:
-                    # Goes to previous page
-                    index -= 1
-                    await embed_message.edit(embed=list[index])
-                elif str(reaction.emoji) == '▶' and index < pages_count:
-                    # Goes to next page
-                    index += 1
-                    await embed_message.edit(embed=list[index])
-            except asyncio.TimeoutError:  # Break while loop when 60 seconds pass
-                print('Reaction wait timeout.')
-                await embed_message.clear_reaction('◀')
-                await embed_message.clear_reaction('▶')
-                break
-            except IndexError:
-                print("No next/prev page to go to.")
-        # -------------------------------------------
-    except IndexError as error:
-        # Catch for invalid output, outputs an embed to chat.
-        print(error)
-        embed = discord.Embed(
-            colour=discord.Colour.orange()
-        )
-        embed.set_author(name='Nothing To Display!')
-        embed.add_field(name='User input has no valid output.',
-                        value='Possible reasons:'
-                              '\n- Empty database'
-                              '\n- No emoji-usage records at specified date range'
-                              '\n- No emoji-usage records by specified user'
-                        )
-        await message.send(embed=embed)
-
-
-@displaystats.error
-async def displaystats_error(message, error):
-    embed = discord.Embed(
-        colour=discord.Colour.orange()
-    )
-    embed.add_field(name='Usage:', value='```ES displaystats <date range> <optional:@user>'
-                                         '\nES ds <date range> <optional:@user>```', inline=True)
-    embed.add_field(name='Possible date range values:', value='```\nall\na\nmonthly\nm\nweekly\nw```', inline=False)
-    embed.add_field(name='Examples:',
-                    value='```ES displaystats all\nES displaystats weekly @EmojiStatistics\nES ds all```',
-                    inline=False)
-    await message.send(embed=embed)
-
-
-@client.command(aliases=['le'])
-async def listemojis(message):
-    """
-    Lists all usable emojis in server to chat.
-    """
-
-    emojis_list = ''
-    for emoji in message.guild.emojis:
-        if emoji.is_usable():
-            emojis_list += str(emoji) + ' '
-
-    for part in split_message(emojis_list):
-        await message.send(part)
 
 
 @client.event

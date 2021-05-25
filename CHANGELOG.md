@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.3.1 - May 25, 2021
+- More code refactoring
+- Continuation of extension-based commands
+	- Created displaystats.py
+	- Created listemojis.py
+
 ### 1.3.0 - May 22, 2021
 - Start of Extensions-based commands
 	- Created `getcount.py`
