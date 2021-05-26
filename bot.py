@@ -90,23 +90,23 @@ async def help(message, subcommand=''):
     await message.send(embed=embed)
 
 
-@client.command(aliases=['del'])
-@commands.has_permissions(administrator=True)
-async def delete(message):
-    await message.channel.send("Are you sure you want to delete your server's database? (Yes/No)")
-
-    def check(m):
-        return m.content in ['Yes', 'No', 'yes', 'no'] and m.channel == message.channel
-
-    try:
-        msg = await client.wait_for('message', timeout=30.0, check=check)
-
-        if msg.content.lower() == 'yes':
-            await message.send('k.')
-        if msg.content.lower() == 'no':
-            await message.send('un-k.')
-    except asyncio.TimeoutError:
-        print('Wait timeout.')
+# @client.command(aliases=['del'])
+# @commands.has_permissions(administrator=True)
+# async def delete(message):
+#     await message.channel.send("Are you sure you want to delete your server's database? (Yes/No)")
+#
+#     def check(m):
+#         return m.content in ['Yes', 'No', 'yes', 'no'] and m.channel == message.channel
+#
+#     try:
+#         msg = await client.wait_for('message', timeout=30.0, check=check)
+#
+#         if msg.content.lower() == 'yes':
+#             await message.send('k.')
+#         if msg.content.lower() == 'no':
+#             await message.send('un-k.')
+#     except asyncio.TimeoutError:
+#         print('Wait timeout.')
 
 
 @client.event
