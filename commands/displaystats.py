@@ -93,10 +93,12 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                     # Goes to previous page
                     index -= 1
                     await embed_message.edit(embed=list[index])
+                    await embed_message.remove_reaction('◀', user)
                 elif str(reaction.emoji) == '▶' and index < pages_count:
                     # Goes to next page
                     index += 1
                     await embed_message.edit(embed=list[index])
+                    await embed_message.remove_reaction('▶', user)
             except asyncio.TimeoutError:  # Break while loop when 60 seconds pass
                 print('Reaction wait timeout.')
                 await embed_message.clear_reactions()

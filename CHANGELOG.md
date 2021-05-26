@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.3.2 - May 26, 2021
+- Even more code refactoring
+- Moved more `bot.py` sqlite queries to `db_model.py`
+- `create_db`, `insert_to_db`, and `delete_from_db` functions created
+- `displaystats.py` edited; added automatic user reaction removal on arrow press.
+
 ### 1.3.1 - May 25, 2021
 - More code refactoring
 - Continuation of extension-based commands

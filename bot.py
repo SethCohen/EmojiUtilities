@@ -1,10 +1,11 @@
 from collections import Counter
 import discord
 from discord.ext import commands
-import sqlite3
 import re
 import json
 import asyncio
+
+from db_model import create_database, insert_to_db, delete_from_db
 
 intents = discord.Intents.default()
 intents.members = True
@@ -14,62 +15,6 @@ client.remove_command('help')
 
 
 # Non-Event/Command Functions:
-
-def insert_query(context, str_emoji):
-    """
-    Inserts a list of emojis into database.
-    """
-    try:
-        # Inserts new record with found emoji, user who posted emoji, and time when emoji was posted.
-        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
-        db_conn = sqlite3.connect(db_path)
-        db_cursor = db_conn.cursor()
-        db_cursor.execute("""
-                INSERT INTO emojiActivity(emoji, person, datetime)
-                VALUES(?, ?, ?)
-                """, (str_emoji, str(context.author), context.created_at.strftime('%Y-%m-%d')))
-        print(f"Record has been inserted: ({str_emoji}, "
-              f"{str(context.author)}, "
-              f"{context.created_at.strftime('%Y-%m-%d')})")
-    except sqlite3.Error as error:
-        print("Failed to insert record", error)
-    finally:
-        db_conn.commit()
-        db_cursor.close()
-
-
-def delete_query(context, str_emoji):
-    """
-    Deletes a list of emojis from database.
-    """
-
-    try:
-        # Deletes record with found emoji, user who posted emoji, and time when emoji was posted.
-        db_path = 'databases/' + str(context.guild.id) + '.sqlite'
-        db_conn = sqlite3.connect(db_path)
-        db_cursor = db_conn.cursor()
-        db_cursor.execute("""
-                    DELETE FROM emojiActivity
-                    WHERE rowid = 
-                    (
-                        SELECT rowid
-                        FROM emojiActivity
-                        WHERE 
-                            emoji = ? AND 
-                            person = ? AND 
-                            datetime = ?
-                        LIMIT 1
-                    )
-                    """, (str_emoji, str(context.author), context.created_at.strftime('%Y-%m-%d')))
-        print(f"Record has been removed: ({str_emoji}, "
-              f"{str(context.author)}, "
-              f"{context.created_at.strftime('%Y-%m-%d')})")
-    except sqlite3.Error as error:
-        print("Failed to delete record.", error)
-    finally:
-        db_conn.commit()
-        db_cursor.close()
-
 
 def diff(list1, list2):
     """
@@ -181,7 +126,7 @@ async def on_message(message):
     for str_emoji in emojis:
         for emoji in message.guild.emojis:
             if str_emoji == str(emoji):
-                insert_query(message, str_emoji)
+                insert_to_db(message, str_emoji)
 
     """if any(str(emoji) in message.content for emoji in message.guild.emojis):
         emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)     # Finds emojis in message and server
@@ -208,7 +153,7 @@ async def on_message_delete(message):
         emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds emojis in message and server
         print('Detected emojis in message', message.id, ':', emojis)
         for str_emoji in emojis:
-            delete_query(message, str_emoji)
+            delete_from_db(message, str_emoji)
 
     # Removes reactions in deleted message from database
     for reaction in message.reactions:
@@ -216,7 +161,7 @@ async def on_message_delete(message):
         for x in range(reaction.count):
             for emoji in reaction.message.guild.emojis:
                 if str_emoji == str(emoji):
-                    delete_query(reaction.message, str_emoji)
+                    delete_from_db(reaction.message, str_emoji)
 
 
 @client.event
@@ -241,11 +186,11 @@ async def on_message_edit(before, after):
     if len(before_emojis) > len(after_emojis):  # Subtraction diff
         emojis = diff(before_emojis, after_emojis)
         for str_emoji in emojis:
-            delete_query(after, str_emoji)
+            delete_from_db(after, str_emoji)
     elif len(before_emojis) < len(after_emojis):  # Addition diff
         emojis = diff(after_emojis, before_emojis)
         for str_emoji in emojis:
-            insert_query(after, str_emoji)
+            insert_to_db(after, str_emoji)
     else:
         emojis = []
 
@@ -262,7 +207,7 @@ async def on_reaction_add(reaction, user):
 
     for emoji in reaction.message.guild.emojis:
         if str_emoji == str(emoji):
-            insert_query(reaction.message, str_emoji)
+            insert_to_db(reaction.message, str_emoji)
 
 
 @client.event
@@ -275,7 +220,7 @@ async def on_reaction_remove(reaction, user):
 
     for emoji in reaction.message.guild.emojis:
         if str_emoji == str(emoji):
-            delete_query(reaction.message, str_emoji)
+            delete_from_db(reaction.message, str_emoji)
 
 
 @client.event
@@ -290,7 +235,7 @@ async def on_reaction_clear(message, reactions):
         for x in range(reaction.count):
             for emoji in reaction.message.guild.emojis:
                 if str_emoji == str(emoji):
-                    delete_query(reaction.message, str_emoji)
+                    delete_from_db(reaction.message, str_emoji)
 
 
 @client.event
@@ -308,24 +253,7 @@ async def on_guild_join(guild):
                 "\nType `ES help` for a list of commands. Thanks again and have a nice day!")
         break
 
-    try:
-        # Creates database for server
-        db_path = 'databases/' + str(guild.id) + '.sqlite'
-        db_conn = sqlite3.connect(db_path)
-        db_cursor = db_conn.cursor()
-        db_cursor.execute("""
-            CREATE TABLE IF NOT EXISTS emojiActivity (
-            emoji TEXT,
-            person TEXT,
-            datetime TEXT 
-            )
-            """)
-        print('Database created for', guild.id)
-    except sqlite3.Error as error:
-        print("Failed to create sqlite table", error)
-    finally:
-        db_conn.commit()
-        db_cursor.close()
+    create_database(guild.id)
 
 
 @client.event
