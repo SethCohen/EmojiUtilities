@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.3.3 - June 9, 2021
+- Moved help command to its own file; `help.py`.
+- Fixed bot message-on-join.
+
 ### 1.3.2 - May 26, 2021
 - Even more code refactoring
 - Moved more `bot.py` sqlite queries to `db_model.py`
