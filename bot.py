@@ -202,7 +202,7 @@ async def on_guild_join(guild):
                 "Hey, thanks for adding me to your server!"
                 "\nThere's no need to do anything else, the database has been setup for you."
                 "\nType `ES help` for a list of commands. Thanks again and have a nice day!")
-        break
+            break
 
     create_database(guild.id)
 
