@@ -1,3 +1,4 @@
+import time
 from collections import Counter
 import discord
 from discord.ext import commands
@@ -205,6 +206,25 @@ async def on_guild_join(guild):
             break
 
     create_database(guild.id)
+
+    # On server join, read in all chat history and add emote instances to database
+    # start_time = time.time()
+    # counter = 0
+    # for channel in guild.text_channels:
+    #     if channel.permissions_for(guild.me).view_channel:
+    #         async for message in channel.history(limit=None):
+    #             emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds all emojis in message
+    #             # print('Detected emojis in message', message.id, ':', emojis)
+    #
+    #             for str_emoji in emojis:
+    #                 for emoji in message.guild.emojis:
+    #                     if str_emoji == str(emoji):
+    #                         insert_to_db(message, str_emoji)
+    #
+    #             counter += 1
+    # end_time = time.time()
+    # print('Messages in server:', counter)
+    # print('Time elapsed in seconds:', end_time-start_time)
 
 
 @client.event
