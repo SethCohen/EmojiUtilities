@@ -43,7 +43,7 @@ def delete_from_db(context, str_emoji):
                             datetime = ?
                         LIMIT 1
                     )
-                    """, (str_emoji, str(context.author), context.created_at.strftime('%Y-%m-%d')))
+                    """, (str_emoji, str(context.author.id), context.created_at.strftime('%Y-%m-%d')))
         print(f"Record has been removed: ({str_emoji}, "
               f"{str(context.author)}, "
               f"{context.created_at.strftime('%Y-%m-%d')})")
@@ -65,11 +65,11 @@ def insert_to_db(context, str_emoji):
         db_cursor.execute("""
                 INSERT INTO emojiActivity(emoji, person, datetime)
                 VALUES(?, ?, ?)
-                """, (str_emoji, str(context.author), context.created_at.strftime('%Y-%m-%d')))
+                """, (str_emoji, str(context.author.id), context.created_at.strftime('%Y-%m-%d')))
         db_conn.commit()
         db_cursor.close()
         print(f"Record has been inserted: ({str_emoji}, "
-              f"{str(context.author)}, "
+              f"{str(context.author.id)}, "
               f"{context.created_at.strftime('%Y-%m-%d')})")
     except sqlite3.Error as error:
         print("Failed to insert record", error)

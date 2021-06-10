@@ -9,9 +9,9 @@ from db_model import get_getcount_member_alltime, get_getcount_member_monthly, g
 async def getcount(message, member: discord.Member = None):
     if member is not None:
         author_type = member.display_name + "'s"
-        output_all_time = get_getcount_member_alltime(message, member)
-        output_monthly = get_getcount_member_monthly(message, member)
-        output_weekly = get_getcount_member_weekly(message, member)
+        output_all_time = get_getcount_member_alltime(message, member.id)
+        output_monthly = get_getcount_member_monthly(message, member.id)
+        output_weekly = get_getcount_member_weekly(message, member.id)
 
         print(output_all_time[0], output_monthly[0], output_weekly[0])
     else:

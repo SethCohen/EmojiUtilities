@@ -2,12 +2,8 @@ import asyncio
 import math
 import discord
 from discord.ext import commands
-
 from db_model import get_displaystats_member_all, get_displaystats_member_monthly, get_displaystats_member_weekly, \
     get_displaystats_server_all, get_displaystats_server_monthly, get_displaystats_server_weekly
-
-
-
 
 
 def chunks(l, n):
@@ -30,13 +26,13 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
         author_type = member.display_name + "'s"
         if date_range == 'all' or date_range == 'a':
             date_type = 'All-time'
-            rows = get_displaystats_member_all(message, member)
+            rows = get_displaystats_member_all(message, member.id)
         elif date_range == 'monthly' or date_range == 'm':
             date_type = 'Monthly'
-            rows = get_displaystats_member_monthly(message, member)
+            rows = get_displaystats_member_monthly(message, member.id)
         elif date_range == 'weekly' or date_range == 'w':
             date_type = 'Weekly'
-            rows = get_displaystats_member_weekly(message, member)
+            rows = get_displaystats_member_weekly(message, member.id)
     else:
         author_type = 'Server'
         if date_range == 'all' or date_range == 'a':
