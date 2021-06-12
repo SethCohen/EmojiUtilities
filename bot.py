@@ -1,4 +1,3 @@
-import time
 from collections import Counter
 import discord
 from discord.ext import commands
@@ -42,24 +41,6 @@ async def on_ready():
     client.load_extension('commands.displaystats')
     client.load_extension('commands.listemojis')
 
-# @client.command(aliases=['del'])
-# @commands.has_permissions(administrator=True)
-# async def delete(message):
-#     await message.channel.send("Are you sure you want to delete your server's database? (Yes/No)")
-#
-#     def check(m):
-#         return m.content in ['Yes', 'No', 'yes', 'no'] and m.channel == message.channel
-#
-#     try:
-#         msg = await client.wait_for('message', timeout=30.0, check=check)
-#
-#         if msg.content.lower() == 'yes':
-#             await message.send('k.')
-#         if msg.content.lower() == 'no':
-#             await message.send('un-k.')
-#     except asyncio.TimeoutError:
-#         print('Wait timeout.')
-
 
 @client.event
 async def on_message(message):
@@ -79,13 +60,6 @@ async def on_message(message):
         for emoji in message.guild.emojis:
             if str_emoji == str(emoji):
                 insert_to_db(message, str_emoji)
-
-    """if any(str(emoji) in message.content for emoji in message.guild.emojis):
-        emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)     # Finds emojis in message and server
-
-        for str_emoji in emojis:
-            if str_emoji in str(message.guild.emojis):
-                insert_query(message, str_emoji)"""
 
     await client.process_commands(message)
 
@@ -206,25 +180,6 @@ async def on_guild_join(guild):
             break
 
     create_database(guild.id)
-
-    # On server join, read in all chat history and add emote instances to database
-    # start_time = time.time()
-    # counter = 0
-    # for channel in guild.text_channels:
-    #     if channel.permissions_for(guild.me).view_channel:
-    #         async for message in channel.history(limit=None):
-    #             emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds all emojis in message
-    #             # print('Detected emojis in message', message.id, ':', emojis)
-    #
-    #             for str_emoji in emojis:
-    #                 for emoji in message.guild.emojis:
-    #                     if str_emoji == str(emoji):
-    #                         insert_to_db(message, str_emoji)
-    #
-    #             counter += 1
-    # end_time = time.time()
-    # print('Messages in server:', counter)
-    # print('Time elapsed in seconds:', end_time-start_time)
 
 
 @client.event

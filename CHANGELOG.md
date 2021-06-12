@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.3.4 - June 12, 2021
+- Fixed databases, switched from storing emoji usage by username to storing by user id for cases where the user changes their actual username rather than server-nick.
+- Minor code cleanup; mainly removing commented out code.
+
 ### 1.3.3 - June 9, 2021
 - Moved help command to its own file; `help.py`.
 - Fixed bot message-on-join.
