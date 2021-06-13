@@ -1,6 +1,6 @@
 # Changelog
 
-### 1.3.5 - Jnue 13, 2021
+### 1.3.5 - June 13, 2021
 - Updated `db_model.py` switched leaderboard check for if bot from bot's name to bot's unique id.
 - Updated help command/`help.py`; added Support server link.
 - Updated leaderboard/`leaderboard.py`; added catch for new vs old database systems. If retrieved data is a user id, get username. If retrieved data is a username, display as normal.
