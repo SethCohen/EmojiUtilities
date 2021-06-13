@@ -1,5 +1,10 @@
 # Changelog
 
+### 1.3.5 - Jnue 13, 2021
+- Updated `db_model.py` switched leaderboard check for if bot from bot's name to bot's unique id.
+- Updated help command/`help.py`; added Support server link.
+- Updated leaderboard/`leaderboard.py`; added catch for new vs old database systems. If retrieved data is a user id, get username. If retrieved data is a username, display as normal.
+
 ### 1.3.4 - June 12, 2021
 - Fixed databases, switched from storing emoji usage by username to storing by user id for cases where the user changes their actual username rather than server-nick.
 - Minor code cleanup; mainly removing commented out code.

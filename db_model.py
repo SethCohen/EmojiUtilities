@@ -88,7 +88,7 @@ def get_leaderboard(context, emoji):
                 emojiActivity
             WHERE 
                 emoji = '{emoji}'
-                AND person IS NOT 'Emoji Statistics#2293'
+                AND person IS NOT '757326308547100712'
             GROUP BY 
                 person
             ORDER BY 

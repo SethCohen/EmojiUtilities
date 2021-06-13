@@ -14,6 +14,8 @@ async def help(message, subcommand=''):
                     "(https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=84992&scope=bot)"
                     "\n[Github]"
                     "(https://github.com/SethCohen/EmojiStatistics)"
+                    "\n[Support Server]"
+                    "(https://discord.gg/XaeERFAVfb)"
     )
 
     if subcommand == 'displaystats':

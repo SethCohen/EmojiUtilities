@@ -15,8 +15,17 @@ async def leaderboard(context, emoji: discord.Emoji):
         embed.set_thumbnail(url=emoji.url)
         position = 1
         for row in rows:
-            embed.add_field(name=str(position) + ". " + str(context.bot.get_user(int(row[0]))), value=str(row[1]), inline=False)
-            position += 1
+            # print(row[0])
+            try:
+                embed.add_field(name=str(position) + ". " + str(context.bot.get_user(int(row[0]))), value=str(row[1]),
+                                inline=False)
+                position += 1
+            except ValueError:
+                # print('Value Error')
+                embed.add_field(name=str(position) + ". " + str(row[0]),
+                                value=str(row[1]),
+                                inline=False)
+                position += 1
 
         await context.send(embed=embed)
     except IndexError as error:
