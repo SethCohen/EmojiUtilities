@@ -44,7 +44,8 @@ async def on_ready():
 
     # Parses through all guilds bots in.
     # for guild in client.guilds:
-    #    Converts emoji column in databases from emoji string to emoji id.
+    #     print(guild.id)
+    #     # Converts emoji column in databases from emoji string to emoji id.
     #     try:
     #         db_path = 'databases/' + str(guild.id) + '.sqlite'
     #         db_conn = sqlite3.connect(db_path)
@@ -57,18 +58,21 @@ async def on_ready():
     #         """)
     #         rows = db_cursor.fetchall()
     #         for row in rows:
-    #             id = re.search(r'\d*>', row[0])
-    #             id = id.group()
-    #             id = id[:-1]
-    #             db_cursor.execute(f"""
-    #                 UPDATE emojiActivity
-    #                 SET emoji = '{id}'
-    #                 WHERE emoji = '{row[0]}'
-    #             """)
+    #             if re.search(r'\d*>', row[0]):
+    #                 id = re.search(r'\d*>', row[0])
+    #                 id = id.group()
+    #                 id = id[:-1]
+    #                 db_cursor.execute(f"""
+    #                     UPDATE emojiActivity
+    #                     SET emoji = '{id}'
+    #                     WHERE emoji = '{row[0]}'
+    #                 """)
     #         db_conn.commit()
     #         db_cursor.close()
     #     except sqlite3.Error as error:
     #         print(error)
+    # print("Done.")
+
 
 
 
