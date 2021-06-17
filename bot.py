@@ -4,7 +4,6 @@ import discord
 from discord.ext import commands
 import re
 import json
-
 from db_model import create_database, insert_to_db, delete_from_db
 
 intents = discord.Intents.default()
