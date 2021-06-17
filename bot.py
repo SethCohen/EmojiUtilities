@@ -42,7 +42,9 @@ async def on_ready():
     client.load_extension('commands.displaystats')
     client.load_extension('commands.listemojis')
 
+    # Parses through all guilds bots in.
     # for guild in client.guilds:
+    #    Converts emoji column in databases from emoji string to emoji id.
     #     try:
     #         db_path = 'databases/' + str(guild.id) + '.sqlite'
     #         db_conn = sqlite3.connect(db_path)
