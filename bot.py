@@ -1,4 +1,3 @@
-import sqlite3
 from collections import Counter
 import discord
 from discord.ext import commands
