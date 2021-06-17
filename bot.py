@@ -1,3 +1,4 @@
+import sqlite3
 from collections import Counter
 import discord
 from discord.ext import commands
@@ -41,6 +42,33 @@ async def on_ready():
     client.load_extension('commands.displaystats')
     client.load_extension('commands.listemojis')
 
+    # for guild in client.guilds:
+    #     try:
+    #         db_path = 'databases/' + str(guild.id) + '.sqlite'
+    #         db_conn = sqlite3.connect(db_path)
+    #         db_cursor = db_conn.cursor()
+    #         db_cursor.execute(f"""
+    #             SELECT
+    #                 emoji
+    #             FROM
+    #                 emojiActivity
+    #         """)
+    #         rows = db_cursor.fetchall()
+    #         for row in rows:
+    #             id = re.search(r'\d*>', row[0])
+    #             id = id.group()
+    #             id = id[:-1]
+    #             db_cursor.execute(f"""
+    #                 UPDATE emojiActivity
+    #                 SET emoji = '{id}'
+    #                 WHERE emoji = '{row[0]}'
+    #             """)
+    #         db_conn.commit()
+    #         db_cursor.close()
+    #     except sqlite3.Error as error:
+    #         print(error)
+
+
 
 @client.event
 async def on_message(message):
@@ -59,7 +87,8 @@ async def on_message(message):
     for str_emoji in emojis:
         for emoji in message.guild.emojis:
             if str_emoji == str(emoji):
-                insert_to_db(message, str_emoji)
+                emoji = str(emoji.id)
+                insert_to_db(message, emoji)
 
     await client.process_commands(message)
 
@@ -79,14 +108,17 @@ async def on_message_delete(message):
         emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds emojis in message and server
         print('Detected emojis in message', message.id, ':', emojis)
         for str_emoji in emojis:
-            delete_from_db(message, str_emoji)
+            for emoji in message.guild.emojis:
+                if str_emoji == str(emoji):
+                    emoji = str(emoji.id)
+                    delete_from_db(message, emoji)
 
     # Removes reactions in deleted message from database
     for reaction in message.reactions:
-        str_emoji = str(reaction.emoji)
+        str_emoji = str(reaction.emoji.id)
         for x in range(reaction.count):
             for emoji in reaction.message.guild.emojis:
-                if str_emoji == str(emoji):
+                if str_emoji == str(emoji.id):
                     delete_from_db(reaction.message, str_emoji)
 
 
@@ -112,10 +144,14 @@ async def on_message_edit(before, after):
     if len(before_emojis) > len(after_emojis):  # Subtraction diff
         emojis = diff(before_emojis, after_emojis)
         for str_emoji in emojis:
+            str_emoji = await commands.EmojiConverter().convert(after.author, str_emoji)
+            str_emoji = str(str_emoji.id)
             delete_from_db(after, str_emoji)
     elif len(before_emojis) < len(after_emojis):  # Addition diff
         emojis = diff(after_emojis, before_emojis)
         for str_emoji in emojis:
+            str_emoji = await commands.EmojiConverter().convert(after.author, str_emoji)
+            str_emoji = str(str_emoji.id)
             insert_to_db(after, str_emoji)
     else:
         emojis = []
@@ -133,7 +169,8 @@ async def on_reaction_add(reaction, user):
 
     for emoji in reaction.message.guild.emojis:
         if str_emoji == str(emoji):
-            insert_to_db(reaction.message, str_emoji)
+            emoji = str(emoji.id)
+            insert_to_db(reaction.message, emoji)
 
 
 @client.event
@@ -146,7 +183,8 @@ async def on_reaction_remove(reaction, user):
 
     for emoji in reaction.message.guild.emojis:
         if str_emoji == str(emoji):
-            delete_from_db(reaction.message, str_emoji)
+            emoji = str(emoji.id)
+            delete_from_db(reaction.message, emoji)
 
 
 @client.event
@@ -161,7 +199,8 @@ async def on_reaction_clear(message, reactions):
         for x in range(reaction.count):
             for emoji in reaction.message.guild.emojis:
                 if str_emoji == str(emoji):
-                    delete_from_db(reaction.message, str_emoji)
+                    emoji = str(emoji.id)
+                    delete_from_db(reaction.message, emoji)
 
 
 @client.event

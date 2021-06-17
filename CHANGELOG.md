@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.3.6 - June 16, 2021
+- `bot.py` Refactored all inserts/deletes from db to use emoji's unique id rather than full name.
+- `db_model.py` Refactored get_leaderboard to query for emoji's id.
+- `db_model.py` Refactored console Record Removed log to use author id rather than author name.
+- `displaystats.py` Refactored embed to use emoji object rather than queried db emoji id string.
+
 ### 1.3.5 - June 13, 2021
 - Updated `db_model.py` switched leaderboard check for if bot from bot's name to bot's unique id.
 - Updated help command/`help.py`; added Support server link.

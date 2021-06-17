@@ -65,7 +65,7 @@ async def displaystats(message, date_range=None, member: discord.Member = None):
                     emoji = await commands.EmojiConverter().convert(message, row[0])
                     if emoji.is_usable():
                         # print(str(emoji), ' is usable')
-                        embed.add_field(name=row[0], value=row[1], inline=True)
+                        embed.add_field(name=emoji, value=row[1], inline=True)
                 except discord.ext.commands.errors.EmojiNotFound as error:
                     print("Emoji not found: ", error)
             embed.set_footer(text="Page " + str(i + 1) + "/" + str(pages_count))
