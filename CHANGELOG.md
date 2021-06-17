@@ -1,5 +1,8 @@
 # Changelog
 
+### 1.3.7 - June 17, 2021
+- 
+
 ### 1.3.6 - June 16, 2021
 - `bot.py` Refactored all inserts/deletes from db to use emoji's unique id rather than full name.
 - `db_model.py` Refactored get_leaderboard to query for emoji's id.

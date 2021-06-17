@@ -12,7 +12,6 @@ client = commands.Bot(command_prefix='ES ', intents=intents)
 client.remove_command('help')
 
 
-
 # Non-Event/Command Functions:
 
 def diff(list1, list2):
@@ -71,8 +70,6 @@ async def on_ready():
     #     except sqlite3.Error as error:
     #         print(error)
     # print("Done.")
-
-
 
 
 @client.event
@@ -158,14 +155,14 @@ async def on_message_edit(before, after):
             str_emoji = await commands.EmojiConverter().convert(after.author, str_emoji)
             str_emoji = str(str_emoji.id)
             insert_to_db(after, str_emoji)
-    else:
-        emojis = []
+    # else:
+    #     emojis = []
 
     # print('Diff:', emojis)
 
 
 @client.event
-async def on_reaction_add(reaction, user):
+async def on_reaction_add(reaction, _user):
     """
     Reads every reaction on message, gets who added the reaction, and adds that record into database.
     """
@@ -179,7 +176,7 @@ async def on_reaction_add(reaction, user):
 
 
 @client.event
-async def on_reaction_remove(reaction, user):
+async def on_reaction_remove(reaction, _user):
     """
     Reads every reaction on message, gets the reaction owner, and removes that record from the database.
     """
@@ -205,7 +202,7 @@ async def on_reaction_clear(message, reactions):
             for emoji in reaction.message.guild.emojis:
                 if str_emoji == str(emoji):
                     emoji = str(emoji.id)
-                    delete_from_db(reaction.message, emoji)
+                    delete_from_db(message, emoji)
 
 
 @client.event
