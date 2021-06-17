@@ -3,3 +3,4 @@
 convertdatabases.py
 .idea/
 *.pyc
+commands/test.py
