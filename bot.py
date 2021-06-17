@@ -12,6 +12,7 @@ client = commands.Bot(command_prefix='ES ', intents=intents)
 client.remove_command('help')
 
 
+
 # Non-Event/Command Functions:
 
 def diff(list1, list2):
