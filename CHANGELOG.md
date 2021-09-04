@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.4.0] - 2021-09-04
+- Massive code overhaul. Start of port over to Discord.js
+- Added basic slash commands support.
 
 ## [1.3.8] - 2021-09-04
 ### Added

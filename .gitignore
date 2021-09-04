@@ -1,6 +1,7 @@
 *.sqlite
-*.json
 convertdatabases.py
 .idea/
 *.pyc
 commands/test.py
+/node_modules/
+/config.json
