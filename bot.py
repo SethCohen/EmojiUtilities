@@ -97,7 +97,7 @@ async def on_message(message):
                     emoji = str(emoji.id)
                     insert_to_db(message, emoji)
 
-        await client.process_commands(message)
+    await client.process_commands(message)
 
 
 @client.event
