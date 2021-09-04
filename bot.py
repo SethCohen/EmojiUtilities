@@ -12,6 +12,7 @@ client = commands.Bot(command_prefix='ES ', intents=intents)
 client.remove_command('help')
 
 client.do_self_react = True
+client.do_count_messages = True
 
 
 # Non-Event/Command Functions:
@@ -42,6 +43,7 @@ async def on_ready():
     client.load_extension('commands.displaystats')
     client.load_extension('commands.listemojis')
     client.load_extension('commands.doselfreact')
+    client.load_extension('commands.docountmessages')
 
     # Parses through all guilds bots in.
     # for guild in client.guilds:
@@ -80,22 +82,22 @@ async def on_message(message):
     """
     Reads every message sent in server. Used to check if any message has an emoji.
     """
-
     # Checks if bot is sender, if true then pass
     if message.author == client.user:
         return
 
-    # Reads emojis in message
-    emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds all emojis in message
-    # print('Detected emojis in message', message.id, ':', emojis)
+    if client.do_count_messages:
+        # Reads emojis in message
+        emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds all emojis in message
+        # print('Detected emojis in message', message.id, ':', emojis)
 
-    for str_emoji in emojis:
-        for emoji in message.guild.emojis:
-            if str_emoji == str(emoji):
-                emoji = str(emoji.id)
-                insert_to_db(message, emoji)
+        for str_emoji in emojis:
+            for emoji in message.guild.emojis:
+                if str_emoji == str(emoji):
+                    emoji = str(emoji.id)
+                    insert_to_db(message, emoji)
 
-    await client.process_commands(message)
+        await client.process_commands(message)
 
 
 @client.event
@@ -108,15 +110,16 @@ async def on_message_delete(message):
     if message.author == client.user:
         return
 
-    # Reads emojis in message
-    if any(str(emoji) in message.content for emoji in message.guild.emojis):
-        emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds emojis in message and server
-        print('Detected emojis in message', message.id, ':', emojis)
-        for str_emoji in emojis:
-            for emoji in message.guild.emojis:
-                if str_emoji == str(emoji):
-                    emoji = str(emoji.id)
-                    delete_from_db(message, emoji)
+    if client.do_count_messages:
+        # Reads emojis in message
+        if any(str(emoji) in message.content for emoji in message.guild.emojis):
+            emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds emojis in message and server
+            print('Detected emojis in message', message.id, ':', emojis)
+            for str_emoji in emojis:
+                for emoji in message.guild.emojis:
+                    if str_emoji == str(emoji):
+                        emoji = str(emoji.id)
+                        delete_from_db(message, emoji)
 
     # Removes reactions in deleted message from database
     for reaction in message.reactions:
@@ -134,34 +137,35 @@ async def on_message_edit(before, after):
     Used to check if any edited message has either added or removed emojis from message.
     """
 
-    if any(str(emoji) in before.content for emoji in before.guild.emojis):
-        before_emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', before.content)
-    else:
-        before_emojis = []
+    if client.do_count_messages:
+        if any(str(emoji) in before.content for emoji in before.guild.emojis):
+            before_emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', before.content)
+        else:
+            before_emojis = []
 
-    if any(str(emoji) in after.content for emoji in after.guild.emojis):
-        after_emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', after.content)
-    else:
-        after_emojis = []
+        if any(str(emoji) in after.content for emoji in after.guild.emojis):
+            after_emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', after.content)
+        else:
+            after_emojis = []
 
-    # print('Before:', before_emojis)
-    # print('After:', after_emojis)
-    if len(before_emojis) > len(after_emojis):  # Subtraction diff
-        emojis = diff(before_emojis, after_emojis)
-        for str_emoji in emojis:
-            str_emoji = await commands.EmojiConverter().convert(after.author, str_emoji)
-            str_emoji = str(str_emoji.id)
-            delete_from_db(after, str_emoji)
-    elif len(before_emojis) < len(after_emojis):  # Addition diff
-        emojis = diff(after_emojis, before_emojis)
-        for str_emoji in emojis:
-            str_emoji = await commands.EmojiConverter().convert(after.author, str_emoji)
-            str_emoji = str(str_emoji.id)
-            insert_to_db(after, str_emoji)
-    # else:
-    #     emojis = []
+        # print('Before:', before_emojis)
+        # print('After:', after_emojis)
+        if len(before_emojis) > len(after_emojis):  # Subtraction diff
+            emojis = diff(before_emojis, after_emojis)
+            for str_emoji in emojis:
+                str_emoji = await commands.EmojiConverter().convert(after.author, str_emoji)
+                str_emoji = str(str_emoji.id)
+                delete_from_db(after, str_emoji)
+        elif len(before_emojis) < len(after_emojis):  # Addition diff
+            emojis = diff(after_emojis, before_emojis)
+            for str_emoji in emojis:
+                str_emoji = await commands.EmojiConverter().convert(after.author, str_emoji)
+                str_emoji = str(str_emoji.id)
+                insert_to_db(after, str_emoji)
+        # else:
+        #     emojis = []
 
-    # print('Diff:', emojis)
+        # print('Diff:', emojis)
 
 
 @client.event

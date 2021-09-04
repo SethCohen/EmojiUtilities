@@ -19,7 +19,7 @@ async def help(message, subcommand=''):
     )
 
     if subcommand == 'displaystats':
-        embed.set_author(name='ES display')
+        embed.set_author(name='ES displaystats')
         embed.add_field(name='Usage:', value='```ES displaystats <date range> <optional:@user>'
                                              '\nES ds <date range> <optional:@user>```', inline=True)
         embed.add_field(name='Possible date range values:', value='```\n(a)ll\n(m)onthly\n(w)eekly```', inline=False)
@@ -45,6 +45,10 @@ async def help(message, subcommand=''):
         embed.set_author(name='ES doselfreact')
         embed.add_field(name='Usage:', value='```ES doselfreact true'
                                              '\nES doselfreact false```', inline=True)
+    elif subcommand == 'docountmessages':
+        embed.set_author(name='ES docountmessages')
+        embed.add_field(name='Usage:', value='```ES docountmessages true'
+                                             '\nES docountmessages false```', inline=True)
     else:
         embed.set_author(name='Help & Commands:')
         embed.add_field(name='ES displaystats', value='Prints specific emoji usage statistics to chat.', inline=False)
@@ -52,6 +56,7 @@ async def help(message, subcommand=''):
         embed.add_field(name='ES leaderboard', value='Prints most used emoji usage by persons to chat.', inline=False)
         embed.add_field(name='ES listemojis', value='Prints all usable server emotes to chat.', inline=False)
         embed.add_field(name='ES doselfreact', value='Enable/disable adding user self reacting emojis to db.', inline=False)
+        embed.add_field(name='ES docountmessages', value='Enable/disable adding message emojis to db.', inline=False)
         embed.set_footer(text='Type ES help <subcommand> to view a command in-depth.\ne.g. `ES help displaystats')
 
     await message.send(embed=embed)

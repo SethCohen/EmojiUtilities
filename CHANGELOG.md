@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.9] - 2021-09-04
+### Added
+- `ES docountmessages` command; available flags `true` or `false`
+### Changed
+- `on_message` now considers do_count_messages flag when adding to db.
+- `on_message_remove` now considers do_count_messages flag when adding to db.
+- `ES help` Updated to include docountmessages command info.
+- `ES help` Updated to fix displaystats
 
 ## [1.3.8] - 2021-09-04
 ### Added
