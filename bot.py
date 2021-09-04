@@ -11,6 +11,8 @@ intents.members = True
 client = commands.Bot(command_prefix='ES ', intents=intents)
 client.remove_command('help')
 
+client.do_self_react = True
+
 
 # Non-Event/Command Functions:
 
@@ -39,6 +41,7 @@ async def on_ready():
     client.load_extension('commands.getcount')
     client.load_extension('commands.displaystats')
     client.load_extension('commands.listemojis')
+    client.load_extension('commands.doselfreact')
 
     # Parses through all guilds bots in.
     # for guild in client.guilds:
@@ -162,31 +165,48 @@ async def on_message_edit(before, after):
 
 
 @client.event
-async def on_reaction_add(reaction, _user):
+async def on_reaction_add(reaction, user):
     """
     Reads every reaction on message, gets who added the reaction, and adds that record into database.
     """
 
-    str_emoji = str(reaction.emoji)
+    if client.do_self_react:
+        str_emoji = str(reaction.emoji)
 
-    for emoji in reaction.message.guild.emojis:
-        if str_emoji == str(emoji):
-            emoji = str(emoji.id)
-            insert_to_db(reaction.message, emoji)
+        for emoji in reaction.message.guild.emojis:
+            if str_emoji == str(emoji):
+                emoji = str(emoji.id)
+                insert_to_db(reaction.message, emoji)
+    else:
+        if reaction.message.author != user:
+            str_emoji = str(reaction.emoji)
+
+            for emoji in reaction.message.guild.emojis:
+                if str_emoji == str(emoji):
+                    emoji = str(emoji.id)
+                    insert_to_db(reaction.message, emoji)
 
 
 @client.event
-async def on_reaction_remove(reaction, _user):
+async def on_reaction_remove(reaction, user):
     """
     Reads every reaction on message, gets the reaction owner, and removes that record from the database.
     """
+    if client.do_self_react:
+        str_emoji = str(reaction.emoji)
 
-    str_emoji = str(reaction.emoji)
+        for emoji in reaction.message.guild.emojis:
+            if str_emoji == str(emoji):
+                emoji = str(emoji.id)
+                delete_from_db(reaction.message, emoji)
+    else:
+        if reaction.message.author != user:
+            str_emoji = str(reaction.emoji)
 
-    for emoji in reaction.message.guild.emojis:
-        if str_emoji == str(emoji):
-            emoji = str(emoji.id)
-            delete_from_db(reaction.message, emoji)
+            for emoji in reaction.message.guild.emojis:
+                if str_emoji == str(emoji):
+                    emoji = str(emoji.id)
+                    delete_from_db(reaction.message, emoji)
 
 
 @client.event
