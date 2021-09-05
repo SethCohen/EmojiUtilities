@@ -7,7 +7,16 @@ module.exports = {
         .addStringOption(option =>
             option.setName('emoji')
                 .setDescription('The emoji to get the leaderboard for.')
-                .setRequired(true)),
+                .setRequired(true))
+        .addIntegerOption(option =>
+            option.setName('daterange')
+                .setDescription('The date range to query for.')
+                .addChoices([
+                    ['All Time', 0],
+                    ['Yearly', 365],
+                    ['Monthly', 30],
+                    ['Weekly', 7],
+                ])),
     async execute(interaction) {
         const emoji = interaction.options.getString('emoji');
         return interaction.reply(`leaderboard WIP... ${emoji}`);
