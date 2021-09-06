@@ -26,8 +26,28 @@ function createDatabase(guildId) {
     db.close()
 }
 
-function deleteFromDb(guildId, interaction, emojiId) {
-    console.log(`deleteFromDb(${interaction}, ${emojiId}) called.`)
+function deleteFromDb(guildId, emojiId, personId, dateTime) {
+    console.log(`deleteFromDb(${guildId}, ${emojiId}) called.`)
+    let db = new Database(`./databases/${guildId}.sqlite`);
+    const statement = db.prepare(`
+        DELETE FROM emojiActivity 
+        WHERE rowid = 
+        (
+            SELECT rowid
+            FROM emojiActivity
+            WHERE
+                emoji = @emoji AND
+                person = @person AND
+                datetime = @datetime
+            LIMIT 1
+        )
+    `)
+    statement.run({
+        emoji: emojiId,
+        person: personId,
+        datetime: dateTime
+    })
+    db.close()
 
 }
 
