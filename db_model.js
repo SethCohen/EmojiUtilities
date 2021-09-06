@@ -31,8 +31,19 @@ function deleteFromDb(guildId, interaction, emojiId) {
 
 }
 
-function insertToDb(guildId, interaction, emojiId) {
-    console.log(`insertToDb(${interaction}, ${emojiId}) called.`)
+function insertToDb(guildId, emojiId, personId, dateTime) {
+    console.log(`insertToDb(${guildId}, ${emojiId}) called.`)
+    let db = new Database(`./databases/${guildId}.sqlite`);
+    const statement = db.prepare(`
+        INSERT INTO emojiActivity (emoji, person, datetime) 
+        VALUES (@emoji, @person, @datetime)
+    `)
+    statement.run({
+        emoji: emojiId,
+        person: personId,
+        datetime: dateTime
+    })
+    db.close()
 
 }
 
@@ -55,7 +66,9 @@ function getDisplayStats(guildId, interaction, dateRange = null, user = null) {
 function getSettingFlag(guildId, setting){
     let db = new Database(`./databases/${guildId}.sqlite`);
     const statement = db.prepare(`SELECT flag FROM serverSettings WHERE setting = ?`)
-    return statement.get(setting).flag
+    const flag = statement.get(setting).flag
+    db.close()
+    return flag
 }
 
 module.exports = {createDatabase, deleteFromDb, insertToDb, getLeaderboard, getGetCount, getDisplayStats, getSettingFlag}

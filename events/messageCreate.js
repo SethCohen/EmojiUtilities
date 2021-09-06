@@ -1,3 +1,4 @@
+const {insertToDb} = require("../db_model");
 const {getSettingFlag} = require('../db_model')
 
 module.exports = {
@@ -6,16 +7,18 @@ module.exports = {
         if (message.author.id !== message.client.user.id) {
             console.log(`messageCreate -> ${message.content} from ${message.author}.`);
             if(getSettingFlag(message.guild.id, 'countmessages')){
-                /* TODO
-                    # Reads emojis in message
-                    emojis = re.findall(r'<:\w*:\d*>|<a:\w*:\d*>', message.content)  # Finds all emojis in message
-                    # print('Detected emojis in message', message.id, ':', emojis)
-                    for str_emoji in emojis:
-                        for emoji in message.guild.emojis:
-                            if str_emoji == str(emoji):
-                                emoji = str(emoji.id)
-                                insert_to_db(message, emoji)
-                */
+                let guildId = message.guild.id
+                let personId = message.author.id
+                let dateTime = message.createdAt.toISOString().split('T')[0]
+
+                let re = /(?<=:)\d*(?=>)/g
+                let emojiIds = message.content.matchAll(re)
+                for (const emojiId of emojiIds) {
+                    message.guild.emojis
+                        .fetch(emojiId)
+                        .then(emoji => insertToDb(guildId, emoji.id, personId, dateTime))
+                        .catch(()=> {})
+                }
             }
         }
     },
