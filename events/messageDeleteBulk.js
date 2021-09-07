@@ -20,6 +20,8 @@ module.exports = {
                             .catch(()=> {})
                     }
                 }
+
+                // TODO handle reactions
             }
         })
     },

@@ -17,7 +17,7 @@ module.exports = {
         if (messageReaction.message.author.id !== messageReaction.client.user.id) {
             if (getSettingFlag(messageReaction.message.guild.id, 'countreacts')) {
                 let guildId = messageReaction.message.guild.id
-                let personId = messageReaction.message.author.id
+                let personId = user.id
                 let dateTime = messageReaction.message.createdAt.toISOString().split('T')[0]
 
                 if (
