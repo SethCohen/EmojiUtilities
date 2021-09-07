@@ -1,5 +1,5 @@
 const {deleteFromDb} = require("../db_model");
-const {getSettingFlag} = require("../db_model");
+const {getSetting} = require("../db_model");
 module.exports = {
     name: 'messageReactionRemove',
     execute(messageReaction, user) {
@@ -15,7 +15,7 @@ module.exports = {
         }
 
         if (messageReaction.message.author.id !== messageReaction.client.user.id) {
-            if (getSettingFlag(messageReaction.message.guild.id, 'countreacts')) {
+            if (getSetting(messageReaction.message.guild.id, 'countreacts')) {
                 let guildId = messageReaction.message.guild.id
                 let personId = user.id
                 let dateTime = messageReaction.message.createdAt.toISOString().split('T')[0]
@@ -23,7 +23,7 @@ module.exports = {
                 if (
                     implies(
                         (messageReaction.message.author.id === user.id),
-                        getSettingFlag(messageReaction.message.guild.id, 'countselfreacts')
+                        getSetting(messageReaction.message.guild.id, 'countselfreacts')
                     )
                 ) {
                     messageReaction.message.guild.emojis

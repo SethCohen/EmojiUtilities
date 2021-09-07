@@ -83,7 +83,7 @@ function getDisplayStats(guildId, interaction, dateRange = null, user = null) {
     // default to server if no user
 }
 
-function getSettingFlag(guildId, setting){
+function getSetting(guildId, setting){
     let db = new Database(`./databases/${guildId}.sqlite`);
     const statement = db.prepare(`SELECT flag FROM serverSettings WHERE setting = ?`)
     const flag = statement.get(setting).flag
@@ -91,4 +91,18 @@ function getSettingFlag(guildId, setting){
     return flag
 }
 
-module.exports = {createDatabase, deleteFromDb, insertToDb, getLeaderboard, getGetCount, getDisplayStats, getSettingFlag}
+function setSetting(guildId, setting, flag){
+    let db = new Database(`./databases/${guildId}.sqlite`);
+    const statement = db.prepare(`
+        UPDATE serverSettings
+        SET flag = @flag
+        WHERE setting = @setting
+    `)
+    statement.run({
+        setting: setting,
+        flag: flag,
+    })
+    db.close()
+}
+
+module.exports = {createDatabase, deleteFromDb, insertToDb, getLeaderboard, getGetCount, getDisplayStats, getSetting, setSetting}

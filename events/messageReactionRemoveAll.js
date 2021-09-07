@@ -1,7 +1,7 @@
 // customly modified MessageReactionRemoveAll.js from discord.js module
 
 const {deleteFromDb} = require("../db_model");
-const {getSettingFlag} = require("../db_model");
+const {getSetting} = require("../db_model");
 module.exports = {
     name: 'messageReactionRemoveAll',
     execute(message, removedReactions) {
@@ -20,7 +20,7 @@ module.exports = {
             console.log(reaction.count, reaction.emoji.id, reaction)
             reaction.users.cache.each(user => {
                 if (message.author.id !== message.client.user.id) {
-                    if (getSettingFlag(message.guild.id, 'countreacts')) {
+                    if (getSetting(message.guild.id, 'countreacts')) {
                         let guildId = message.guild.id
                         let personId = user.id
                         let dateTime = message.createdAt.toISOString().split('T')[0]
@@ -28,7 +28,7 @@ module.exports = {
                         if (
                             implies(
                                 (message.author.id === user.id),
-                                getSettingFlag(message.guild.id, 'countselfreacts')
+                                getSetting(message.guild.id, 'countselfreacts')
                             )
                         ) {
                             message.guild.emojis

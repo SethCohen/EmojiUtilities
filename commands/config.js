@@ -1,3 +1,4 @@
+const {setSetting} = require("../db_model");
 const {SlashCommandBuilder} = require('@discordjs/builders');
 const {Permissions} = require('discord.js');
 
@@ -33,6 +34,11 @@ module.exports = {
                 ephemeral: true
             })
 
-        return interaction.reply({content: `config WIP...`, ephemeral: true});
+        const setting = interaction.options.getSubcommand()
+        const flag = interaction.options.getBoolean('flag') ? 1 : 0
+
+        setSetting(interaction.guild.id, setting, flag)
+
+        return interaction.reply({content: `${setting} set to ${flag}`, ephemeral: true});
     },
 };

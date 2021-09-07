@@ -1,12 +1,12 @@
 const {insertToDb} = require("../db_model");
 const {deleteFromDb} = require("../db_model");
-const {getSettingFlag} = require("../db_model");
+const {getSetting} = require("../db_model");
 module.exports = {
     name: 'messageUpdate',
     execute(oldMessage, newMessage) {
         console.log(`messageUpdate -> ${oldMessage.content}, ${oldMessage.author} -> ${newMessage.content}, ${newMessage.author}.`);
         if (newMessage.author.id !== newMessage.client.user.id) {
-            if(getSettingFlag(newMessage.guild.id, 'countmessages')){
+            if(getSetting(newMessage.guild.id, 'countmessages')){
                 let guildId = newMessage.guild.id
                 let personId = newMessage.author.id
                 let dateTime = newMessage.createdAt.toISOString().split('T')[0]
