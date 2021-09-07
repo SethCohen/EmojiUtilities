@@ -67,8 +67,56 @@ function insertToDb(guildId, emojiId, personId, dateTime) {
 
 }
 
-function getLeaderboard(guildId, interaction, emojiId) {
-    console.log(`getLeaderboard(${interaction}, ${emojiId}) called.`)
+function getLeaderboard(guildId, emojiId, clientId, dateTime = null) {
+    console.log(`getLeaderboard(${guildId}, ${emojiId}, ${clientId}, ${dateTime}) called.`)
+    let db = new Database(`./databases/${guildId}.sqlite`);
+    let cat = null
+    if (dateTime) {
+        let statement = db.prepare(`
+            SELECT 
+                person,
+                COUNT(emoji) 
+            FROM 
+                emojiActivity
+            WHERE 
+                emoji = @emojiId
+                AND person IS NOT @clientId
+                AND datetime > @dateTime
+            GROUP BY 
+                person
+            ORDER BY 
+                COUNT(emoji) DESC
+            LIMIT 10;
+        `)
+        cat = statement.all({
+            emojiId: emojiId,
+            clientId: clientId,
+            dateTime: dateTime,
+        })
+    } else {
+        let statement = db.prepare(`
+            SELECT 
+                person,
+                COUNT(emoji) 
+            FROM 
+                emojiActivity
+            WHERE 
+                emoji = @emojiId
+                AND person IS NOT @clientId
+            GROUP BY 
+                person
+            ORDER BY 
+                COUNT(emoji) DESC
+            LIMIT 10;
+        `)
+        cat = statement.all({
+            emojiId: emojiId,
+            clientId: clientId
+        })
+    }
+    // console.log(cat)
+    db.close()
+    return cat
 
 }
 
