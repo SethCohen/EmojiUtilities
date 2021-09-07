@@ -39,6 +39,6 @@ module.exports = {
 
         setSetting(interaction.guild.id, setting, flag)
 
-        return interaction.reply({content: `${setting} set to ${flag}`, ephemeral: true});
+        return interaction.reply({content: `Setting \`${setting}\` set to \`${Boolean(flag)}\`.`, ephemeral: true});
     },
 };
