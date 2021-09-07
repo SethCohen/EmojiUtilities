@@ -72,9 +72,29 @@ function getLeaderboard(guildId, interaction, emojiId) {
 
 }
 
-function getGetCount(guildId, interaction, user = null) {
-    console.log(`getGetCount(${interaction}, ${user}) called.`)
-    // query for all time, yearly, monthly, weekly, daily
+function getGetCount(guildId, userId, dateTime) {
+    console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`)
+    let db = new Database(`./databases/${guildId}.sqlite`);
+    let count = 0
+    if (userId !== null) {
+        let statement = db.prepare(`
+            SELECT COUNT(emoji) 
+            FROM emojiActivity
+            WHERE person = @person AND
+            datetime > @datetime
+        `)
+        count = statement.get({person: userId, datetime: dateTime,})
+    } else {
+        let statement = db.prepare(`
+            SELECT COUNT(emoji) 
+            FROM emojiActivity
+            WHERE datetime > @datetime
+        `)
+        count = statement.get({datetime: dateTime,})
+    }
+    db.close()
+    return Object.values(count)[0]
+
 
 }
 
@@ -83,7 +103,7 @@ function getDisplayStats(guildId, interaction, dateRange = null, user = null) {
     // default to server if no user
 }
 
-function getSetting(guildId, setting){
+function getSetting(guildId, setting) {
     let db = new Database(`./databases/${guildId}.sqlite`);
     const statement = db.prepare(`SELECT flag FROM serverSettings WHERE setting = ?`)
     const flag = statement.get(setting).flag
@@ -91,7 +111,7 @@ function getSetting(guildId, setting){
     return flag
 }
 
-function setSetting(guildId, setting, flag){
+function setSetting(guildId, setting, flag) {
     let db = new Database(`./databases/${guildId}.sqlite`);
     const statement = db.prepare(`
         UPDATE serverSettings
@@ -105,4 +125,13 @@ function setSetting(guildId, setting, flag){
     db.close()
 }
 
-module.exports = {createDatabase, deleteFromDb, insertToDb, getLeaderboard, getGetCount, getDisplayStats, getSetting, setSetting}
+module.exports = {
+    createDatabase,
+    deleteFromDb,
+    insertToDb,
+    getLeaderboard,
+    getGetCount,
+    getDisplayStats,
+    getSetting,
+    setSetting
+}
