@@ -12,7 +12,7 @@ module.exports = {
             .setColor("ORANGE")
             .setTitle("Help & Commands")
             .setDescription("[Invite To Server]" +
-                "(https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=84992&scope=bot)" +
+                "(https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=93248&scope=applications.commands%20bot)" +
                 "\n[Github]" +
                 "(https://github.com/SethCohen/EmojiStatistics)" +
                 "\n[Support Server]" +
