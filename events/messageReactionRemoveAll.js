@@ -17,12 +17,12 @@ module.exports = {
         }
 
         removedReactions.each(reaction => {
-            console.log(reaction.count, reaction.emoji.id, reaction)
+            // console.log(reaction.count, reaction.emoji.id, reaction)
             reaction.users.cache.each(user => {
                 if (message.author.id !== message.client.user.id) {
                     if (getSetting(message.guild.id, 'countreacts')) {
                         let guildId = message.guild.id
-                        let personId = user.id
+                        let personId = message.author.id
                         let dateTime = message.createdAt.toISOString().split('T')[0]
 
                         if (
@@ -33,7 +33,7 @@ module.exports = {
                         ) {
                             message.guild.emojis
                                 .fetch(reaction.emoji.id)
-                                .then(emoji => deleteFromDb(guildId, emoji.id, personId, dateTime))
+                                .then(emoji => deleteFromDb(guildId, emoji.id, personId, dateTime, "messageReactionRemoveAll"))
                                 .catch(() => {
                                 })
                         }

@@ -29,7 +29,7 @@ module.exports = {
                 for (const emojiId of emojiIds) {
                     message.guild.emojis
                         .fetch(emojiId)
-                        .then(emoji => insertToDb(guildId, emoji.id, personId, dateTime))
+                        .then(emoji => insertToDb(guildId, emoji.id, personId, dateTime, "messageCreate"))
                         .catch(() => {
                         })
                 }

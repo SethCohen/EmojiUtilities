@@ -17,7 +17,7 @@ module.exports = {
         if (messageReaction.message.author.id !== messageReaction.client.user.id) {
             if (getSetting(messageReaction.message.guild.id, 'countreacts')) {
                 let guildId = messageReaction.message.guild.id
-                let personId = user.id
+                let personId = messageReaction.message.author.id
                 let dateTime = messageReaction.message.createdAt.toISOString().split('T')[0]
 
                 if (
@@ -28,7 +28,10 @@ module.exports = {
                 ) {
                     messageReaction.message.guild.emojis
                         .fetch(messageReaction.emoji.id)
-                        .then(emoji => insertToDb(guildId, emoji.id, personId, dateTime))
+                        .then(emoji => {
+                            let emojiId = emoji.id
+                            insertToDb(guildId, emojiId, personId, dateTime, "messageReactionAdd")
+                        })
                         .catch(() => {
                         })
                 }

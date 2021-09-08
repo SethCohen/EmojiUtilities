@@ -16,12 +16,21 @@ module.exports = {
                 for (const emojiId of emojiIds) {
                     message.guild.emojis
                         .fetch(emojiId)
-                        .then(emoji => deleteFromDb(guildId, emoji.id, personId, dateTime))
+                        .then(emoji => deleteFromDb(guildId, emoji.id, personId, dateTime, "messageDelete - message"))
                         .catch(()=> {})
                 }
             }
 
-            // TODO handle reactions
+            if(getSetting(message.guild.id, 'countreacts')){
+                let guildId = message.guild.id
+                let dateTime = message.createdAt.toISOString().split('T')[0]
+
+                message.reactions.cache.each(reaction => {
+                    reaction.users.cache.each(user => {
+                        deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, "messageDelete - reaction")
+                    })
+                })
+            }
         }
     },
 };
