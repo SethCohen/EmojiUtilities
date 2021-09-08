@@ -72,13 +72,20 @@ module.exports = {
 
         let chunkSize = 24;
         let embeds = []
+        let chunks = []
         let index = 0
+        let pageNumber = 1
         for (let i = 0, j = array.length; i < j; i += chunkSize) {
             let chunk = array.slice(i, i + chunkSize);
+            chunks.push(chunk)
+
+        }
+        for (const chunk of chunks) {
             const embed = new MessageEmbed()
                 .setColor('ORANGE')
                 .setTitle(`---------- ${user ? user.username : 'Server'}'s Statistics ----------`)
                 .setDescription(dateString)
+                .setFooter(`Page ${pageNumber++}/${chunks.length}`)
             for await (const row of chunk) {
                 let count = Object.values(row)[1]
                 let emojiId = Object.values(row)[0]
