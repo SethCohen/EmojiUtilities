@@ -1,8 +1,53 @@
 # Changelog
 
-## [1.4.0] - 2021-09-04
-- Massive code overhaul. Start of port over to Discord.js
-- Added basic slash commands support.
+## [1.4.0] - 2021-09-08
+### Added
+- Added javascript events `ready.js`, `messageUpdate.js`, `messageReactionRemoveAll.js`, `messageReactionRemove.js`, `messageReactionAdd.js`, `messageDeleteBulk.js`, `messageDelete.js`, `messageCreate.js` basic implementations. [db99461][db99461]
+- Added javascript commands `leaderboard.js`, `config.js` basic implementations. [db99461][db99461]
+- Added basic `better-sqlite3` support with basic events implementation `getSettingFlag`, `getDisplayStats`, `getGetCount`, `getLeaderboard`, `insertToDb`, `deleteFromDb`, `createDatabase` [cc9d24a][cc9d24a]
+- Added `serverSettings(setting TEXT, flag INTEGER)` table for server configs. [cc9d24a][cc9d24a]
+- Added `insertToDb` functionality and `messageCreate` functionality. [f5cecd8][f5cecd8]
+- Added `deleteFromDb` functionality and `messageDelete` and `messageBulkDelete` functionality. [bff973a][bff973a]
+- Added `messageReactionAdd` functionality with `insertToDb`. [be2dad4][be2dad4]
+- Added `messageReactionRemove` functionality with `deleteFromDb`. [0c3619b][0c3619b]
+- Added `messageReactionRemoveAll` functionality with `deleteFromDb`. [c48a55a][c48a55a]
+- Added `messageUpdate` functionality with both `insertToDb` and `deleteFromDb`. [d7037e3][d7037e3]
+- Added `config` command functionality with `setSetting` implementation. [f6e2c32][f6e2c32]
+- Added `listemoji` command functionality. [fe76b9b][fe76b9b]
+- Added `getCount` command functionality. [225ac9a][225ac9a]
+- Added `getGetCount` sqlite query functionality. [225ac9a][225ac9a]
+- Added `leaderboard` command functionality. [bd0e632][bd0e632]
+- Added `getLeaderboard` sqlite query functionality. [bd0e632][bd0e632]
+- Added `displaystats` command functionality with Buttons. [33367fb][33367fb]
+- Added `getDisplayStats` sqlite query functionality. [33367fb][33367fb]
+- `displaystats.js` Added page number on footer. [a66a324][a66a324]
+- `guildCreate.js` Added welcome message on bot guild join. [a66a324][a66a324]
+
+
+### Changed
+- Ported everything over to discord.js and javascript.
+- `getSettingFlag` into `getSetting. [f6e2c32][f6e2c32]
+- `config.js` command response to more readable text. [fe76b9b][fe76b9b]
+- `listemoji.js` command sends plain messages instead of responses. [33367fb][33367fb]
+
+### Fixed
+- `messageReactionAdd.js` Get reaction's author instead of message author of the reaction [c48a55a][c48a55a]
+- `messageReactionRemove.js` Get reaction's author instead of message author of the reaction [c48a55a][c48a55a]
+- `displaystats.js` Catch invalid/undefined emoji error. [856a7a4][856a7a4]
+- `leaderboard.js` Catch invalid/undefined user error. [856a7a4][856a7a4]
+
+### Removed
+- `displaystats.js` Removed Yearly daterange. [33367fb][33367fb]
+- `guildCreate.js` Removed attempt to post to admin/system channel. [4c29121][4c29121]
+
+## [1.3.9] - 2021-09-04
+### Added
+- `ES docountmessages` command; available flags `true` or `false`
+### Changed
+- `on_message` now considers do_count_messages flag when adding to db.
+- `on_message_remove` now considers do_count_messages flag when adding to db.
+- `ES help` Updated to include docountmessages command info.
+- `ES help` Updated to fix displaystats
 
 ## [1.3.8] - 2021-09-04
 ### Added
@@ -93,3 +138,19 @@
 ## [< 1.0.0] - Pre 2020-11-22
 Added complete functionality
 
+[db99461]: https://github.com/SethCohen/EmojiStatistics/commit/db99461cafb5371cc85b70f0ec0743be813f7dd6
+[cc9d24a]: https://github.com/SethCohen/EmojiStatistics/commit/cc9d24ad9b942dea684aced1d741f721290ebd09
+[f5cecd8]: https://github.com/SethCohen/EmojiStatistics/commit/f5cecd895348d7db500572fdb521361ce33a7173
+[bff973a]: https://github.com/SethCohen/EmojiStatistics/commit/bff973a294067406f5f37b88a377e7f9b9aee9c4
+[be2dad4]: https://github.com/SethCohen/EmojiStatistics/commit/be2dad4779d25d01f0a09b235b7af574436b9e7f
+[0c3619b]: https://github.com/SethCohen/EmojiStatistics/commit/0c3619bb5faa151daddc11d84b87f2fc3f747c93
+[c48a55a]: https://github.com/SethCohen/EmojiStatistics/commit/c48a55a04dde50a06658abfe0203cb7d0af6cd4b
+[d7037e3]: https://github.com/SethCohen/EmojiStatistics/commit/d7037e3e165b0be3e3b742cb66bebb16d686bbab
+[f6e2c32]: https://github.com/SethCohen/EmojiStatistics/commit/f6e2c3232c002414335e50d05302a23897de1d35
+[fe76b9b]: https://github.com/SethCohen/EmojiStatistics/commit/fe76b9b800c1159ee06a940988e561cdf05ffafb
+[225ac9a]: https://github.com/SethCohen/EmojiStatistics/commit/225ac9aaaf6d9590688a74f7d286d1ae8d433417
+[bd0e632]: https://github.com/SethCohen/EmojiStatistics/commit/bd0e63296a4877fc9b78839711c174a0e453557c
+[33367fb]: https://github.com/SethCohen/EmojiStatistics/commit/33367fb9b8eb8c7ca9249e1b23459d036d5b5532
+[a66a324]: https://github.com/SethCohen/EmojiStatistics/commit/a66a3248a0237361527e5129b5132688d947706b
+[856a7a4]: https://github.com/SethCohen/EmojiStatistics/commit/856a7a4c5aeee05fefed62e5a425bbfaf03f75fb
+[4c29121]: https://github.com/SethCohen/EmojiStatistics/commit/4c291215672e5b99a3edc8086ce082f368e1250e
