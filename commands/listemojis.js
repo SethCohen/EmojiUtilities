@@ -17,8 +17,9 @@ module.exports = {
 		return interaction.reply(chunks[0]).then(()=>{
 			chunks.shift()
 			for (const chunk of chunks) {
-				interaction.followUp(chunk)
+				interaction.channel.send(chunk)
 			}
+			interaction.channel.send(`This server has a total of ${emojisList.length} emojis.`)
 		})
 	},
 };

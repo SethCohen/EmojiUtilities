@@ -70,7 +70,7 @@ function insertToDb(guildId, emojiId, personId, dateTime) {
 function getLeaderboard(guildId, emojiId, clientId, dateTime = null) {
     console.log(`getLeaderboard(${guildId}, ${emojiId}, ${clientId}, ${dateTime}) called.`)
     let db = new Database(`./databases/${guildId}.sqlite`);
-    let cat = null
+    let cat
     if (dateTime) {
         let statement = db.prepare(`
             SELECT 
@@ -123,7 +123,7 @@ function getLeaderboard(guildId, emojiId, clientId, dateTime = null) {
 function getGetCount(guildId, userId, dateTime) {
     console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`)
     let db = new Database(`./databases/${guildId}.sqlite`);
-    let count = 0
+    let count
     if (userId !== null) {
         let statement = db.prepare(`
             SELECT COUNT(emoji) 
@@ -146,9 +146,43 @@ function getGetCount(guildId, userId, dateTime) {
 
 }
 
-function getDisplayStats(guildId, interaction, dateRange = null, user = null) {
-    console.log(`getDisplayStats(${interaction}, ${dateRange}, ${user}) called.`)
-    // default to server if no user
+function getDisplayStats(guildId, dateTime, userId = null) {
+    console.log(`getDisplayStats(${guildId}, ${dateTime}, ${userId}) called.`)
+
+    let db = new Database(`./databases/${guildId}.sqlite`);
+    let cat
+    if (userId) {
+        let statement = db.prepare(`
+            SELECT 
+                emoji,
+                COUNT(emoji) 
+            FROM emojiActivity
+            WHERE 
+                person = @person
+                AND datetime > @datetime
+            GROUP BY emoji
+            ORDER BY COUNT(emoji) DESC
+        `)
+        cat = statement.all({
+            person: userId,
+            datetime: dateTime,
+        })
+    } else {
+        let statement = db.prepare(`
+            SELECT 
+                emoji,
+                COUNT(emoji) 
+            FROM emojiActivity
+            WHERE datetime > @datetime
+            GROUP BY emoji
+            ORDER BY COUNT(emoji) DESC
+        `)
+        cat = statement.all({
+            datetime: dateTime,
+        })
+    }
+    db.close()
+    return cat
 }
 
 function getSetting(guildId, setting) {
