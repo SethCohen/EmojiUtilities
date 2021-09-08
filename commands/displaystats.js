@@ -89,8 +89,10 @@ module.exports = {
             for await (const row of chunk) {
                 let count = Object.values(row)[1]
                 let emojiId = Object.values(row)[0]
-                let emoji = await interaction.guild.emojis.fetch(emojiId)
-                embed.addField(`${emoji}`, `${count}`, true)
+                try {
+                    let emoji = await interaction.guild.emojis.fetch(emojiId)
+                    embed.addField(`${emoji}`, `${count}`, true)
+                } catch(error) {}
             }
             embeds.push(embed)
         }

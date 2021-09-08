@@ -71,8 +71,10 @@ module.exports = {
         for await (const row of array) {
             let count = Object.values(row)[1]
             let userId = Object.values(row)[0]
-            let user = await interaction.guild.members.fetch(userId)
-            embed.addField(`${pos}. ${user.displayName}`, `${count}`)
+            try {
+                let user = await interaction.guild.members.fetch(userId)
+                embed.addField(`${pos}. ${user.displayName}`, `${count}`)
+            } catch (e){}
             pos++
         }
         return interaction.reply({embeds: [embed]})
