@@ -5,8 +5,19 @@ module.exports = {
     name: 'messageCreate',
     execute(message) {
         if (message.author.id !== message.client.user.id) {
-            console.log(`messageCreate -> ${message.content} from ${message.author}.`);
-            if(getSetting(message.guild.id, 'countmessages')){
+
+            if (message.content.substring(0, 2) === 'ES') {
+                message.reply('Hey! Sorry for the inconvenience! We\'ve recently converted the bot completely to slash' +
+                    ' commands (Check it out with `/help`!) to comply with Discord\'s upcoming changes.' +
+                    '\nYou can find out more about those changes at ' +
+                    'https://support-dev.discord.com/hc/en-us/articles/4404772028055-Message-Content-Access-Deprecation-for-Verified-Bots'+
+                    '\nAlso, this update was quite a big update so if you notice any bugs, please report' +
+                    ' them in our Support Server: https://discord.gg/XaeERFAVfb' +
+                    '\nThe server is also a good way to keep up to date with bot changelogs or make feature requests.')
+            }
+
+            // console.log(`messageCreate: ${message.content}, ${message.author}.`);
+            if (getSetting(message.guild.id, 'countmessages')) {
                 let guildId = message.guild.id
                 let personId = message.author.id
                 let dateTime = message.createdAt.toISOString().split('T')[0]
@@ -17,7 +28,8 @@ module.exports = {
                     message.guild.emojis
                         .fetch(emojiId)
                         .then(emoji => insertToDb(guildId, emoji.id, personId, dateTime))
-                        .catch(()=> {})
+                        .catch(() => {
+                        })
                 }
             }
         }

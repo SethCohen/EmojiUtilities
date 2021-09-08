@@ -5,7 +5,7 @@ const {getSetting} = require("../db_model");
 module.exports = {
     name: 'messageReactionRemoveAll',
     execute(message, removedReactions) {
-        console.log(`messageReactionRemoveAll -> ${message.content}, ${message.author}.`);
+        // console.log(`messageReactionRemoveAll: ${message.content}, ${message.author}.`);
 
         const implies = (p, q) => {
             // p -> q

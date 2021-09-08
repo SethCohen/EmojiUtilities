@@ -5,7 +5,7 @@ module.exports = {
     name: 'messageDelete',
     execute(message) {
         if (message.author.id !== message.client.user.id) {
-            console.log(`messageDelete -> ${message.content}, ${message.author}.`);
+            // console.log(`messageDelete: ${message.content}, ${message.author}.`);
             if(getSetting(message.guild.id, 'countmessages')){
                 let guildId = message.guild.id
                 let personId = message.author.id

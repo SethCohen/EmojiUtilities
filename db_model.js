@@ -1,7 +1,7 @@
 const Database = require('better-sqlite3')
 
 function createDatabase(guildId) {
-    console.log(`createDatabase(${guildId}) called.`)
+    // console.log(`createDatabase(${guildId}) called.`)
 
     let db = new Database(`./databases/${guildId}.sqlite`);
 
@@ -27,7 +27,7 @@ function createDatabase(guildId) {
 }
 
 function deleteFromDb(guildId, emojiId, personId, dateTime) {
-    console.log(`deleteFromDb(${guildId}, ${emojiId}) called.`)
+    // console.log(`deleteFromDb(${guildId}, ${emojiId}) called.`)
     let db = new Database(`./databases/${guildId}.sqlite`);
     const statement = db.prepare(`
         DELETE FROM emojiActivity 
@@ -52,7 +52,7 @@ function deleteFromDb(guildId, emojiId, personId, dateTime) {
 }
 
 function insertToDb(guildId, emojiId, personId, dateTime) {
-    console.log(`insertToDb(${guildId}, ${emojiId}) called.`)
+    // console.log(`insertToDb(${guildId}, ${emojiId}) called.`)
     let db = new Database(`./databases/${guildId}.sqlite`);
     const statement = db.prepare(`
         INSERT INTO emojiActivity (emoji, person, datetime) 
@@ -68,7 +68,7 @@ function insertToDb(guildId, emojiId, personId, dateTime) {
 }
 
 function getLeaderboard(guildId, emojiId, clientId, dateTime = null) {
-    console.log(`getLeaderboard(${guildId}, ${emojiId}, ${clientId}, ${dateTime}) called.`)
+    // console.log(`getLeaderboard(${guildId}, ${emojiId}, ${clientId}, ${dateTime}) called.`)
     let db = new Database(`./databases/${guildId}.sqlite`);
     let cat
     if (dateTime) {
@@ -121,7 +121,7 @@ function getLeaderboard(guildId, emojiId, clientId, dateTime = null) {
 }
 
 function getGetCount(guildId, userId, dateTime) {
-    console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`)
+    // console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`)
     let db = new Database(`./databases/${guildId}.sqlite`);
     let count
     if (userId !== null) {
@@ -147,7 +147,7 @@ function getGetCount(guildId, userId, dateTime) {
 }
 
 function getDisplayStats(guildId, dateTime, userId = null) {
-    console.log(`getDisplayStats(${guildId}, ${dateTime}, ${userId}) called.`)
+    // console.log(`getDisplayStats(${guildId}, ${dateTime}, ${userId}) called.`)
 
     let db = new Database(`./databases/${guildId}.sqlite`);
     let cat

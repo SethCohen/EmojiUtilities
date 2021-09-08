@@ -3,7 +3,7 @@ const {getSetting} = require("../db_model");
 module.exports = {
     name: 'messageReactionAdd',
     execute(messageReaction, user) {
-        console.log(`messageReactionAdd -> ${messageReaction.message}, ${messageReaction.emoji}, ${user}.`);
+        // console.log(`messageReactionAdd: ${messageReaction.message}, ${messageReaction.emoji}, ${user}.`);
 
         const implies = (p, q) => {
             // p -> q

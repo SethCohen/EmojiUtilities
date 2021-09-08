@@ -4,7 +4,7 @@ const {getSetting} = require("../db_model");
 module.exports = {
     name: 'messageUpdate',
     execute(oldMessage, newMessage) {
-        console.log(`messageUpdate -> ${oldMessage.content}, ${oldMessage.author} -> ${newMessage.content}, ${newMessage.author}.`);
+        // console.log(`messageUpdate: ${oldMessage.content}, ${oldMessage.author} -> ${newMessage.content}, ${newMessage.author}.`);
         if (newMessage.author.id !== newMessage.client.user.id) {
             if(getSetting(newMessage.guild.id, 'countmessages')){
                 let guildId = newMessage.guild.id
