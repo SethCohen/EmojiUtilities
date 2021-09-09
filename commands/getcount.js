@@ -40,7 +40,7 @@ module.exports = {
                 {name: 'Daily', value: dailyCount, inline: true},
                 {name: 'Hourly', value: hourlyCount, inline: true},
             )
-            .setThumbnail(`${user ? user.avatar : interaction.guild.iconURL()}`)
+            .setThumbnail(`${user ? user.displayAvatarURL() : interaction.guild.iconURL()}`)
         return interaction.reply({embeds: [embed]});
     },
 };

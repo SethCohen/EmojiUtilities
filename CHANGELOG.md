@@ -9,6 +9,8 @@
 ### Changed
 - Date object format changed from `YYYY-MM-DD` to `YYYY-MM-DDTHH:mm:ss.sssZ`, Databases now store ISO date format and queries query with said format.
 
+## Fixed
+- Fixed getcount break on thumbnail get user's avatar.
 
 ## 1.4.1 - 2021-09-08
 ### Added
