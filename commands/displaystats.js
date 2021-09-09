@@ -3,7 +3,6 @@ const {MessageActionRow} = require("discord.js");
 const {getDisplayStats} = require("../db_model");
 const {MessageEmbed} = require("discord.js");
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const wait = require('util').promisify(setTimeout);
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,8 +14,11 @@ module.exports = {
                 .setRequired(true)
                 .addChoices([
                     ['All Time', 0],
+                    ['Yearly', 365],
                     ['Monthly', 30],
                     ['Weekly', 7],
+                    ['Daily', 1],
+                    ['Hourly', 60],
                 ]))
         .addUserOption(option =>
             option.setName('user')
@@ -47,6 +49,13 @@ module.exports = {
                 dateString = "All-Time"
                 dateRange = '0'
                 break
+            case 365:
+                // yearly
+                dateString = "Yearly"
+                dateRange = new Date()
+                dateRange.setDate(dateRange.getDate() - 365)
+                dateRange = dateRange.toISOString()
+                break
             case 30:
                 // monthly
                 dateString = "Monthly"
@@ -59,6 +68,20 @@ module.exports = {
                 dateString = "Weekly"
                 dateRange = new Date()
                 dateRange.setDate(dateRange.getDate() - 7)
+                dateRange = dateRange.toISOString()
+                break
+            case 1:
+                // daily
+                dateString = "Daily"
+                dateRange = new Date()
+                dateRange.setDate(dateRange.getDate() - 1)
+                dateRange = dateRange.toISOString()
+                break
+            case 60:
+                // hourly
+                dateString = "Hourly"
+                dateRange = new Date()
+                dateRange.setHours(dateRange.getHours() - 1)
                 dateRange = dateRange.toISOString()
                 break
             default:

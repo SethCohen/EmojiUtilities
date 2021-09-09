@@ -4,8 +4,11 @@ const {deleteFromDb} = require("../db_model");
 const {getSetting} = require("../db_model");
 module.exports = {
     name: 'messageReactionRemoveAll',
-    execute(message, removedReactions) {
+    async execute(message, removedReactions) {
         // console.log(`messageReactionRemoveAll: ${message.content}, ${message.author}.`);
+        if (message.partial) {
+            message = await message.fetch().catch(console.error)
+        }
 
         const implies = (p, q) => {
             // p -> q
@@ -23,7 +26,7 @@ module.exports = {
                     if (getSetting(message.guild.id, 'countreacts')) {
                         let guildId = message.guild.id
                         let personId = message.author.id
-                        let dateTime = message.createdAt.toISOString().split('T')[0]
+                        let dateTime = message.createdAt.toISOString()
 
                         if (
                             implies(
@@ -31,11 +34,13 @@ module.exports = {
                                 getSetting(message.guild.id, 'countselfreacts')
                             )
                         ) {
-                            message.guild.emojis
-                                .fetch(reaction.emoji.id)
-                                .then(emoji => deleteFromDb(guildId, emoji.id, personId, dateTime, "messageReactionRemoveAll"))
-                                .catch(() => {
-                                })
+                            if (reaction.emoji.id) {  // if not unicode emoji
+                                message.guild.emojis
+                                    .fetch(reaction.emoji.id)
+                                    .then(emoji => deleteFromDb(guildId, emoji.id, personId, dateTime, "messageReactionRemoveAll"))
+                                    .catch(() => {
+                                    })
+                            }
                         }
                     }
                 }

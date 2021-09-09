@@ -11,23 +11,36 @@ module.exports = {
     async execute(interaction) {
         const user = interaction.options.getUser('user');
 
+        let yearly = new Date()
+        yearly.setDate(yearly.getDate() - 365)
         let monthly = new Date()
         monthly.setMonth(monthly.getMonth() - 1)
         let weekly = new Date()
         weekly.setDate(weekly.getDate() - 7)
+        let daily = new Date()
+        daily.setDate(daily.getDate() - 1)
+        let hourly = new Date()
+        hourly.setHours(hourly.getHours() - 1)
 
         const alltimeCount = getGetCount(interaction.guild.id, user ? user.id : user, '0').toString()
+        const yearlyCount = getGetCount(interaction.guild.id, user ? user.id : user, yearly.toISOString()).toString()
         const monthlyCount = getGetCount(interaction.guild.id, user ? user.id : user, monthly.toISOString()).toString()
         const weeklyCount = getGetCount(interaction.guild.id, user ? user.id : user, weekly.toISOString()).toString()
+        const dailyCount = getGetCount(interaction.guild.id, user ? user.id : user, daily.toISOString()).toString()
+        const hourlyCount = getGetCount(interaction.guild.id, user ? user.id : user, daily.toISOString()).toString()
 
         const embed = new MessageEmbed()
             .setColor('ORANGE')
             .setTitle(`${user ? user.username : 'Server'}'s Total Count Statistics`)
             .addFields(
                 {name: 'All-Time', value: alltimeCount, inline: true},
+                {name: 'Yearly', value: yearlyCount, inline: true},
                 {name: 'Monthly', value: monthlyCount, inline: true},
                 {name: 'Weekly', value: weeklyCount, inline: true},
+                {name: 'Daily', value: dailyCount, inline: true},
+                {name: 'Hourly', value: hourlyCount, inline: true},
             )
+            .setThumbnail(`${user ? user.avatar : interaction.guild.iconURL()}`)
         return interaction.reply({embeds: [embed]});
     },
 };

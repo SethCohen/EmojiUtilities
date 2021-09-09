@@ -18,8 +18,11 @@ module.exports = {
                 .setDescription('The date range to query for.')
                 .addChoices([
                     ['All Time', 0],
+                    ['Yearly', 365],
                     ['Monthly', 30],
                     ['Weekly', 7],
+                    ['Daily', 1],
+                    ['Hourly', 60],
                 ])),
     async execute(interaction) {
         const embed = new MessageEmbed().setColor('ORANGE')
@@ -31,8 +34,15 @@ module.exports = {
         switch (dateRange) {
             case 0:
                 // all time
-                embed.setDescription("All Time")
+                embed.setDescription("All-Time")
                 dateRange = '0'
+                break
+            case 365:
+                // yearly
+                embed.setDescription("Yearly")
+                dateRange = new Date()
+                dateRange.setDate(dateRange.getDate() - 365)
+                dateRange = dateRange.toISOString()
                 break
             case 30:
                 // monthly
@@ -48,7 +58,22 @@ module.exports = {
                 dateRange.setDate(dateRange.getDate() - 7)
                 dateRange = dateRange.toISOString()
                 break
+            case 1:
+                // daily
+                embed.setDescription("Daily")
+                dateRange = new Date()
+                dateRange.setDate(dateRange.getDate() - 1)
+                dateRange = dateRange.toISOString()
+                break
+            case 1:
+                // daily
+                embed.setDescription("Hourly")
+                dateRange = new Date()
+                dateRange.setHours(dateRange.getHours() - 1)
+                dateRange = dateRange.toISOString()
+                break
             default:
+                embed.setDescription("All-Time")
                 dateRange = null
         }
 
@@ -57,7 +82,7 @@ module.exports = {
 
         let emoji = null
         try {
-            emoji =  await interaction.guild.emojis.fetch(emojiIds[0])
+            emoji = await interaction.guild.emojis.fetch(emojiIds[0])
         } catch {
             return interaction.reply({content: 'No emoji found in string.', ephemeral: true})
         }
@@ -74,7 +99,9 @@ module.exports = {
             try {
                 let user = await interaction.guild.members.fetch(userId)
                 embed.addField(`${pos}. ${user.displayName}`, `${count}`)
-            } catch (e){}
+            } catch (e) {
+                console.error(e)
+            }
             pos++
         }
         return interaction.reply({embeds: [embed]})

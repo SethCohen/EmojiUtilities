@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.2 - 2021-09-08
+### Added
+- Partials support for old messages, reaction removing/add on old/uncached messages can now be tracked. 
+- Added catch for unicode/default emojis so only custom emojis get added to a server's db.
+- Added Yearly, Daily, and Hourly daterange options to `displaystats`, `getcount`, and `leaderboard`
+
+### Changed
+- Date object format changed from `YYYY-MM-DD` to `YYYY-MM-DDTHH:mm:ss.sssZ`, Databases now store ISO date format and queries query with said format.
+
+
 ## 1.4.1 - 2021-09-08
 ### Added
 - insertToDb event origin console log.

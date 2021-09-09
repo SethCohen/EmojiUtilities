@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "deploy_commands": "node deploy-commands.js"
   },
   "dependencies": {
     "@discordjs/builders": "^0.6.0",

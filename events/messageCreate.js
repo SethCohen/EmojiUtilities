@@ -22,7 +22,7 @@ module.exports = {
             if (getSetting(message.guild.id, 'countmessages')) {
                 let guildId = message.guild.id
                 let personId = message.author.id
-                let dateTime = message.createdAt.toISOString().split('T')[0]
+                let dateTime = message.createdAt.toISOString()
 
                 let re = /(?<=:)\d*(?=>)/g
                 let emojiIds = message.content.matchAll(re)
