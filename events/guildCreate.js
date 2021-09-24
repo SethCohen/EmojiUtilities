@@ -7,7 +7,9 @@ module.exports = {
         createDatabase(guild.id)
 
         let channels = await guild.channels.cache
-        let foundChannel = await channels.find(channel => (channel.isText() && channel.permissionsFor(guild.me).has('SEND_MESSAGES') && channel.permissionsFor(guild.me).has('VIEW_CHANNEL')))
+        let foundChannel = await channels.find(channel => (channel.isText()
+            && channel.permissionsFor(guild.me).has('SEND_MESSAGES')
+            && channel.permissionsFor(guild.me).has('VIEW_CHANNEL')))
         if (foundChannel) {
             foundChannel.send("Hey, thanks for adding me to your server! " +
                 "\nThere's no need to do anything else, the database has been setup for you." +
