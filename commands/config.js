@@ -6,6 +6,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('config')
         .setDescription('Change various bot functionalities.')
+        .setDefaultPermission(false)
         .addSubcommand(subcommand =>
             subcommand.setName('countmessages')
                 .setDescription('Allows bot to count reactions. Default: true')
