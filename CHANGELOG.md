@@ -6,6 +6,13 @@
 - Delete db command
 - Separate db tables for who received reactions and who added reactions
 
+## 1.4.3 - 2021-09-28
+
+### Added
+
+- Added another check for slash command permissions. Slash commands should now be greyed out if user doesn't have the
+  proper role perms.
+
 ## 1.4.2 - 2021-09-08
 
 ### Added
