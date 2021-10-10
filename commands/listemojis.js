@@ -14,16 +14,13 @@ module.exports = {
             chunks.push(chunk)
         }
 
+        // TODO change interaction.channel.send to button support editReply
         return interaction.reply(chunks[0]).then(() => {
             chunks.shift()
-            try {
-                for (const chunk of chunks) {
-                    interaction.channel.send(chunk)
-                }
-                interaction.channel.send(`This server has a total of ${emojisList.length} emojis.`)
-            } catch (err) {
-                console.log(err)
+            for (const chunk of chunks) {
+                interaction.channel.send(chunk).catch(e => console.error(e.toString()))
             }
+            interaction.channel.send(`This server has a total of ${emojisList.length} emojis.`).catch(e => console.error(e.toString()))
         })
     },
 };

@@ -6,7 +6,6 @@ module.exports = {
     execute(message) {
         if (message.author.id !== message.client.user.id) {
 
-            try {
                 // TODO proper error check of if bot has perms to send message.
                 if (message.content.substring(0, 2) === 'ES') {
                     message.reply('Hey! Sorry for the inconvenience! We\'ve recently converted the bot completely to slash' +
@@ -16,28 +15,33 @@ module.exports = {
                         '\nAlso, this update was quite a big update so if you notice any bugs, please report' +
                         ' them in our Support Server: https://discord.gg/XaeERFAVfb' +
                         '\nThe server is also a good way to keep up to date with bot changelogs or make feature requests.' +
-                        '\n\n**YOU HAVE TO RE-AUTH THE BOT FOR SLASH COMMAND ACCESS! Please re-auth the bot by clicking:** ' +
+                        '\n\n**YOU HAVE TO RE-AUTH THE BOT TO THE SERVER FOR SLASH COMMAND ACCESS! Please re-auth the bot by clicking:** ' +
                         '\nhttps://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=93248&scope=applications.commands%20bot')
+                        .catch(e => console.error(e.toString(), `for guild id ${message.guildId}. Can\'t reply ES warning on messageCreate. Bot does not have permissions to send message.`))
                 }
-            } catch (error) {
-                console.log(error.toString())
-            }
 
-            // console.log(`messageCreate: ${message.content}, ${message.author}.`);
-            if (getSetting(message.guild.id, 'countmessages')) {
-                let guildId = message.guild.id
-                let personId = message.author.id
-                let dateTime = message.createdAt.toISOString()
 
-                let re = /(?<=:)\d*(?=>)/g
-                let emojiIds = message.content.matchAll(re)
-                for (const emojiId of emojiIds) {
-                    message.guild.emojis
-                        .fetch(emojiId)
-                        .then(emoji => insertToDb(guildId, emoji.id, personId, dateTime, "messageCreate"))
-                        .catch(() => {
-                        })
+            try {
+                if (getSetting(message.guild.id, 'countmessages')) {    // Count messages
+                    let guildId = message.guild.id
+                    let messageAuthorId = message.author.id
+                    let dateTime = message.createdAt.toISOString()
+
+                    // Finds all emojis in messages via regex
+                    let re = /(?<=:)\d*(?=>)/g
+                    let emojiIds = message.content.matchAll(re)
+
+                    for (const emojiId of emojiIds) {
+                        message.guild.emojis
+                            .fetch(emojiId)
+                            .then(emoji => insertToDb(guildId, emoji.id, messageAuthorId, dateTime, 'messageActivity', "messageCreate"))
+                            .catch(ignoreError => {
+                                // Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
+                            })
+                    }
                 }
+            } catch (e) {
+                console.error(e)
             }
         }
     },

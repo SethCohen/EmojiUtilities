@@ -1,14 +1,19 @@
 const {getLeaderboard} = require("../db_model");
-const {MessageButton} = require("discord.js");
-const {MessageActionRow} = require("discord.js");
 const {MessageEmbed} = require("discord.js");
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const wait = require('util').promisify(setTimeout);
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('leaderboard')
         .setDescription('Displays the top ten users for a specified emote\'s usage')
+        .addStringOption(option =>
+            option.setName('type')
+                .setDescription('The type of leaderboard to display.')
+                .setRequired(true)
+                .addChoices([
+                    ['Sent', 'sent'],
+                    ['Received', 'received']
+                ]))
         .addStringOption(option =>
             option.setName('emoji')
                 .setDescription('The emoji to get the leaderboard for.')
@@ -27,9 +32,7 @@ module.exports = {
     async execute(interaction) {
         const embed = new MessageEmbed().setColor('ORANGE')
 
-        const stringEmoji = interaction.options.getString('emoji');
-
-        // Validate choices
+        // Validate choices.
         let dateRange = interaction.options.getInteger('daterange');
         switch (dateRange) {
             case 0:
@@ -65,7 +68,7 @@ module.exports = {
                 dateRange.setDate(dateRange.getDate() - 1)
                 dateRange = dateRange.toISOString()
                 break
-            case 1:
+            case 60:
                 // daily
                 embed.setDescription("Hourly")
                 dateRange = new Date()
@@ -77,22 +80,26 @@ module.exports = {
                 dateRange = null
         }
 
+        // Validates emoji option.
+        const stringEmoji = interaction.options.getString('emoji');
         let re = /(?<=:)\d*(?=>)/g
         let emojiIds = stringEmoji.match(re)
-
         let emoji = null
         try {
             emoji = await interaction.guild.emojis.fetch(emojiIds[0])
         } catch {
             return interaction.reply({content: 'No emoji found in string.', ephemeral: true})
         }
-        embed.setTitle(`${emoji.name} Leaderboard`).setThumbnail(`${emoji.url}`)
 
+        // Grabs leaderboard info.
+        const type = interaction.options.getString('type')
         let array = (dateRange ?
-            getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, dateRange) :
-            getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id))
-        let pos = 1
+            getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type, dateRange) :
+            getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type))
 
+        // Fills embed.
+        embed.setTitle(`${emoji.name} Leaderboard`).setThumbnail(`${emoji.url}`)
+        let pos = 1
         for await (const row of array) {
             let count = Object.values(row)[1]
             let userId = Object.values(row)[0]

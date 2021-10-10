@@ -5,6 +5,8 @@ module.exports = {
     name: 'messageReactionAdd',
     async execute(messageReaction, user) {
         // console.log(`messageReactionAdd: ${messageReaction.message}, ${messageReaction.emoji}, ${user}.`);
+
+        // Fetch any partials
         if (messageReaction.partial) {
             messageReaction = await messageReaction.fetch().catch(console.error)
         }
@@ -19,12 +21,14 @@ module.exports = {
         }
 
         try {
-            if (messageReaction.message.author.id !== messageReaction.client.user.id) {
-                if (getSetting(messageReaction.message.guild.id, 'countreacts')) {
+            if (messageReaction.message.author.id !== messageReaction.client.user.id) {     // Read messages from anyone other than bot
+                if (getSetting(messageReaction.message.guild.id, 'countreacts')) {   // Count reacts
                     let guildId = messageReaction.message.guild.id
-                    let personId = messageReaction.message.author.id
+                    let reactionAuthorId = user.id
+                    let messageAuthorId = messageReaction.message.author.id
                     let dateTime = messageReaction.message.createdAt.toISOString()
 
+                    // Dont pass if message author is reaction user AND countselfreacts flag is false
                     if (
                         implies(
                             (messageReaction.message.author.id === user.id),
@@ -36,16 +40,15 @@ module.exports = {
                                 .fetch(messageReaction.emoji.id)
                                 .then(emoji => {
                                     // console.log(emoji)
-                                    insertToDb(guildId, emoji.id, personId, dateTime, "messageReactionAdd")
-                                })
-                                .catch(() => {
+                                    insertToDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', "messageReactionAdd")
+                                    insertToDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', "messageReactionAdd")
                                 })
                         }
                     }
                 }
             }
-        } catch (err) {
-            console.log(err)
+        } catch (e) {
+            console.error(e)
         }
 
     },

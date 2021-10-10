@@ -6,37 +6,66 @@ module.exports = {
     execute(messages) {
         messages.every(message => {
             if (message.partial) {
-                console.log('messageDelete partial found.')
+                // console.log(`messageDeleteBulk message partial found. Can't fetch old messages.`)
+                return false;
             } else {
 
-                if (message.author.id !== message.client.user.id) {
-                    // console.log(`messageDelete: ${message.content}, ${message.author}.`);
-                    if (getSetting(message.guild.id, 'countmessages')) {
-                        let guildId = message.guild.id
-                        let personId = message.author.id
-                        let dateTime = message.createdAt.toISOString()
+                const implies = (p, q) => {
+                    // p -> q
+                    if (p) {
+                        return q;
+                    } else {
+                        return true;
+                    }
+                }
 
-                        let re = /(?<=:)\d*(?=>)/g
-                        let emojiIds = message.content.matchAll(re)
-                        for (const emojiId of emojiIds) {
-                            message.guild.emojis
-                                .fetch(emojiId)
-                                .then(emoji => deleteFromDb(guildId, emoji.id, personId, dateTime, "messageDeleteBulk - message"))
-                                .catch(() => {
+                try {
+                    if (message.author.id !== message.client.user.id) {                 // Read messages from anyone other than bot
+
+                        // Count messages
+                        if (getSetting(message.guild.id, 'countmessages')) {
+                            let guildId = message.guild.id
+                            let messageAuthorId = message.author.id
+                            let dateTime = message.createdAt.toISOString()
+
+                            // Finds all emojis in messages via regex
+                            let re = /(?<=:)\d*(?=>)/g
+                            let emojiIds = message.content.matchAll(re)
+
+                            for (const emojiId of emojiIds) {
+                                message.guild.emojis
+                                    .fetch(emojiId)
+                                    .then(emoji => deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'messageActivity', "messageDeleteBulk - message"))
+                                    .catch(ignoreError => {
+                                        // Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
+                                    })
+                            }
+                        }
+
+                        // Count reacts
+                        if (getSetting(message.guild.id, 'countreacts')) {
+                            let guildId = message.guild.id
+                            let messageAuthorId = message.author.id
+                            let dateTime = message.createdAt.toISOString()
+
+                            message.reactions.cache.each(reaction => {
+                                reaction.users.cache.each(user => {
+                                    // Dont pass if message author is reaction user AND countselfreacts flag is false
+                                    if (
+                                        implies(
+                                            (message.author.id === user.id),
+                                            getSetting(message.guild.id, 'countselfreacts')
+                                        )
+                                    ) {
+                                        deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, 'reactsSentActivity', "messageDeleteBulk - reaction:Sent")
+                                        deleteFromDb(guildId, reaction.emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', "messageDeleteBulk - reaction:Given")
+                                    }
                                 })
+                            })
                         }
                     }
-
-                    if (getSetting(message.guild.id, 'countreacts')) {
-                        let guildId = message.guild.id
-                        let dateTime = message.createdAt.toISOString()
-
-                        message.reactions.cache.each(reaction => {
-                            reaction.users.cache.each(user => {
-                                deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, "messageDeleteBulk - reaction")
-                            })
-                        })
-                    }
+                } catch (e) {
+                    console.error(e)
                 }
             }
 
