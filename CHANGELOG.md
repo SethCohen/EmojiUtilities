@@ -4,16 +4,39 @@
 
 - Reset db command
 - Delete db command
-- Separate db tables for who received reactions and who added reactions
 
-## 1.4.3 - 2021-09-28
+## v1.5.0 - 2021-10-10
+
+### Added
+
+- Added two new tables, `reactsSentActivity` and `reactsReceivedActivity`; as well as support/use for them across the
+  majority of files.
+- Added better in-line documentation.
+- Added new string option - `type` - to `leaderboard` command, can now either choose between `Sent` or `Received`
+  emojis.
+
+### Changed
+
+- `emojiActivity` table changed to `messageActivity`
+- Updated `interactionCreate` failed message to include redirect to support server.
+- `db_model.js` insert and deletes to support new tables.
+- discord.js updated to 13.2.0
+
+### Fixed
+
+- `ready.js` Thrown errors properly caught.
+- `messageUpdate.js` Thrown errors properly caught.
+- `listemojis.js` Thrown errors properly caught.
+- `leaderboard.js` Fixed hourly daterange.
+
+## v1.4.3 - 2021-09-28
 
 ### Added
 
 - Added another check for slash command permissions. Slash commands should now be greyed out if user doesn't have the
   proper role perms.
 
-## 1.4.2 - 2021-09-08
+## v1.4.2 - 2021-09-08
 
 ### Added
 
@@ -29,7 +52,7 @@
 ## Fixed
 - Fixed getcount break on thumbnail get user's avatar.
 
-## 1.4.1 - 2021-09-08
+## v1.4.1 - 2021-09-08
 ### Added
 - insertToDb event origin console log.
 - deleteFromDb event origin console log.
@@ -48,7 +71,7 @@
 ### Removed
 - `docountmessages.py` Removed old .py file as bot uses javascript now.
 
-## 1.4.0 - 2021-09-08
+## v1.4.0 - 2021-09-08
 ### Added
 - Added javascript events `ready.js`, `messageUpdate.js`, `messageReactionRemoveAll.js`, `messageReactionRemove.js`, `messageReactionAdd.js`, `messageDeleteBulk.js`, `messageDelete.js`, `messageCreate.js` basic implementations. [db99461][db99461]
 - Added javascript commands `leaderboard.js`, `config.js` basic implementations. [db99461][db99461]
@@ -88,7 +111,7 @@
 - `displaystats.js` Removed Yearly daterange. [33367fb][33367fb]
 - `guildCreate.js` Removed attempt to post to admin/system channel. [4c29121][4c29121]
 
-## 1.3.9 - 2021-09-04
+## v1.3.9 - 2021-09-04
 ### Added
 - `ES docountmessages` command; available flags `true` or `false`
 ### Changed
@@ -97,7 +120,7 @@
 - `ES help` Updated to include docountmessages command info.
 - `ES help` Updated to fix displaystats
 
-## 1.3.8 - 2021-09-04
+## v1.3.8 - 2021-09-04
 ### Added
 - `ES doselfreact` command; available flags `true` or `false`
 ### Changed
@@ -105,45 +128,45 @@
 - `on_reaction_remove` now consider do_self_react flag when adding to db.
 - `ES help` Updated to include doselfreact command info.
 
-## 1.3.7 - 2021-06-17
+## v1.3.7 - 2021-06-17
 ### Fixed
 - IDE warnings about unused parameters.
 
-## 1.3.6 - 2021-06-16
+## v1.3.6 - 2021-06-16
 ### Changed
 - `bot.py` Refactored all inserts/deletes from db to use emoji's unique id rather than full name.
 - `db_model.py` Refactored get_leaderboard to query for emoji's id.
 - `db_model.py` Refactored console Record Removed log to use author id rather than author name.
 - `displaystats.py` Refactored embed to use emoji object rather than queried db emoji id string.
 
-## 1.3.5 - 2021-06-13
+## v1.3.5 - 2021-06-13
 ### Changed
 - `db_model.py` switched leaderboard check for if bot from bot's name to bot's unique id.
 - Updated help command/`help.py`; added Support server link.
 - Updated leaderboard/`leaderboard.py`; added catch for new vs old database systems. If retrieved data is a user id, get username. If retrieved data is a username, display as normal.
 
-## 1.3.4 - 2021-06-12
+## v1.3.4 - 2021-06-12
 - Fixed databases, switched from storing emoji usage by username to storing by user id for cases where the user changes their actual username rather than server-nick.
 - Minor code cleanup; mainly removing commented out code.
 
-## 1.3.3 - 2021-06-09
+## v1.3.3 - 2021-06-09
 - Moved help command to its own file; `help.py`.
 - Fixed bot message-on-join.
 - Updated all commands and all database queries with user queries to use the user's unique ID rather than mention.
 
-## 1.3.2 - 2021-05-26
+## v1.3.2 - 2021-05-26
 - Even more code refactoring
 - Moved more `bot.py` sqlite queries to `db_model.py`
 - `create_db`, `insert_to_db`, and `delete_from_db` functions created
 - `displaystats.py` edited; added automatic user reaction removal on arrow press.
 
-## 1.3.1 - 2021-05-25
+## v1.3.1 - 2021-05-25
 - More code refactoring
 - Continuation of extension-based commands
 	- Created displaystats.py
 	- Created listemojis.py
 
-## 1.3.0 - 2021-05-22
+## v1.3.0 - 2021-05-22
 - Start of Extensions-based commands
 	- Created `getcount.py`
 	- Created `leaderboard.py`
@@ -151,39 +174,39 @@
 	- Created `db_model.py`
 - Refactored a lot of code
 
-## 1.2.5 - 2020-12-13
+## v1.2.5 - 2020-12-13
 - Added help subcommand to `ES help`
 
-## 1.2.4 - 2020-12-13
+## v1.2.4 - 2020-12-13
 - Added position indicator to leaderboard.
 
-## 1.2.3 - 2020-12-11
+## v1.2.3 - 2020-12-11
 - Fix for previous changelog; NOW checks & PROPERLY removes for if bot is on leaderboad.
 
-## 1.2.2 - 2020-12-11
+## v1.2.2 - 2020-12-11
 - Quick fix for 'leaderboard', checks & removes for if bot is on leaderboard.
 
-## 1.2.1 - 2020-12-11
+## v1.2.1 - 2020-12-11
 - Added `leaderboard` command to `ES help`
 - Fixed `leaderboard` inline display; set to False
 
-## 1.2.0 - 2020-12-11
+## v1.2.0 - 2020-12-11
 - Added `leaderboard` command
 	- Displays the top ten users who use the specified emoji the most
 - Fixed `getcount` error handling
 
-## 1.1.1 - 2020-12-11
+## v1.1.1 - 2020-12-11
 - Added error handling for `getcount` and `displaystats`
 
-## 1.1.0 - 2020-12-11
+## v1.1.0 - 2020-12-11
 - Added `getcount` command.
 	- Displays total emoji count usage at all-time, monthly, and weekly usage; defaults to server's usage if user is not specified.
 
-## 1.0.1 - 2020-12-03
+## v1.0.1 - 2020-12-03
 - Added next/prev page reaction removal on timeout for the `displaystats` command.
 - Fixed bug for next/prev page reaction removal.
 
-## < 1.0.0 - Pre 2020-11-22
+## < v1.0.0 - Pre 2020-11-22
 Added complete functionality
 
 [db99461]: https://github.com/SethCohen/EmojiStatistics/commit/db99461cafb5371cc85b70f0ec0743be813f7dd6
