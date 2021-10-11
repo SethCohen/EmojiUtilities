@@ -26,6 +26,7 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply();
 
+        // Creates buttons
         const row = new MessageActionRow()
             .addComponents(
                 new MessageButton()
@@ -41,6 +42,7 @@ module.exports = {
 
         const user = interaction.options.getUser('user');
 
+        // Validates daterange
         let dateRange = interaction.options.getInteger('daterange');
         let dateString
         switch (dateRange) {
@@ -89,10 +91,12 @@ module.exports = {
                 dateRange = '0'
         }
 
+        // Grabs queried info
         let array = (user ?
             getDisplayStats(interaction.guild.id, dateRange, user.id) :
             getDisplayStats(interaction.guild.id, dateRange))
 
+        // Paginates queried info
         let chunkSize = 24;
         let embeds = []
         let chunks = []
@@ -115,18 +119,22 @@ module.exports = {
                 try {
                     let emoji = await interaction.guild.emojis.fetch(emojiId)
                     embed.addField(`${emoji}`, `${count}`, true)
-                } catch(error) {}
+                } catch (error) {
+                }
             }
             embeds.push(embed)
         }
 
-        await interaction.editReply({embeds: [embeds[index]], components: [row]});
+        // Displays info
+        if (embeds.length) {
+            await interaction.editReply({embeds: [embeds[index]], components: [row]});
+        } else {
+            await interaction.editReply({content: 'Sorry, there\'s no info to display!'})
+        }
 
+        // Adds button listeners
         const message = await interaction.fetchReply()
         const collector = message.createMessageComponentCollector({time: 30000});
-
-        // console.log(embeds.length, "length")
-
         collector.on('collect', async i => {
             if (i.customId === 'next' && index < embeds.length - 1) {
                 ++index
@@ -138,7 +146,6 @@ module.exports = {
                 await i.reply({content: "No valid page to go to.", ephemeral: true})
             }
         });
-
         collector.on('end', collected => {
             interaction.editReply({components: []})
             // console.log(`Collected ${collected.size} interactions.`);

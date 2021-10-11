@@ -428,6 +428,27 @@ function setSetting(guildId, setting, flag) {
     db.close()
 }
 
+/** resetDb
+ *      Truncates all tables, deleting all records.
+ *
+ * @param guildId   The guild to reset db's on.
+ */
+function resetDb(guildId) {
+    let db = new Database(`./databases/${guildId}.sqlite`);
+
+    const deleteStatements = [
+        `DELETE FROM messageActivity`,
+        `DELETE FROM reactsSentActivity`,
+        `DELETE FROM reactsReceivedActivity`,
+    ].map(sql => db.prepare(sql))
+
+    for (const deleteStatement of deleteStatements) {
+        deleteStatement.run();
+    }
+
+    db.close()
+}
+
 module.exports = {
     createDatabase,
     deleteFromDb,
@@ -436,5 +457,6 @@ module.exports = {
     getGetCount,
     getDisplayStats,
     getSetting,
-    setSetting
+    setSetting,
+    resetDb
 }

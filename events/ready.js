@@ -11,17 +11,12 @@ module.exports = {
             let role = guild.roles.cache.find(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR))
             guild.commands.fetch()
                 .then(async commands => {
+                    let configCommand = commands.find(command => command.name === 'config')
+                    let resetdbCommand = commands.find(command => command.name === 'resetdb')
                     try {
-                        let command = commands.find(command => command.name === 'config')
-                        await command.permissions.add({
-                            permissions: [
-                                {
-                                    id: role.id,
-                                    type: 'ROLE',
-                                    permission: true
-                                },
-                            ]
-                        })
+                        let permission = {permissions: [{id: role.id, type: 'ROLE', permission: true}]}
+                        await configCommand.permissions.add(permission)
+                        await resetdbCommand.permissions.add(permission)
                     } catch (e) {
                         console.error(e.toString(), `for guild id ${guild.id}. No ADMINISTRATOR role found.`)
                     }
