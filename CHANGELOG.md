@@ -15,6 +15,7 @@
 - Added new string option - `type` - to `leaderboard` command, can now either choose between `Sent` or `Received`
   emojis.
 - Added new command `/resetdb`
+- Added pm2 to keep bot up 24/7
 
 ### Changed
 
@@ -27,9 +28,11 @@
 
 - `ready.js` Thrown errors properly caught.
 - `messageUpdate.js` Thrown errors properly caught.
+- `listemojis.js` Fixed error when bot cant send message to channel.
 - `listemojis.js` Thrown errors properly caught.
 - `leaderboard.js` Fixed hourly daterange.
 - `displaystats.js` Fixed empty output if no records in databases.
+- `messageCreate.js` Fixed error when bot cant send message to channel.
 
 ## v1.4.3 - 2021-09-28
 
