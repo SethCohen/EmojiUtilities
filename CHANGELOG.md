@@ -21,6 +21,7 @@
 - Updated `interactionCreate` failed message to include redirect to support server.
 - `db_model.js` insert and deletes to support new tables.
 - discord.js updated to 13.2.0
+- Renamed bot to Emoji Utilities
 
 ### Fixed
 
