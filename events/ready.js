@@ -5,6 +5,7 @@ module.exports = {
     execute(client) {
         console.log(`Ready! Logged in as ${client.user.tag}`);
         client.user.setActivity('Now with slashes! /help');
+        client.user.setUsername('Emoji Utilities')
 
         // Try and set role permissions to admin commands.
         client.guilds.cache.each(guild => {

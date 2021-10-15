@@ -1,5 +1,5 @@
 {
-  "name": "emojistatistics",
+  "name": "emojiutilities",
   "description": "Discord.js Bot for tracking server-specific emoji usage",
   "version": "1.0.0",
   "main": "index.js",
