@@ -1,4 +1,4 @@
-# EmojiStatistics
+# EmojiUtilities
 ## Tracks custom emoji usage across your server.
 [Invite To Server](https://discord.com/oauth2/authorize?client_id=757326308547100712&permissions=93248&scope=bot%20applications.commands)
 
