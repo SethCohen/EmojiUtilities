@@ -1,9 +1,7 @@
 # Changelog
 
 ## Upcoming
-
-- Reset db command
-- Delete db command
+- n/a
 
 ## v1.5.0 - 2021-10-10
 
