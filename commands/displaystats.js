@@ -31,7 +31,7 @@ module.exports = {
             .addComponents(
                 new MessageButton()
                     .setCustomId('prev')
-                    .setLabel('👈Prev')
+                    .setLabel('👈 Prev')
                     .setStyle('SECONDARY'),
                 new MessageButton()
                     .setCustomId('next')

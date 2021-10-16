@@ -353,13 +353,13 @@ function getDisplayStats(guildId, dateTime, userId = null) {
                         reactsSentActivity
                 )
             WHERE 
-                person = @person
+                user = @user
                 AND datetime > @datetime
             GROUP BY emoji
             ORDER BY COUNT(emoji) DESC
         `)
         cat = statement.all({
-            person: userId,
+            user: userId,
             datetime: dateTime,
         })
     } else {
