@@ -14,6 +14,7 @@
   emojis.
 - Added new command `/resetdb`
 - Added pm2 to keep bot up 24/7
+- Added new `/emoji` command to display emoji-related info such as emoji date added.
 
 ### Changed
 

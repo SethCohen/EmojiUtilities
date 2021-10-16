@@ -449,6 +449,29 @@ function resetDb(guildId) {
     db.close()
 }
 
+/** getEmojiTotalCount
+ *      Returns the amount of times a specific emoji has been used in total.
+ * @param guildId       The server the record is associated with.
+ * @param emojiId       The emoji to search for.
+ * @returns {number}    The usage count of the emoji.
+ */
+function getEmojiTotalCount(guildId, emojiId) {
+    let db = new Database(`./databases/${guildId}.sqlite`);
+    let count = 0
+
+    const statements = [
+        `SELECT COUNT(emoji) FROM messageActivity WHERE emoji == @emoji`,
+        `SELECT COUNT(emoji) FROM reactsSentActivity WHERE emoji == @emoji`,
+    ].map(sql => db.prepare(sql))
+    for (const statement of statements) {
+        count += Object.values(statement.get({emoji: emojiId,}))[0]
+    }
+
+    db.close()
+    return count
+
+}
+
 module.exports = {
     createDatabase,
     deleteFromDb,
@@ -458,5 +481,6 @@ module.exports = {
     getDisplayStats,
     getSetting,
     setSetting,
-    resetDb
+    resetDb,
+    getEmojiTotalCount
 }
