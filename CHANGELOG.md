@@ -23,6 +23,8 @@
 - `db_model.js` insert and deletes to support new tables.
 - discord.js updated to 13.2.0
 - Renamed bot to Emoji Utilities
+- `listemojis.js` Changed pagination to use Buttons and message editing to display info instead of sending multiple
+  messages.
 
 ### Fixed
 
