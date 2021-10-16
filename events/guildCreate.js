@@ -21,19 +21,18 @@ module.exports = {
         }
 
         // Set role perms
-        let role = guild.roles.cache.find(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR))
-        guild.commands.fetch()
+        let role = await guild.roles.cache.find(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR))
+        guild.client.application?.commands.fetch()
             .then(async commands => {
                 let configCommand = commands.find(command => command.name === 'config')
                 let resetdbCommand = commands.find(command => command.name === 'resetdb')
                 try {
-                    let permission = {permissions: [{id: role.id, type: 'ROLE', permission: true}]}
-                    await configCommand.permissions.add(permission)
-                    await resetdbCommand.permissions.add(permission)
+                    let permission = [{id: role.id, type: 'ROLE', permission: true}]
+                    await configCommand.permissions.add({guild: guild.id, permissions: permission})
+                    await resetdbCommand.permissions.add({guild: guild.id, permissions: permission})
                 } catch (e) {
-                    console.error(e.toString(), `for guild id ${guild.id}. No ADMINISTRATOR role found.`)
+                    console.error(e.toString(), `for guild id ${guild.id}.`)
                 }
             }).catch(e => console.error(e.toString()));       // Unable to fetch guild commands.
-
     },
 };
