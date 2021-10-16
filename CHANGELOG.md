@@ -37,6 +37,7 @@
 - `messageCreate.js` Fixed send messages error for old command usage warning
 - `leaderboard.js` Fixed displaying empty leaderboard.
 - `displaystats.js` Fixed bug where displaystats tries to call a deprecated column.
+- `emoji.js` Fixed bug where bot can't display proper info due to missing server permissions.
 
 ## v1.4.3 - 2021-09-28
 

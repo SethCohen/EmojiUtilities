@@ -25,7 +25,12 @@ module.exports = {
         }
 
         // Fetches content
-        let author = await emoji.fetchAuthor()
+        let author;
+        try {
+            author = await emoji.fetchAuthor()
+        } catch (e) {
+            return interaction.reply({content: '**Error:** Bot requires Manage Emojis perm to access emoji info such as emoji author.'})
+        }
         let count = getEmojiTotalCount(interaction.guild.id, emoji.id)
 
         // Fills embed.
