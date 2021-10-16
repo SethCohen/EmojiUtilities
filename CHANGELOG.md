@@ -1,9 +1,18 @@
 # Changelog
 
 ## Upcoming
+
 - n/a
 
-## v1.5.0 - 2021-10-10
+## v1.5.1 - 2021-10-16
+
+### Fixed
+
+- `messageReactionAdd.js` `messageReactionRemove.js` `messageReactionRemoveAll.js` Fixed error catch on unicode reaction
+  use.
+- Fixed admin command role perms to get set on `roleUpdate` and `guildCreate` events.
+
+## v1.5.0 - 2021-10-16
 
 ### Added
 
