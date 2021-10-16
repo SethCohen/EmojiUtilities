@@ -15,7 +15,7 @@ module.exports = {
                     ' them in our Support Server: https://discord.gg/XaeERFAVfb' +
                     '\nThe server is also a good way to keep up to date with bot changelogs or make feature requests.' +
                     '\n\n**IF YOU\'RE THE SERVER OWNER, YOU HAVE TO RE-AUTH THE BOT TO THE SERVER FOR SLASH COMMAND ACCESS! Please re-auth the bot by clicking:** ' +
-                    '\nhttps://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=93248&scope=applications.commands%20bot'
+                    '\nhttps://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=1073835072&scope=bot%20applications.commands'
 
                 message.reply(esWarning)
                     .catch(e => {

@@ -25,6 +25,7 @@
 - Renamed bot to Emoji Utilities
 - `listemojis.js` Changed pagination to use Buttons and message editing to display info instead of sending multiple
   messages.
+- `messageCreate.js` Changed to new bot auth link.
 
 ### Fixed
 
