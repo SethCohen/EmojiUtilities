@@ -7,3 +7,4 @@ commands/test.py
 /config.json
 updateDatabases.js
 /backups/
+deploy-commands.js
