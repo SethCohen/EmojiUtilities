@@ -32,7 +32,7 @@
 - `listemojis.js` Thrown errors properly caught.
 - `leaderboard.js` Fixed hourly daterange.
 - `displaystats.js` Fixed empty output if no records in databases.
-- `messageCreate.js` Fixed error when bot cant send message to channel.
+- `messageCreate.js` Fixed send messages error for old command usage warning
 
 ## v1.4.3 - 2021-09-28
 
