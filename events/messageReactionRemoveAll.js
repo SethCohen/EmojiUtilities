@@ -48,6 +48,9 @@ module.exports = {
                                             deleteFromDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', "messageReactionRemoveAll")
                                             deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', "messageReactionRemoveAll")
                                         })
+                                        .catch(ignoreError => {
+                                            // Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
+                                        })
                                 }
                             }
                         }

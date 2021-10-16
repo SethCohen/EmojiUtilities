@@ -43,6 +43,9 @@ module.exports = {
                                     insertToDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', "messageReactionAdd")
                                     insertToDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', "messageReactionAdd")
                                 })
+                                .catch(ignoreError => {
+                                    // Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
+                                })
                         }
                     }
                 }
