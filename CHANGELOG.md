@@ -35,6 +35,7 @@
 - `leaderboard.js` Fixed hourly daterange.
 - `displaystats.js` Fixed empty output if no records in databases.
 - `messageCreate.js` Fixed send messages error for old command usage warning
+- `leaderboard.js` Fixed displaying empty leaderboard.
 
 ## v1.4.3 - 2021-09-28
 

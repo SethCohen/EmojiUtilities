@@ -97,6 +97,11 @@ module.exports = {
             getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type, dateRange) :
             getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type))
 
+        // Catch for empty leaderboard.
+        if (!array.length) {
+            return interaction.reply({content: 'Sorry, there\'s no info to display!'})
+        }
+
         // Fills embed.
         embed.setTitle(`${emoji.name} Leaderboard`).setThumbnail(`${emoji.url}`)
         let pos = 1
