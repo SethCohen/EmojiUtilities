@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "deploy_commands": "node deploy-commands.js",
+    "deploy": "node deploy-commands.js",
     "server": "pm2 start index.js"
   },
   "dependencies": {
@@ -15,7 +15,9 @@
     "discord-api-types": "^0.22.0",
     "discord.js": "^13.2.0",
     "ms": "^2.1.3",
-    "pm2": "^5.1.2"
+    "pm2": "^5.1.2",
+    "request": "^2.88.2",
+    "tinify": "^1.6.1"
   },
   "devDependencies": {
     "eslint": "^7.32.0"
