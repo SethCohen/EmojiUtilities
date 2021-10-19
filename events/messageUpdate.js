@@ -5,40 +5,48 @@ const {getSetting} = require("../db_model");
 module.exports = {
     name: 'messageUpdate',
     async execute(oldMessage, newMessage) {
+        // console.log(`messageUpdate: ${oldMessage.content}, ${oldMessage.author} -> ${newMessage.content}, ${newMessage.author}.`);
+
+        // Ignore partials
         if (oldMessage.partial || newMessage.partial) {
             // console.log(`messageUpdate partial found. Can't fetch oldMessage.`)
             return false;
-        } else {
-            // console.log(`messageUpdate: ${oldMessage.content}, ${oldMessage.author} -> ${newMessage.content}, ${newMessage.author}.`);
+        }
 
-            if (newMessage.author.id !== newMessage.client.user.id) {              // Read messages from anyone other than bot
-                if (getSetting(newMessage.guild.id, 'countmessages')) {     // Count messages
-                    let guildId = newMessage.guild.id
-                    let messageAuthorId = newMessage.author.id
-                    let dateTime = newMessage.createdAt.toISOString()
+        // Ignore client
+        if (newMessage.author.id === newMessage.client.user.id) {
+            return false
+        }
 
-                    // Finds all emojis in messages via regex
-                    let re = /(?<=:)\d*(?=>)/g
-                    let emojiIdsBefore = oldMessage.content.matchAll(re)
-                    let emojiIdsAfter = newMessage.content.matchAll(re)
 
-                    for (const emojiId of emojiIdsBefore) {
-                        oldMessage.guild.emojis
-                            .fetch(emojiId)
-                            .then(emoji => deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'messageActivity', "messageUpdate"))
-                            .catch(ignoreError => {
-                                // Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
-                            })
-                    }
-                    for (const emojiId of emojiIdsAfter) {
-                        newMessage.guild.emojis
-                            .fetch(emojiId)
-                            .then(emoji => insertToDb(guildId, emoji.id, messageAuthorId, dateTime, 'messageActivity', "messageUpdate"))
-                            .catch(ignoreError => {
-                                // Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
-                            })
-                    }
-                }
+        if (getSetting(newMessage.guildId, 'countmessages')) {     // Count messages
+            let guildId = newMessage.guildId
+            let messageAuthorId = newMessage.author.id
+            let dateTime = newMessage.createdAt.toISOString()
+
+            // Finds all emojis in messages via regex
+            let re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/g
+            let emojisBefore = [...oldMessage.content.matchAll(re)]
+            let emojisAfter = [...newMessage.content.matchAll(re)]
+
+            // Delete old records
+            for (const emoji of emojisBefore) {
+                oldMessage.guild.emojis
+                    .fetch(emoji[3])
+                    .then(emoji => deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'messageActivity', "messageUpdate"))
+                    .catch(ignoreError => {
+                        // Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
+                    })
+            }
+
+            // Insert new records
+            for (const emoji of emojisAfter) {
+                newMessage.guild.emojis
+                    .fetch(emoji[3])
+                    .then(emoji => insertToDb(guildId, emoji.id, messageAuthorId, dateTime, 'messageActivity', "messageUpdate"))
+                    .catch(ignoreError => {
+                        // Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
+                    })
             }
         }
     },

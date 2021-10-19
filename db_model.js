@@ -46,7 +46,7 @@ function createDatabase(guildId) {
  *  @param origin       The event from where deleteFromDb was called.
  */
 function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin,) {
-    // console.log(`deleteFromDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}) called from ${origin}.`)
+    // console.log(`deleteFromDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}) called from ${origin}.`)
 
     if (guildId && emojiId && userId && dateTime) {
         let db = new Database(`./databases/${guildId}.sqlite`);
@@ -124,7 +124,7 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin,) {
  *  @param origin       The event from where insertToDb was called.
  */
 function insertToDb(guildId, emojiId, userId, dateTime, table, origin) {
-    // console.log(`insertToDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}) called from ${origin}.`)
+    // console.log(`insertToDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}) called from ${origin}.`)
 
     if (guildId && emojiId && userId && dateTime) {
         let db = new Database(`./databases/${guildId}.sqlite`);

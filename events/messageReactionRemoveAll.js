@@ -2,64 +2,53 @@
 
 const {deleteFromDb} = require("../db_model");
 const {getSetting} = require("../db_model");
+const {implies} = require("../utilities");
 module.exports = {
     name: 'messageReactionRemoveAll',
-    async execute(message, removedReactions) {
-        // console.log(`messageReactionRemoveAll: ${message.content}, ${message.author}.`);
+    async execute(message, reactions) {
+        // console.dir(`messageReactionRemoveAll: ${message.content}, ${message.author}, ${reactions}.`);
 
-        // Fetch any partials
+        // Ignore partials
         if (message.partial) {
-            message = await message.fetch().catch(console.error)
+            // console.log(`messageReactionRemoveAll partial found. Can't fetch reactions from old messages.`)
+            return false;
         }
 
-        const implies = (p, q) => {
-            // p -> q
-            if (p) {
-                return q;
-            } else {
-                return true;
-            }
+        // Ignore client
+        if (message.author.id === message.client.user.id) {
+            return false
         }
-
 
         try {
-            removedReactions.each(reaction => {
+            reactions.each(reaction => {
                 // console.log(reaction.count, reaction.emoji.id, reaction)
                 reaction.users.cache.each(user => {
-                    if (message.author.id !== message.client.user.id) {             // Read messages from anyone other than bot
-                        if (getSetting(message.guild.id, 'countreacts')) {  // Count reacts
-                            let guildId = message.guild.id
-                            let reactionAuthorId = user.id
-                            let messageAuthorId = messageReaction.message.author.id
-                            let dateTime = message.createdAt.toISOString()
+                    if (getSetting(message.guildId, 'countreacts')) {  // Count reacts
+                        let guildId = message.guildId
+                        let reactionAuthorId = user.id
+                        let messageAuthorId = message.author.id
+                        let dateTime = message.createdAt.toISOString()
 
-                            // Dont pass if message author is reaction user AND countselfreacts flag is false
-                            if (
-                                implies(
-                                    (message.author.id === user.id),
-                                    getSetting(message.guild.id, 'countselfreacts')
-                                )
-                            ) {
-                                if (reaction.emoji.id) {  // if not unicode emoji
-                                    message.guild.emojis
-                                        .fetch(reaction.emoji.id)
-                                        .then(emoji => {
-                                            // console.log(emoji)
-                                            deleteFromDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', "messageReactionRemoveAll")
-                                            deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', "messageReactionRemoveAll")
-                                        })
-                                        .catch(ignoreError => {
-                                            // Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
-                                        })
-                                }
+                        // Dont pass if message author is reaction user AND countselfreacts flag is false
+                        if (implies((messageAuthorId === reactionAuthorId), getSetting(guildId, 'countselfreacts'))) {
+                            if (reaction.emoji.id) {  // if not unicode emoji
+                                message.guild.emojis
+                                    .fetch(reaction.emoji.id)
+                                    .then(emoji => {
+                                        // console.log(emoji)
+                                        deleteFromDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', "messageReactionRemoveAll")
+                                        deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', "messageReactionRemoveAll")
+                                    })
+                                    .catch(ignoreError => {
+                                        // Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
+                                    })
                             }
                         }
                     }
                 })
-
             })
         } catch (e) {
-            console.error(e)
+            console.error('messageReactionRemoveAll failed deleting.', e)
         }
 
     },
