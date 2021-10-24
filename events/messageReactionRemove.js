@@ -1,6 +1,5 @@
 const {deleteFromDb} = require("../db_model");
 const {getSetting} = require("../db_model");
-const {implies} = require("../utilities");
 
 module.exports = {
     name: 'messageReactionRemove',
@@ -33,8 +32,8 @@ module.exports = {
                 let messageAuthorId = messageReaction.message.author.id
                 let dateTime = messageReaction.message.createdAt.toISOString()
 
-                // Dont pass if message author is reaction user AND countselfreacts flag is false
-                if (implies((messageAuthorId === reactionAuthorId), getSetting(guildId, 'countselfreacts'))) {
+                // p -> q       Dont pass if message author is reaction user AND countselfreacts flag is false
+                if (!(messageAuthorId === reactionAuthorId) || getSetting(guildId, 'countselfreacts')) {
                     if (messageReaction.emoji.id) {  // if not unicode emoji
                         messageReaction.message.guild.emojis
                             .fetch(messageReaction.emoji.id)

@@ -1,8 +1,6 @@
-// customly modified MessageReactionRemoveAll.js from discord.js module
-
 const {deleteFromDb} = require("../db_model");
 const {getSetting} = require("../db_model");
-const {implies} = require("../utilities");
+
 module.exports = {
     name: 'messageReactionRemoveAll',
     async execute(message, reactions) {
@@ -29,8 +27,8 @@ module.exports = {
                         let messageAuthorId = message.author.id
                         let dateTime = message.createdAt.toISOString()
 
-                        // Dont pass if message author is reaction user AND countselfreacts flag is false
-                        if (implies((messageAuthorId === reactionAuthorId), getSetting(guildId, 'countselfreacts'))) {
+                        // p -> q       Dont pass if message author is reaction user AND countselfreacts flag is false
+                        if (!(messageAuthorId === reactionAuthorId) || getSetting(guildId, 'countselfreacts')) {
                             if (reaction.emoji.id) {  // if not unicode emoji
                                 message.guild.emojis
                                     .fetch(reaction.emoji.id)

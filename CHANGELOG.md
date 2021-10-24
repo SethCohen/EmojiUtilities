@@ -1,21 +1,29 @@
 # Changelog
 
 ## Upcoming
-- `/botinfo` to display bot-related info such as shards, servers in, global emotes count, etc
-- `/copy` Copies and uploads an emoji from another server to yours
-- Add download button to `/emoji`
-- `/upload` uploads an emoji to a server
+
 - `/stickerfy` takes a gif url, converts it to an apng, and uploads to the server as a sticker
 - `/removeunused` removes the top 5 least actively used emojis
-- `/enlargeemoji` pastes the emoji as a image url to chat
 - `/backupemojis` backups the current list of emojis
-- `/rename` rename an emoji name
-- `/vote` opens top.gg bot vote page
-- `/support` posts link of support server
-- `/clapify` adds the clap emoji between every word
 - `/dancify` converts your message into dancing letters
 - `/search` searches for an emoji from emoji.gg
 - `/random` sends a random emoji from emoji.gg
+
+## v1.6.0 - 2021-10-24
+
+### Added
+
+- `/botinfo` which displays basic bot-related info such as how many servers the bots in.
+- `/copysteal` which copies a given nitro emote from another server into your server.
+- `/uploademoji` which uploads a given url to a server.
+- `/renameemoji` which renames a given emoji to a given new name.
+- `/enlargeemoji` which pastes an emoji url to chat.
+- `/clapify` which puts 👏 between every word.
+- `index.js` Added channel partial.
+
+### Changed
+
+- Removed `utilities.js` and replaced `implies` function with material implication.
 
 ## v1.5.1 - 2021-10-16
 

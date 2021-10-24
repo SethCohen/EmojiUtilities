@@ -1,6 +1,5 @@
 const {deleteFromDb} = require("../db_model");
 const {getSetting} = require("../db_model");
-const {implies} = require("../utilities");
 
 module.exports = {
     name: 'messageDelete',
@@ -50,8 +49,8 @@ module.exports = {
 
                 message.reactions.cache.each(reaction => {
                     reaction.users.cache.each(user => {
-                        // Dont pass if message author is reaction user AND countselfreacts flag is false
-                        if (implies((messageAuthorId === user.id), getSetting(guildId, 'countselfreacts'))) {
+                        // p -> q       Dont pass if message author is reaction user AND countselfreacts flag is false
+                        if (!(messageAuthorId === user.id) || getSetting(guildId, 'countselfreacts')) {
                             deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, 'reactsSentActivity', "messageDelete - reaction:Sent")
                             deleteFromDb(guildId, reaction.emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', "messageDelete - reaction:Given")
                         }
