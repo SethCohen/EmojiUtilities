@@ -2,6 +2,7 @@ const {Permissions} = require("discord.js");
 const {SlashCommandBuilder} = require('@discordjs/builders');
 const tinify = require("tinify");
 const {tinifyKey} = require('../config.json');
+let request = require("request");
 
 tinify.key = tinifyKey
 
@@ -32,47 +33,54 @@ module.exports = {
         let name = interaction.options.getString('name') ? interaction.options.getString('name') : randGenName
 
         // Reads in url
-        let request = require("request");
-        request({
-            url: url,
-            method: "HEAD"
-        }, function (err, response, body) {
-            if (err) {
-                console.error(err)
-            }
+        try {
+            request({
+                url: url,
+                method: "HEAD"
+            }).on('response', response => {
+                let bytes = response.headers['content-length']
+                if (bytes > 256000) {
+                    // Checks if file at url is greater than discord emote filesize limit; 256kb.
 
-            let bytes = response.headers['content-length']
-            if (bytes > 256000) {
-                // Checks if file at url is greater than discord emote filesize limit; 256kb.
+                    // TODO replace tinify with imagemagick/optipng/gif2apng/etc
 
-                // TODO replace tinify with imagemagick/optipng/gif2apng/etc
-
-                // Uses tinify api to compress and upload an image as a server emoji.
-                tinify.fromUrl(url).toBuffer()
-                    .then(image => {
-                        interaction.guild.emojis
-                            .create(image, name)
-                            .then(emoji => {
-                                return interaction.editReply({content: `Added ${emoji} to server!`})
-                            })
-                            .catch(e => {
-                                return interaction.editReply({content: `Emoji creation failed!\n${e.message}`})
-                            })
-                    })
-                    .catch(e => {
-                        return interaction.editReply({content: `Compression failed!\n${e.message}`})
-                    })
-            } else {
-                interaction.guild.emojis
-                    .create(url, name)
-                    .then(emoji => {
-                        return interaction.editReply({content: `Added ${emoji} to server!`})
-                    })
-                    .catch(e => {
-                        return interaction.editReply({content: `Emoji creation failed!\n${e.message}`})
-                    })
-            }
-        });
+                    // Uses tinify api to compress and upload an image as a server emoji.
+                    tinify.fromUrl(url).toBuffer()
+                        .then(image => {
+                            interaction.guild.emojis
+                                .create(image, name)
+                                .then(emoji => {
+                                    return interaction.editReply({content: `Added ${emoji} to server!`})
+                                })
+                                .catch(e => {
+                                    return interaction.editReply({content: `Emoji creation failed!\n${e.message}`})
+                                })
+                        })
+                        .catch(e => {
+                            return interaction.editReply({content: `Compression failed!\n${e.message}`})
+                        })
+                } else {
+                    interaction.guild.emojis
+                        .create(url, name)
+                        .then(emoji => {
+                            return interaction.editReply({content: `Added ${emoji} to server!`})
+                        })
+                        .catch(e => {
+                            return interaction.editReply({content: `Emoji creation failed!\n${e.message}`})
+                        })
+                }
+            }).on('error', error => {
+                console.error(error.toString())
+            })
+        } catch (e) {
+            console.error(e.toString())
+            return interaction.editReply({
+                content: 'There was an error while executing this command!' +
+                    '\nIf you think this is a proper bug, either please join the support server for help or create a github issue describing the problem.' +
+                    '\nhttps://discord.gg/XaeERFAVfb' +
+                    '\nhttps://github.com/SethCohen/EmojiStatistics/issues', ephemeral: true
+            });
+        }
 
     },
 };
