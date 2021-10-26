@@ -48,13 +48,15 @@ module.exports = {
                 let dateTime = message.createdAt.toISOString()
 
                 message.reactions.cache.each(reaction => {
-                    reaction.users.cache.each(user => {
-                        // p -> q       Dont pass if message author is reaction user AND countselfreacts flag is false
-                        if (!(messageAuthorId === user.id) || getSetting(guildId, 'countselfreacts')) {
-                            deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, 'reactsSentActivity', "messageDelete - reaction:Sent")
-                            deleteFromDb(guildId, reaction.emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', "messageDelete - reaction:Given")
-                        }
-                    })
+                    if (message.guild.emojis.resolve(reaction.emoji)) {   // Checks for if emoji reaction is a guild emoji
+                        reaction.users.cache.each(user => {
+                            // p -> q       Dont pass if message author is reaction user AND countselfreacts flag is false
+                            if (!(messageAuthorId === user.id) || getSetting(guildId, 'countselfreacts')) {
+                                deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, 'reactsSentActivity', "messageDelete - reaction:Sent")
+                                deleteFromDb(guildId, reaction.emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', "messageDelete - reaction:Given")
+                            }
+                        })
+                    }
                 })
             }
         } catch (e) {
