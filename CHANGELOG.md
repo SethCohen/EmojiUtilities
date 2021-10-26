@@ -9,6 +9,23 @@
 - `/search` searches for an emoji from emoji.gg
 - `/random` sends a random emoji from emoji.gg
 
+## v1.6.1 - 2021-10-26
+
+### Added
+
+- `botinfo.js` Added Bot Created Date field
+- `botinfo.js` Added total emoji count usage
+- `guildCreate.js`, `ready.js`, `roleUpdate.js` Added command perm handlers for Manage Emoji related commands
+
+### Changed
+
+- `guildCreate.js`, `ready.js`, `roleUpdate.js` Refactored command perm handlers
+
+### Fixed
+
+- `messageDelete.js` Added check on reactions for if reaction is a guild emoji reaction.
+- `uploademoji.js` Added try catch around url request
+
 ## v1.6.0 - 2021-10-24
 
 ### Added
