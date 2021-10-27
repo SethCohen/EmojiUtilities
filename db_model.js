@@ -1,4 +1,4 @@
-const Database = require('better-sqlite3')
+const Database = require('better-sqlite3');
 
 /** createDatabase
  *      Generates unique sqlite file with tables and default config settings for a unique server.
@@ -6,33 +6,33 @@ const Database = require('better-sqlite3')
  *  @param guildId      The newly joined server/guild's id.
  */
 function createDatabase(guildId) {
-    // console.log(`createDatabase(${guildId}) called.`)
+	// console.log(`createDatabase(${guildId}) called.`)
 
-    let db = new Database(`./databases/${guildId}.sqlite`, {verbose: console.log});
+	const db = new Database(`./databases/${guildId}.sqlite`, { verbose: console.log });
 
-    const createStatements = [
-        `CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)`,
-        `CREATE TABLE IF NOT EXISTS reactsSentActivity(emoji TEXT, user TEXT, datetime TEXT)`,
-        `CREATE TABLE IF NOT EXISTS reactsReceivedActivity(emoji TEXT, user TEXT, datetime TEXT)`,
-        `CREATE TABLE IF NOT EXISTS serverSettings(setting TEXT, flag INTEGER)`,
-    ].map(sql => db.prepare(sql))
+	const createStatements = [
+		'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
+		'CREATE TABLE IF NOT EXISTS reactsSentActivity(emoji TEXT, user TEXT, datetime TEXT)',
+		'CREATE TABLE IF NOT EXISTS reactsReceivedActivity(emoji TEXT, user TEXT, datetime TEXT)',
+		'CREATE TABLE IF NOT EXISTS serverSettings(setting TEXT, flag INTEGER)',
+	].map(sql => db.prepare(sql));
 
-    for (const createStatement of createStatements) {
-        createStatement.run();
-    }
+	for (const createStatement of createStatements) {
+		createStatement.run();
+	}
 
-    const insertStatement = db.prepare(`INSERT INTO serverSettings (setting, flag) VALUES (@setting, @flag)`)
-    const insertSettings = db.transaction((settings) => {
-        for (const setting of settings) insertStatement.run(setting)
-    })
+	const insertStatement = db.prepare('INSERT INTO serverSettings (setting, flag) VALUES (@setting, @flag)');
+	const insertSettings = db.transaction((settings) => {
+		for (const setting of settings) insertStatement.run(setting);
+	});
 
-    insertSettings([
-        {setting: 'countmessages', flag: 1},
-        {setting: 'countreacts', flag: 1},
-        {setting: 'countselfreacts', flag: 1},
-    ])
+	insertSettings([
+		{ setting: 'countmessages', flag: 1 },
+		{ setting: 'countreacts', flag: 1 },
+		{ setting: 'countselfreacts', flag: 1 },
+	]);
 
-    db.close()
+	db.close();
 }
 
 /** deleteFromDb
@@ -45,16 +45,16 @@ function createDatabase(guildId) {
  *  @param table        The table to delete from.
  *  @param origin       The event from where deleteFromDb was called.
  */
-function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin,) {
-    // console.log(`deleteFromDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}) called from ${origin}.`)
+function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin) {
+	// console.log(`deleteFromDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}) called from ${origin}.`)
 
-    if (guildId && emojiId && userId && dateTime) {
-        let db = new Database(`./databases/${guildId}.sqlite`);
-        let statement;
+	if (guildId && emojiId && userId && dateTime) {
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		let statement;
 
-        switch (table) {
-            case 'messageActivity':
-                statement = db.prepare(`
+		switch (table) {
+		case 'messageActivity':
+			statement = db.prepare(`
                     DELETE FROM messageActivity 
                     WHERE rowid = 
                     (
@@ -66,10 +66,10 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin,) {
                             datetime = @datetime
                         LIMIT 1
                     )
-                `)
-                break
-            case 'reactsReceivedActivity':
-                statement = db.prepare(`
+                `);
+			break;
+		case 'reactsReceivedActivity':
+			statement = db.prepare(`
                     DELETE FROM reactsReceivedActivity 
                     WHERE rowid = 
                     (
@@ -81,10 +81,10 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin,) {
                             datetime = @datetime
                         LIMIT 1
                     )
-                `)
-                break
-            case 'reactsSentActivity':
-                statement = db.prepare(`
+                `);
+			break;
+		case 'reactsSentActivity':
+			statement = db.prepare(`
                     DELETE FROM reactsSentActivity 
                     WHERE rowid = 
                     (
@@ -96,20 +96,21 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin,) {
                             datetime = @datetime
                         LIMIT 1
                     )
-                `)
-                break
-        }
+                `);
+			break;
+		}
 
-        statement.run({
-            emoji: emojiId,
-            user: userId,
-            datetime: dateTime
-        })
+		statement.run({
+			emoji: emojiId,
+			user: userId,
+			datetime: dateTime,
+		});
 
-        db.close()
-    } else {
-        console.log(`deleteFromDb: Cancel delete. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`)
-    }
+		db.close();
+	}
+	else {
+		console.log(`deleteFromDb: Cancel delete. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`);
+	}
 
 }
 
@@ -124,43 +125,44 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin,) {
  *  @param origin       The event from where insertToDb was called.
  */
 function insertToDb(guildId, emojiId, userId, dateTime, table, origin) {
-    // console.log(`insertToDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}) called from ${origin}.`)
+	// console.log(`insertToDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}) called from ${origin}.`)
 
-    if (guildId && emojiId && userId && dateTime) {
-        let db = new Database(`./databases/${guildId}.sqlite`);
-        let statement;
+	if (guildId && emojiId && userId && dateTime) {
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		let statement;
 
-        switch (table) {
-            case 'messageActivity':
-                statement = db.prepare(`
+		switch (table) {
+		case 'messageActivity':
+			statement = db.prepare(`
                     INSERT INTO messageActivity (emoji, user, datetime) 
                     VALUES (@emoji, @user, @datetime)
-                `)
-                break
-            case 'reactsReceivedActivity':
-                statement = db.prepare(`
+                `);
+			break;
+		case 'reactsReceivedActivity':
+			statement = db.prepare(`
                     INSERT INTO reactsReceivedActivity (emoji, user, datetime) 
                     VALUES (@emoji, @user, @datetime)
-                `)
-                break
-            case 'reactsSentActivity':
-                statement = db.prepare(`
+                `);
+			break;
+		case 'reactsSentActivity':
+			statement = db.prepare(`
                     INSERT INTO reactsSentActivity (emoji, user, datetime) 
                     VALUES (@emoji, @user, @datetime)
-                `)
-                break
-        }
+                `);
+			break;
+		}
 
-        statement.run({
-            emoji: emojiId,
-            user: userId,
-            datetime: dateTime
-        })
+		statement.run({
+			emoji: emojiId,
+			user: userId,
+			datetime: dateTime,
+		});
 
-        db.close()
-    } else {
-        console.log(`insertToDb: Cancel insert. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`)
-    }
+		db.close();
+	}
+	else {
+		console.log(`insertToDb: Cancel insert. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`);
+	}
 
 }
 
@@ -175,14 +177,14 @@ function insertToDb(guildId, emojiId, userId, dateTime, table, origin) {
  *  @returns {*}     Returns a collection of records of {user, count}
  */
 function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
-    // console.log(`getLeaderboard(${guildId}, ${emojiId}, ${clientId}, ${dateTime}) called.`)
+	// console.log(`getLeaderboard(${guildId}, ${emojiId}, ${clientId}, ${dateTime}) called.`)
 
-    let db = new Database(`./databases/${guildId}.sqlite`);
-    let cat;
-    let statement;
-    if (dateTime) { // Query for if a daterange was specified
-        if (type === 'sent') {
-            statement = db.prepare(`
+	const db = new Database(`./databases/${guildId}.sqlite`);
+	let cat;
+	let statement;
+	if (dateTime) { // Query for if a daterange was specified
+		if (type === 'sent') {
+			statement = db.prepare(`
                 SELECT 
                     user,
                     COUNT(emoji) 
@@ -207,9 +209,10 @@ function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
                 ORDER BY 
                     COUNT(emoji) DESC
                 LIMIT 10;
-            `)
-        } else if (type === 'received') {
-            statement = db.prepare(`
+            `);
+		}
+		else if (type === 'received') {
+			statement = db.prepare(`
                 SELECT
                     user,
                     COUNT(emoji)
@@ -224,16 +227,17 @@ function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
                 ORDER BY 
                     COUNT(emoji) DESC
                 LIMIT 10;
-            `)
-        }
-        cat = statement.all({
-            emojiId: emojiId,
-            clientId: clientId,
-            dateTime: dateTime,
-        })
-    } else { // Query for if a daterange was NOT specified
-        if (type === 'sent') {
-            statement = db.prepare(`
+            `);
+		}
+		cat = statement.all({
+			emojiId: emojiId,
+			clientId: clientId,
+			dateTime: dateTime,
+		});
+	}
+	else { // Query for if a daterange was NOT specified
+		if (type === 'sent') {
+			statement = db.prepare(`
                 SELECT 
                     user,
                     COUNT(emoji)
@@ -257,9 +261,10 @@ function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
                 ORDER BY 
                     COUNT(emoji) DESC
                 LIMIT 10;
-            `)
-        } else if (type === 'received') {
-            statement = db.prepare(`
+            `);
+		}
+		else if (type === 'received') {
+			statement = db.prepare(`
                 SELECT 
                     user,
                     COUNT(emoji) 
@@ -273,16 +278,16 @@ function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
                 ORDER BY 
                     COUNT(emoji) DESC
                 LIMIT 10;
-            `)
-        }
-        cat = statement.all({
-            emojiId: emojiId,
-            clientId: clientId
-        })
-    }
+            `);
+		}
+		cat = statement.all({
+			emojiId: emojiId,
+			clientId: clientId,
+		});
+	}
 
-    db.close()
-    return cat
+	db.close();
+	return cat;
 }
 
 /** getGetCount
@@ -294,31 +299,32 @@ function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
  * @returns {number}    Returns the usage number of the queried user/server.
  */
 function getGetCount(guildId, userId, dateTime) {
-    // console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`)
+	// console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`)
 
-    let db = new Database(`./databases/${guildId}.sqlite`);
-    let count = 0;
+	const db = new Database(`./databases/${guildId}.sqlite`);
+	let count = 0;
 
-    if (userId !== null) {  // Query for server
-        const statements = [
-            `SELECT COUNT(emoji) FROM messageActivity WHERE user = @user AND datetime > @datetime`,
-            `SELECT COUNT(emoji) FROM reactsSentActivity WHERE user = @user AND datetime > @datetime`,
-        ].map(sql => db.prepare(sql))
-        for (const statement of statements) {
-            count += Object.values(statement.get({user: userId, datetime: dateTime,}))[0]
-        }
-    } else {                // Query for a user
-        const statements = [
-            `SELECT COUNT(emoji) FROM messageActivity WHERE datetime > @datetime`,
-            `SELECT COUNT(emoji) FROM reactsSentActivity WHERE datetime > @datetime`,
-        ].map(sql => db.prepare(sql))
-        for (const statement of statements) {
-            count += Object.values(statement.get({datetime: dateTime,}))[0]
-        }
-    }
+	if (userId !== null) { // Query for server
+		const statements = [
+			'SELECT COUNT(emoji) FROM messageActivity WHERE user = @user AND datetime > @datetime',
+			'SELECT COUNT(emoji) FROM reactsSentActivity WHERE user = @user AND datetime > @datetime',
+		].map(sql => db.prepare(sql));
+		for (const statement of statements) {
+			count += Object.values(statement.get({ user: userId, datetime: dateTime }))[0];
+		}
+	}
+	else { // Query for a user
+		const statements = [
+			'SELECT COUNT(emoji) FROM messageActivity WHERE datetime > @datetime',
+			'SELECT COUNT(emoji) FROM reactsSentActivity WHERE datetime > @datetime',
+		].map(sql => db.prepare(sql));
+		for (const statement of statements) {
+			count += Object.values(statement.get({ datetime: dateTime }))[0];
+		}
+	}
 
-    db.close()
-    return count
+	db.close();
+	return count;
 }
 
 /** getDisplayStats
@@ -330,13 +336,13 @@ function getGetCount(guildId, userId, dateTime) {
  * @returns {*}     Returns a collection of {emoji, count}
  */
 function getDisplayStats(guildId, dateTime, userId = null) {
-    // console.log(`getDisplayStats(${guildId}, ${dateTime}, ${userId}) called.`)
+	// console.log(`getDisplayStats(${guildId}, ${dateTime}, ${userId}) called.`)
 
-    let db = new Database(`./databases/${guildId}.sqlite`);
-    let cat
+	const db = new Database(`./databases/${guildId}.sqlite`);
+	let cat;
 
-    if (userId) {
-        let statement = db.prepare(`
+	if (userId) {
+		const statement = db.prepare(`
             SELECT 
                 emoji,
                 COUNT(emoji) 
@@ -357,13 +363,14 @@ function getDisplayStats(guildId, dateTime, userId = null) {
                 AND datetime > @datetime
             GROUP BY emoji
             ORDER BY COUNT(emoji) DESC
-        `)
-        cat = statement.all({
-            user: userId,
-            datetime: dateTime,
-        })
-    } else {
-        let statement = db.prepare(`
+        `);
+		cat = statement.all({
+			user: userId,
+			datetime: dateTime,
+		});
+	}
+	else {
+		const statement = db.prepare(`
             SELECT 
                 emoji,
                 COUNT(emoji) 
@@ -382,14 +389,14 @@ function getDisplayStats(guildId, dateTime, userId = null) {
             WHERE datetime > @datetime
             GROUP BY emoji
             ORDER BY COUNT(emoji) DESC
-        `)
-        cat = statement.all({
-            datetime: dateTime,
-        })
-    }
+        `);
+		cat = statement.all({
+			datetime: dateTime,
+		});
+	}
 
-    db.close()
-    return cat
+	db.close();
+	return cat;
 }
 
 /** getSetting
@@ -400,11 +407,11 @@ function getDisplayStats(guildId, dateTime, userId = null) {
  * @returns {*|number|string|OpenMode}  The flag's state.
  */
 function getSetting(guildId, setting) {
-    let db = new Database(`./databases/${guildId}.sqlite`);
-    const statement = db.prepare(`SELECT flag FROM serverSettings WHERE setting = ?`)
-    const flag = statement.get(setting).flag
-    db.close()
-    return flag
+	const db = new Database(`./databases/${guildId}.sqlite`);
+	const statement = db.prepare('SELECT flag FROM serverSettings WHERE setting = ?');
+	const flag = statement.get(setting).flag;
+	db.close();
+	return flag;
 }
 
 /** setSetting
@@ -415,17 +422,17 @@ function getSetting(guildId, setting) {
  * @param flag      The flag state to set.
  */
 function setSetting(guildId, setting, flag) {
-    let db = new Database(`./databases/${guildId}.sqlite`);
-    const statement = db.prepare(`
+	const db = new Database(`./databases/${guildId}.sqlite`);
+	const statement = db.prepare(`
         UPDATE serverSettings
         SET flag = @flag
         WHERE setting = @setting
-    `)
-    statement.run({
-        setting: setting,
-        flag: flag,
-    })
-    db.close()
+    `);
+	statement.run({
+		setting: setting,
+		flag: flag,
+	});
+	db.close();
 }
 
 /** resetDb
@@ -434,19 +441,19 @@ function setSetting(guildId, setting, flag) {
  * @param guildId   The guild to reset db's on.
  */
 function resetDb(guildId) {
-    let db = new Database(`./databases/${guildId}.sqlite`);
+	const db = new Database(`./databases/${guildId}.sqlite`);
 
-    const deleteStatements = [
-        `DELETE FROM messageActivity`,
-        `DELETE FROM reactsSentActivity`,
-        `DELETE FROM reactsReceivedActivity`,
-    ].map(sql => db.prepare(sql))
+	const deleteStatements = [
+		'DELETE FROM messageActivity',
+		'DELETE FROM reactsSentActivity',
+		'DELETE FROM reactsReceivedActivity',
+	].map(sql => db.prepare(sql));
 
-    for (const deleteStatement of deleteStatements) {
-        deleteStatement.run();
-    }
+	for (const deleteStatement of deleteStatements) {
+		deleteStatement.run();
+	}
 
-    db.close()
+	db.close();
 }
 
 /** getEmojiTotalCount
@@ -456,31 +463,31 @@ function resetDb(guildId) {
  * @returns {number}    The usage count of the emoji.
  */
 function getEmojiTotalCount(guildId, emojiId) {
-    let db = new Database(`./databases/${guildId}.sqlite`);
-    let count = 0
+	const db = new Database(`./databases/${guildId}.sqlite`);
+	let count = 0;
 
-    const statements = [
-        `SELECT COUNT(emoji) FROM messageActivity WHERE emoji == @emoji`,
-        `SELECT COUNT(emoji) FROM reactsSentActivity WHERE emoji == @emoji`,
-    ].map(sql => db.prepare(sql))
-    for (const statement of statements) {
-        count += Object.values(statement.get({emoji: emojiId,}))[0]
-    }
+	const statements = [
+		'SELECT COUNT(emoji) FROM messageActivity WHERE emoji == @emoji',
+		'SELECT COUNT(emoji) FROM reactsSentActivity WHERE emoji == @emoji',
+	].map(sql => db.prepare(sql));
+	for (const statement of statements) {
+		count += Object.values(statement.get({ emoji: emojiId }))[0];
+	}
 
-    db.close()
-    return count
+	db.close();
+	return count;
 
 }
 
 module.exports = {
-    createDatabase,
-    deleteFromDb,
-    insertToDb,
-    getLeaderboard,
-    getGetCount,
-    getDisplayStats,
-    getSetting,
-    setSetting,
-    resetDb,
-    getEmojiTotalCount
-}
+	createDatabase,
+	deleteFromDb,
+	insertToDb,
+	getLeaderboard,
+	getGetCount,
+	getDisplayStats,
+	getSetting,
+	setSetting,
+	resetDb,
+	getEmojiTotalCount,
+};

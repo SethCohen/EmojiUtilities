@@ -8,4 +8,4 @@ Simply add the bot to the server and that's it. The database gets automatically 
 use custom emotes, those get added to your server's database and you can query them using the variety of bot commands.
 
 ## Supported Commands:
-![](https://i.imgur.com/eg2vGd3.png)
+![](https://i.imgur.com/f4gFGjz.png)
