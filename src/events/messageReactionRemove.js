@@ -20,6 +20,10 @@ module.exports = {
 			});
 		}
 
+		if (messageReaction.message.author === null) {
+			return false;
+		}
+
 		// Ignore client
 		if (messageReaction.me || messageReaction.message.author.id === messageReaction.client.user.id) {
 			return false;

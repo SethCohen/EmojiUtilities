@@ -9,6 +9,21 @@
 - `/search` searches for an emoji from emoji.gg
 - `/random` sends a random emoji from emoji.gg
 
+## v1.6.2 - 2021-10-30
+
+### Added
+
+- `setCommandPerm.js` Added helper function to set command perms.
+
+### Changed
+
+- Project structure.
+
+### Fixed
+
+- Fixed pathing "unknown file/directory" for new project structure.
+- Fixed error handling on null message to ignore null messages.
+
 ## v1.6.1 - 2021-10-26
 
 ### Added

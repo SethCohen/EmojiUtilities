@@ -9,16 +9,16 @@ const client = new Client({
 
 // Commands
 client.commands = new Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync('./src/commands').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
-	const command = require(`./src/commands/${file}`);
+	const command = require(`./commands/${file}`);
 	client.commands.set(command.data.name, command);
 }
 
 // Events
-const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+const eventFiles = fs.readdirSync('./src/events').filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
-	const event = require(`./src/events/${file}`);
+	const event = require(`./events/${file}`);
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	}

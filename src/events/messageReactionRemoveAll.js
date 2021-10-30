@@ -12,6 +12,10 @@ module.exports = {
 			return false;
 		}
 
+		if (message.author === null) {
+			return false;
+		}
+
 		// Ignore client
 		if (message.author.id === message.client.user.id) {
 			return false;
