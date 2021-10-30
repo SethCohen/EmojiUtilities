@@ -12,6 +12,7 @@ module.exports = {
 			return false;
 		}
 
+		// Ignore invalid messages
 		if (message.author === null) {
 			return false;
 		}

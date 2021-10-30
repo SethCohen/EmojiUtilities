@@ -9,17 +9,18 @@ module.exports = {
 		// Fetch any partials
 		if (messageReaction.partial) {
 			await messageReaction.fetch().catch(e => {
-				console.error('messageReactionRemove messageReaction.fetch() failed.', e);
+				// console.error('messageReactionRemove messageReaction.fetch() failed.', e);
 				return false;
 			});
 		}
 		if (messageReaction.message.partial) {
 			await messageReaction.message.fetch().catch(e => {
-				console.error('messageReactionRemove messageReaction.message.fetch() failed.', e);
+				// console.error('messageReactionRemove messageReaction.message.fetch() failed.', e);
 				return false;
 			});
 		}
 
+		// Ignore invalid messages
 		if (messageReaction.message.author === null) {
 			return false;
 		}

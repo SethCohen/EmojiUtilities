@@ -110,9 +110,9 @@
         "error",
         {
           "caughtErrors": "all",
-          "caughtErrorsIgnorePattern": "^ignore",
-          "varsIgnorePattern": "^ignore",
-          "argsIgnorePattern": "^ignore"
+          "caughtErrorsIgnorePattern": "^ignore|^e$",
+          "varsIgnorePattern": "^ignore|^e$",
+          "argsIgnorePattern": "^ignore|^e$"
         }
       ],
       "object-curly-spacing": [
