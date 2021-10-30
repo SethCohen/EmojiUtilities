@@ -1,4 +1,4 @@
-const { getGetCount } = require('../db_model');
+const { getGetCount } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 

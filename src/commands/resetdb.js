@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { Permissions, MessageActionRow, MessageButton } = require('discord.js');
-const { resetDb } = require('../db_model');
+const { resetDb } = require('../helpers/dbModel');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -64,6 +64,7 @@ module.exports = {
 			}
 		});
 
+		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
 			interaction.editReply({ components: [disabledRow] });
 			// console.log(`Collected ${collected.size} interactions.`);

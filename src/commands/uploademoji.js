@@ -1,7 +1,7 @@
 const { Permissions } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const tinify = require('tinify');
-const { tinifyKey } = require('../config.json');
+const { tinifyKey } = require('../../config.json');
 const request = require('request');
 
 tinify.key = tinifyKey;
@@ -80,9 +80,9 @@ module.exports = {
 			console.error(e.toString());
 			return interaction.editReply({
 				content: 'There was an error while executing this command!' +
-                    '\nIf you think this is a proper bug, either please join the support server for help or create a github issue describing the problem.' +
-                    '\nhttps://discord.gg/XaeERFAVfb' +
-                    '\nhttps://github.com/SethCohen/EmojiStatistics/issues', ephemeral: true,
+					'\nIf you think this is a proper bug, either please join the support server for help or create a github issue describing the problem.' +
+					'\nhttps://discord.gg/XaeERFAVfb' +
+					'\nhttps://github.com/SethCohen/EmojiStatistics/issues', ephemeral: true,
 			});
 		}
 

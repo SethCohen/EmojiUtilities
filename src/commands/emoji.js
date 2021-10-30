@@ -1,4 +1,4 @@
-const { getEmojiTotalCount } = require('../db_model');
+const { getEmojiTotalCount } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
@@ -30,7 +30,7 @@ module.exports = {
 		try {
 			author = await emoji.fetchAuthor();
 		}
-		catch (e) {
+		catch (ignoreError) {
 			return interaction.reply({ content: '**Error:** Bot requires Manage Emojis perm to access emoji info such as emoji author.' });
 		}
 		const count = getEmojiTotalCount(interaction.guild.id, emoji.id);

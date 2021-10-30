@@ -1,6 +1,6 @@
 const { MessageButton } = require('discord.js');
 const { MessageActionRow } = require('discord.js');
-const { getDisplayStats } = require('../db_model');
+const { getDisplayStats } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
@@ -120,7 +120,8 @@ module.exports = {
 					const emoji = await interaction.guild.emojis.fetch(emojiId);
 					embed.addField(`${emoji}`, `${count}`, true);
 				}
-				catch (error) {
+				catch (ignoreError) {
+					// Ignore empty rows
 				}
 			}
 			embeds.push(embed);
@@ -150,6 +151,8 @@ module.exports = {
 				await i.reply({ content: 'No valid page to go to.', ephemeral: true });
 			}
 		});
+
+		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
 			interaction.editReply({ components: [] });
 			// console.log(`Collected ${collected.size} interactions.`);

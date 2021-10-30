@@ -2,11 +2,11 @@
   "name": "emojiutilities",
   "description": "Discord.js Bot for tracking server-specific emoji usage",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js",
-    "deploy": "node deploy-commands.js",
-    "server": "pm2 start index.js"
+    "start": "node src/index.js",
+    "deploy": "node src/helpers/deployCommands.js",
+    "server": "pm2 start src/index.js"
   },
   "dependencies": {
     "@discordjs/builders": "^0.6.0",
@@ -106,6 +106,15 @@
         "error"
       ],
       "no-var": "error",
+      "no-unused-vars": [
+        "error",
+        {
+          "caughtErrors": "all",
+          "caughtErrorsIgnorePattern": "^ignore",
+          "varsIgnorePattern": "^ignore",
+          "argsIgnorePattern": "^ignore"
+        }
+      ],
       "object-curly-spacing": [
         "error",
         "always"

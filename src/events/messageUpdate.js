@@ -1,6 +1,6 @@
-const { insertToDb } = require('../db_model');
-const { deleteFromDb } = require('../db_model');
-const { getSetting } = require('../db_model');
+const { insertToDb } = require('../helpers/dbModel');
+const { deleteFromDb } = require('../helpers/dbModel');
+const { getSetting } = require('../helpers/dbModel');
 
 module.exports = {
 	name: 'messageUpdate',
@@ -34,7 +34,6 @@ module.exports = {
 				oldMessage.guild.emojis
 					.fetch(emoji[3])
 					.then(fetchedEmoji => deleteFromDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageUpdate'))
-				// eslint-disable-next-line no-unused-vars
 					.catch(ignoreError => {
 						// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
 					});
@@ -45,7 +44,6 @@ module.exports = {
 				newMessage.guild.emojis
 					.fetch(emoji[3])
 					.then(fetchedEmoji => insertToDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageUpdate'))
-				// eslint-disable-next-line no-unused-vars
 					.catch(ignoreError => {
 						// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
 					});

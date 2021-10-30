@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder, hyperlink } = require('@discordjs/builders');
 const ms = require('ms');
-const { getGetCount } = require('../db_model');
+const { getGetCount } = require('../helpers/dbModel');
 
 module.exports = {
 	data: new SlashCommandBuilder()

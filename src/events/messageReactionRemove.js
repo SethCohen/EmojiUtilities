@@ -1,5 +1,5 @@
-const { deleteFromDb } = require('../db_model');
-const { getSetting } = require('../db_model');
+const { deleteFromDb } = require('../helpers/dbModel');
+const { getSetting } = require('../helpers/dbModel');
 
 module.exports = {
 	name: 'messageReactionRemove',
@@ -42,7 +42,6 @@ module.exports = {
 								deleteFromDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionRemove');
 								deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionRemove');
 							})
-						// eslint-disable-next-line no-unused-vars
 							.catch(ignoreError => {
 								// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
 							});

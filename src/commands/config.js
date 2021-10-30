@@ -1,4 +1,4 @@
-const { setSetting } = require('../db_model');
+const { setSetting } = require('../helpers/dbModel');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { Permissions } = require('discord.js');
 

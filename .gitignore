@@ -2,9 +2,8 @@
 convertdatabases.py
 .idea/
 *.pyc
-commands/test.py
+src/commands/test.py
 /node_modules/
 /config.json
-updateDatabases.js
 /backups/
-deploy-commands.js
+/src/helpers/updateDatabases.js

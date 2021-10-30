@@ -64,6 +64,8 @@ module.exports = {
 				await i.reply({ content: 'No valid page to go to.', ephemeral: true });
 			}
 		});
+
+		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
 			interaction.editReply({ components: [disabledRow] });
 			// console.log(`Collected ${collected.size} interactions.`);

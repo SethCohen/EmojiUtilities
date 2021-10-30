@@ -1,5 +1,5 @@
-const { insertToDb } = require('../db_model');
-const { getSetting } = require('../db_model');
+const { insertToDb } = require('../helpers/dbModel');
+const { getSetting } = require('../helpers/dbModel');
 
 module.exports = {
 	name: 'messageReactionAdd',
@@ -42,7 +42,6 @@ module.exports = {
 								insertToDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionAdd');
 								insertToDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionAdd');
 							})
-						// eslint-disable-next-line no-unused-vars
 							.catch(ignoreError => {
 								// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
 							});

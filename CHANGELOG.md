@@ -67,7 +67,7 @@
 
 - `emojiActivity` table changed to `messageActivity`
 - Updated `interactionCreate` failed message to include redirect to support server.
-- `db_model.js` insert and deletes to support new tables.
+- `dbModel.js` insert and deletes to support new tables.
 - discord.js updated to 13.2.0
 - Renamed bot to Emoji Utilities
 - `listemojis.js` Changed pagination to use Buttons and message editing to display info instead of sending multiple
@@ -254,16 +254,16 @@
 
 - More code refactoring
 - Continuation of extension-based commands
-  - Created displaystats.py
-  - Created listemojis.py
+    - Created displaystats.py
+    - Created listemojis.py
 
 ## v1.3.0 - 2021-05-22
 
 - Start of Extensions-based commands
-  - Created `getcount.py`
-  - Created `leaderboard.py`
+    - Created `getcount.py`
+    - Created `leaderboard.py`
 - Start of separating sqlite queries into its own file
-  - Created `db_model.py`
+    - Created `db_model.py`
 - Refactored a lot of code
 
 ## v1.2.5 - 2020-12-13
@@ -290,7 +290,7 @@
 ## v1.2.0 - 2020-12-11
 
 - Added `leaderboard` command
-  - Displays the top ten users who use the specified emoji the most
+    - Displays the top ten users who use the specified emoji the most
 - Fixed `getcount` error handling
 
 ## v1.1.1 - 2020-12-11
@@ -300,8 +300,8 @@
 ## v1.1.0 - 2020-12-11
 
 - Added `getcount` command.
-  - Displays total emoji count usage at all-time, monthly, and weekly usage; defaults to server's usage if user is not
-    specified.
+    - Displays total emoji count usage at all-time, monthly, and weekly usage; defaults to server's usage if user is not
+      specified.
 
 ## v1.0.1 - 2020-12-03
 

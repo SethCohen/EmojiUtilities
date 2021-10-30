@@ -1,4 +1,4 @@
-const { getLeaderboard } = require('../db_model');
+const { getLeaderboard } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
