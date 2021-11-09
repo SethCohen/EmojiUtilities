@@ -2,12 +2,17 @@
 
 ## Upcoming
 
-- `/stickerfy` takes a gif url, converts it to an apng, and uploads to the server as a sticker
 - `/removeunused` removes the top 5 least actively used emojis
 - `/backupemojis` backups the current list of emojis
 - `/dancify` converts your message into dancing letters
 - `/search` searches for an emoji from emoji.gg
 - `/random` sends a random emoji from emoji.gg
+
+## v1.6.3 - 2021-11-08
+
+### Added
+
+- `/stickerfy` Converts a gif url to an apng and uploads it to the server as a sticker.
 
 ## v1.6.2 - 2021-10-30
 
