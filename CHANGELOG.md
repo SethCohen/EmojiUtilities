@@ -4,7 +4,6 @@
 
 - `/removeunused` removes the top 5 least actively used emojis
 - `/backupemojis` backups the current list of emojis
-- `/dancify` converts your message into dancing letters
 - `/search` searches for an emoji from emoji.gg
 - `/random` sends a random emoji from emoji.gg
 
@@ -13,6 +12,7 @@
 ### Added
 
 - `/stickerfy` Converts a gif url to an apng and uploads it to the server as a sticker.
+- `/dancify` Converts your message into dancing letters
 
 ### Changed
 
