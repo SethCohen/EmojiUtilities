@@ -12,8 +12,8 @@ module.exports = {
 		),
 	async execute(interaction) {
 		const guild = await interaction.client.guilds.fetch(guildId);
-		const text = interaction.options.getString('text').replace(/^[a-zA-Z0-9 ]/g, '');
-		// TODO fix whitespace mutlispacing
+		const text = interaction.options.getString('text').replace(/[^a-zA-Z0-9 ]/g, '').replace(/  +/g, ' ');
+		console.log(text);
 
 		if (text.length > 500) {
 			return interaction.reply({ content: 'Message is too long. Max character limit is 500.', ephemeral: true });
@@ -24,11 +24,20 @@ module.exports = {
 		for (const char of text) {
 			if ((/[a-zA-Z0-9]/).test(char)) {
 				const foundEmoji = await guild.emojis.cache.find(emoji => emoji.name === (char + '_'));
-				output += foundEmoji.toString();
+				if (foundEmoji) {
+					output += foundEmoji.toString();
+				}
 			}
 			else if (char === ' ') {
 				output += '    ';
 			}
+		}
+
+		if (output === '') {
+			return await interaction.reply({
+				content: 'Output is empty. This may be caused by invalid inputs such as unicode emojis. Please try again.',
+				ephemeral: true,
+			});
 		}
 
 		return await interaction.reply({ content: output });
