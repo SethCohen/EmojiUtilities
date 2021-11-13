@@ -8,11 +8,15 @@
 - `/search` searches for an emoji from emoji.gg
 - `/random` sends a random emoji from emoji.gg
 
-## v1.6.3 - 2021-11-08
+## v1.6.3 - 2021-11-13
 
 ### Added
 
 - `/stickerfy` Converts a gif url to an apng and uploads it to the server as a sticker.
+
+### Changed
+
+- Refactored `uploademoji.js`; changed compression tool to use imagemagick command line tool instead of tinify.
 
 ## v1.6.2 - 2021-10-30
 
