@@ -2,9 +2,9 @@
 
 ## Upcoming
 
+- Add NSFW filters to `/search` and `/random`
 - `/removeunused` removes the top 5 least actively used emojis
 - `/backupemojis` backups the current list of emojis
-- `/search` searches for an emoji from emoji.gg
 
 ## v1.6.3 - 2021-11-23
 
@@ -13,6 +13,7 @@
 - `/stickerfy` Converts a gif url to an apng and uploads it to the server as a sticker.
 - `/dancify` Converts your message into dancing letters.
 - `/random` Gets a random emoji from emoji.gg and prompts the user if they wish to add it to their server.
+- `/search` Gets an emoji from emoji.gg based on user's search parameters.
 
 ### Changed
 
