@@ -13,7 +13,7 @@ module.exports = {
 	async execute(interaction) {
 		const guild = await interaction.client.guilds.fetch(guildId);
 		const text = interaction.options.getString('text').replace(/[^a-zA-Z0-9 ]/g, '').replace(/  +/g, ' ');
-		console.log(text);
+		// console.log(text);
 
 		if (text.length > 500) {
 			return interaction.reply({ content: 'Message is too long. Max character limit is 500.', ephemeral: true });
