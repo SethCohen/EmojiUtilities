@@ -6,9 +6,10 @@
 - Modify db to be initialized with all guild emojis at count 0 instead of waiting for at least 1 use before adding to
   db.
 - Add event handlers for emoji creation (Initialize into db at count 0).
+- Fix `/stickerfy` to convert gif to png if less than 500kb
 - `/backupemojis` backups the current list of emojis
 
-## v1.6.3 - 2021-11-23
+## v1.7.0 - 2021-11-24
 
 ### Added
 
