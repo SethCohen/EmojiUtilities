@@ -1,0 +1,94 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { getDisplayStats } = require('../helpers/dbModel');
+const { MessageActionRow, MessageButton, Permissions } = require('discord.js');
+
+module.exports = {
+	data: new SlashCommandBuilder()
+		.setName('removeunused')
+		.setDescription('Removes one or more of the least used emojis')
+		.addIntegerOption(option =>
+			option.setName('number')
+				.setDescription('How many emojis to remove. Default: 1')),
+	async execute(interaction) {
+		await interaction.deferReply();
+
+		const number = interaction.options.getInteger('number') ? interaction.options.getInteger('number') : 1;
+		const occurrences = getDisplayStats(interaction.guild.id, '0');
+
+		// Creates buttons
+		const buttonRow = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('remove')
+					.setLabel('Confirm Remove')
+					.setStyle('SUCCESS'),
+				new MessageButton()
+					.setCustomId('cancel')
+					.setLabel('Cancel')
+					.setStyle('DANGER'),
+			);
+
+		const disabledRow = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('remove')
+					.setLabel('Confirm Remove')
+					.setStyle('SUCCESS')
+					.setDisabled(true),
+				new MessageButton()
+					.setCustomId('cancel')
+					.setLabel('Cancel')
+					.setStyle('DANGER')
+					.setDisabled(true),
+			);
+
+		// console.log(Array.from(interaction.guild.emojis.cache.keys()));
+		// console.log(occurrences.filter(row => Array.from(interaction.guild.emojis.cache.keys()).includes(row.emoji)));
+		const toRemove = occurrences.filter(row => Array.from(interaction.guild.emojis.cache.keys()).includes(row.emoji)).splice(-number);
+		// console.log(toRemove);
+
+		const emojis = [];
+		for await (const key of toRemove) {
+			const emoji = await interaction.guild.emojis.fetch(key.emoji);
+			emojis.push(emoji);
+		}
+
+		await interaction.editReply({ content: `Emojis to remove: ${emojis}`, components: [buttonRow] });
+
+		// Adds button listeners
+		const message = await interaction.fetchReply();
+		const collector = message.createMessageComponentCollector({ time: 30000 });
+		collector.on('collect', async i => {
+			if (i.customId === 'remove' && i.user === interaction.user) {
+				await i.update({ components: [] });
+
+				if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+					return interaction.editReply({
+						content: 'You do not have enough permissions to use this command.\nYou need Manage Emojis perms to use this command.',
+						ephemeral: true,
+					});
+				}
+
+				await interaction.editReply({ content: 'Deleting emojis...' });
+				for await (const emoji of emojis) {
+					await emoji.delete();
+				}
+				await interaction.editReply({ content: 'Emojis deleted.' });
+
+
+			}
+			else if (i.customId === 'cancel' && i.user === interaction.user) {
+				await i.update({ components: [disabledRow] });
+			}
+			else {
+				await i.reply({ content: 'You are not the command author.', ephemeral: true });
+			}
+		});
+
+		// eslint-disable-next-line no-unused-vars
+		collector.on('end', collected => {
+			interaction.editReply({ components: [] });
+			// console.log(`Collected ${collected.size} interactions.`);
+		});
+	},
+};

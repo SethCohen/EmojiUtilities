@@ -3,7 +3,9 @@
 ## Upcoming
 
 - Add NSFW filters to `/search` and `/random`
-- `/removeunused` removes the top 5 least actively used emojis
+- Modify db to be initialized with all guild emojis at count 0 instead of waiting for at least 1 use before adding to
+  db.
+- Add event handlers for emoji creation (Initialize into db at count 0).
 - `/backupemojis` backups the current list of emojis
 
 ## v1.6.3 - 2021-11-23
@@ -14,6 +16,7 @@
 - `/dancify` Converts your message into dancing letters.
 - `/random` Gets a random emoji from emoji.gg and prompts the user if they wish to add it to their server.
 - `/search` Gets an emoji from emoji.gg based on user's search parameters.
+- `/removeunused` Removes the n least-used emojis in a server as specified by user.
 
 ### Changed
 
