@@ -92,9 +92,16 @@ module.exports = {
 		}
 
 		// Grabs queried info
-		const array = (user ?
+		const data = (user ?
 			getDisplayStats(interaction.guild.id, dateRange, user.id) :
 			getDisplayStats(interaction.guild.id, dateRange));
+
+		const occurrences = interaction.guild.emojis.cache.map(emoji => {
+			const item = data.find(row => row.emoji === emoji.id);
+			return item ? { emoji: emoji.id, count: item['COUNT(emoji)'] } : { emoji: emoji.id, count: 0 };
+		}).sort((a, b) => {
+			return b.count - a.count;
+		});
 
 		// Paginates queried info
 		const chunkSize = 24;
@@ -102,8 +109,8 @@ module.exports = {
 		const chunks = [];
 		let index = 0;
 		let pageNumber = 1;
-		for (let i = 0, j = array.length; i < j; i += chunkSize) {
-			const chunk = array.slice(i, i + chunkSize);
+		for (let i = 0, j = occurrences.length; i < j; i += chunkSize) {
+			const chunk = occurrences.slice(i, i + chunkSize);
 			chunks.push(chunk);
 
 		}
@@ -114,8 +121,8 @@ module.exports = {
 				.setDescription(dateString)
 				.setFooter(`Page ${pageNumber++}/${chunks.length}`);
 			for await (const row of chunk) {
-				const count = Object.values(row)[1];
-				const emojiId = Object.values(row)[0];
+				const count = row.count;
+				const emojiId = row.emoji;
 				try {
 					const emoji = await interaction.guild.emojis.fetch(emojiId);
 					embed.addField(`${emoji}`, `${count}`, true);

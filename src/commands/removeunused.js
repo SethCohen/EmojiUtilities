@@ -50,6 +50,8 @@ module.exports = {
 		const toRemove = interaction.guild.emojis.cache.map(emoji => {
 			const item = occurrences.find(row => row.emoji === emoji.id);
 			return item ? { emoji: emoji.id, count: item['COUNT(emoji)'] } : { emoji: emoji.id, count: 0 };
+		}).sort((a, b) => {
+			return b.count - a.count;
 		}).splice(-number);
 
 		const emojis = [];

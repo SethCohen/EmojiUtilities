@@ -3,17 +3,20 @@
 ## Upcoming
 
 - `/packsearch` Searches emoji.gg for packs.
-- Modify db to be initialized with all guild emojis at count 0 instead of waiting for at least 1 use before adding to
-  db.
-- Add event handlers for emoji creation (Initialize into db at count 0).
 - `/backupemojis` backups the current list of emojis
 
 ## v1.7.2 - 2021-11-24
 
 ## Changed
 
+- `/displaystats` Now includes zero-count-used emojis.
 - Add NSFW filters to `/search` and `/random`.
 - `/removeunused` Now checks for zero-count-used emojis.
+
+## Fixed
+
+- `/removeunused` Fixed bug where bot would ask to remove non-least-used emojis due to sorting most-to-least-used being
+  broken.
 
 ## v1.7.1 - 2021-11-24
 
