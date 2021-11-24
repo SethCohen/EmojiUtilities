@@ -44,8 +44,13 @@ module.exports = {
 
 		// console.log(Array.from(interaction.guild.emojis.cache.keys()));
 		// console.log(occurrences.filter(row => Array.from(interaction.guild.emojis.cache.keys()).includes(row.emoji)));
-		const toRemove = occurrences.filter(row => Array.from(interaction.guild.emojis.cache.keys()).includes(row.emoji)).splice(-number);
+		// const toRemove = occurrences.filter(row => Array.from(interaction.guild.emojis.cache.keys()).includes(row.emoji)).splice(-number);
 		// console.log(toRemove);
+
+		const toRemove = interaction.guild.emojis.cache.map(emoji => {
+			const item = occurrences.find(row => row.emoji === emoji.id);
+			return item ? { emoji: emoji.id, count: item['COUNT(emoji)'] } : { emoji: emoji.id, count: 0 };
+		}).splice(-number);
 
 		const emojis = [];
 		for await (const key of toRemove) {
@@ -69,7 +74,6 @@ module.exports = {
 					});
 				}
 
-				await interaction.editReply({ content: 'Deleting emojis...' });
 				for await (const emoji of emojis) {
 					await emoji.delete();
 				}
@@ -79,6 +83,7 @@ module.exports = {
 			}
 			else if (i.customId === 'cancel' && i.user === interaction.user) {
 				await i.update({ components: [disabledRow] });
+				await interaction.editReply({ content: `Emojis to remove: ${emojis}.\nCanceled.` });
 			}
 			else {
 				await i.reply({ content: 'You are not the command author.', ephemeral: true });
@@ -87,7 +92,7 @@ module.exports = {
 
 		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
-			interaction.editReply({ components: [] });
+			interaction.editReply({ content: `Emojis to remove: ${emojis}.\nCommand timed out.`, components: [] });
 			// console.log(`Collected ${collected.size} interactions.`);
 		});
 	},

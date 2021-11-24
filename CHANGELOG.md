@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+- `/packsearch` Searches emoji.gg for packs.
 - Modify db to be initialized with all guild emojis at count 0 instead of waiting for at least 1 use before adding to
   db.
 - Add event handlers for emoji creation (Initialize into db at count 0).
@@ -11,7 +12,8 @@
 
 ## Changed
 
-- Add NSFW filters to `/search` and `/random`
+- Add NSFW filters to `/search` and `/random`.
+- `/removeunused` Now checks for zero-count-used emojis.
 
 ## v1.7.1 - 2021-11-24
 
