@@ -35,19 +35,44 @@ module.exports = {
 					['Recolors', 18],
 					['Flags', 19],
 					['Hearts', 20],
-				])),
+				]))
+		.addBooleanOption(option =>
+			option.setName('includensfw')
+				.setDescription('Includes NSFW results. Default: False')),
 	async execute(interaction) {
 		await interaction.deferReply();
 
 		const response = await axios.get('https://emoji.gg/api');
 
 		const name = interaction.options.getString('name');
+		const nsfw = interaction.options.getBoolean('includensfw') ? interaction.options.getBoolean('includensfw') : false;
 		const category = interaction.options.getInteger('category');
 
-		const data = category ? response.data.filter(json => {
-			return json.category === category;
-		}) : response.data;
+		let data;
+		if (nsfw) {
+			await interaction.editReply({
+				content: 'Including NSFW results, eh? Kinky.',
+			});
 
+			data = category ? response.data.filter(json => {
+				return json.category === category;
+			}) : response.data;
+		}
+		else {
+			if (category === 9) {
+				await interaction.editReply({
+					content: 'Searching through the NSFW category? Freak.',
+				});
+			}
+
+			data = category ? response.data.filter(json => {
+				return json.category === category;
+			}) : response.data.filter(json => {
+				return json.category !== 9;
+			});
+		}
+
+		// Searches for best match
 		const match = findBestMatch(name, data.map(json => {
 			return json.title;
 		}));
@@ -115,6 +140,7 @@ module.exports = {
 			}
 			else if (i.customId === 'cancel' && i.user === interaction.user) {
 				await i.update({ embeds: [embed], components: [disabledRow] });
+				return interaction.editReply({ content: 'Canceled.' });
 			}
 			else {
 				await i.reply({ content: 'You are not the command author.', ephemeral: true });
@@ -123,7 +149,7 @@ module.exports = {
 
 		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
-			interaction.editReply({ components: [disabledRow] });
+			interaction.editReply({ content: 'Command timed out.', components: [disabledRow] });
 			// console.log(`Collected ${collected.size} interactions.`);
 		});
 	}

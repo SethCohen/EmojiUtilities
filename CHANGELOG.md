@@ -2,18 +2,22 @@
 
 ## Upcoming
 
-- Add NSFW filters to `/search` and `/random`
 - Modify db to be initialized with all guild emojis at count 0 instead of waiting for at least 1 use before adding to
   db.
 - Add event handlers for emoji creation (Initialize into db at count 0).
 - `/backupemojis` backups the current list of emojis
 
+## v1.7.2 - 2021-11-24
+
+## Changed
+
+- Add NSFW filters to `/search` and `/random`
+
 ## v1.7.1 - 2021-11-24
 
 ### Fixed
 
-- Fixed `/stickerfy` bug where gifs less than <500kb would throw an error.
-- Fixed `/stickerfy` errors not being caught; thus crashing bot.
+- Fixed `/stickerfy` bug where gifs less than <500kb would not get converted to apngs and crash the bot.
 
 ## v1.7.0 - 2021-11-24
 

@@ -5,7 +5,10 @@ const { MessageEmbed, MessageActionRow, MessageButton, Permissions } = require('
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('random')
-		.setDescription('Gets a random emoji as an image.'),
+		.setDescription('Gets a random emoji as an image.')
+		.addBooleanOption(option =>
+			option.setName('includensfw')
+				.setDescription('Includes NSFW results. Default: False')),
 	async execute(interaction) {
 		await interaction.deferReply();
 
@@ -37,8 +40,13 @@ module.exports = {
 			);
 
 		const response = await axios.get('https://emoji.gg/api/');
+		const nsfw = interaction.options.getBoolean('includensfw') ? interaction.options.getBoolean('includensfw') : false;
 
-		const item = response.data[Math.floor(Math.random() * response.data.length)];
+		const data = nsfw ? response.data : response.data.filter(json => {
+			return json.category !== 9;
+		});
+
+		const item = data[Math.floor(Math.random() * data.length)];
 		const embed = new MessageEmbed()
 			.setTitle(item.title)
 			.setImage(item.image);
@@ -70,6 +78,7 @@ module.exports = {
 			}
 			else if (i.customId === 'cancel' && i.user === interaction.user) {
 				await i.update({ embeds: [embed], components: [disabledRow] });
+				return interaction.editReply({ content: 'Canceled.' });
 			}
 			else {
 				await i.reply({ content: 'You are not the command author.', ephemeral: true });
@@ -78,7 +87,7 @@ module.exports = {
 
 		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
-			interaction.editReply({ components: [disabledRow] });
+			interaction.editReply({ content: 'Command timed out.', components: [disabledRow] });
 			// console.log(`Collected ${collected.size} interactions.`);
 		});
 	},
