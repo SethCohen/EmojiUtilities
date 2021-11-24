@@ -79,6 +79,16 @@ module.exports = {
 
 							interaction.guild.stickers.create(`${path}.png`, name, tag)
 								.then(sticker => {
+
+									fs.unlink(`${path}.gif`, (err) => {
+										if (err) throw err;
+										console.log(`${path} was deleted.`);
+									});
+									fs.unlink(`${path}.png`, (err) => {
+										if (err) throw err;
+										console.log(`${path} was deleted.`);
+									});
+
 									return interaction.editReply({
 										content: `Created new sticker with name **${sticker.name}**!`,
 									});
@@ -90,7 +100,24 @@ module.exports = {
 											'\nIf you think this is a bug, feel free to join <https://discord.gg/XaeERFAVfb> for help.' +
 											`\nError: ${e.toString()}`,
 									});
-								}).finally(() => {
+								});
+						});
+				}
+				else {
+					exec(`gif2apng ${path}.gif`,
+						(error, stdout, stderr) => {
+							if (error) {
+								console.error(`error: ${error.message}`);
+								return;
+							}
+							if (stderr) {
+								console.error(`stderr: ${stderr}`);
+								return;
+							}
+
+							interaction.guild.stickers.create(`${path}.png`, name, tag)
+								.then(sticker => {
+
 									fs.unlink(`${path}.gif`, (err) => {
 										if (err) throw err;
 										console.log(`${path} was deleted.`);
@@ -99,32 +126,19 @@ module.exports = {
 										if (err) throw err;
 										console.log(`${path} was deleted.`);
 									});
+
+									return interaction.editReply({
+										content: `Created new sticker with name **${sticker.name}**!`,
+									});
+								})
+								.catch(e => {
+									console.error(e);
+									return interaction.editReply({
+										content: 'There was an error while executing this command!' +
+											'\nIf you think this is a bug, feel free to join <https://discord.gg/XaeERFAVfb> for help.' +
+											`\nError: ${e.toString()}`,
+									});
 								});
-						});
-				}
-				else {
-					interaction.guild.stickers.create(`${path}.png`, name, tag)
-						.then(sticker => {
-							return interaction.editReply({
-								content: `Created new sticker with name **${sticker.name}**!`,
-							});
-						})
-						.catch(e => {
-							console.error(e);
-							return interaction.editReply({
-								content: 'There was an error while executing this command!' +
-									'\nIf you think this is a bug, feel free to join <https://discord.gg/XaeERFAVfb> for help.' +
-									`\nError: ${e.toString()}`,
-							});
-						}).finally(() => {
-							fs.unlink(`${path}.gif`, (err) => {
-								if (err) throw err;
-								console.log(`${path} was deleted.`);
-							});
-							fs.unlink(`${path}.png`, (err) => {
-								if (err) throw err;
-								console.log(`${path} was deleted.`);
-							});
 						});
 				}
 			}
