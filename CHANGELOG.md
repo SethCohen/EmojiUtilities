@@ -2,18 +2,25 @@
 
 ## Upcoming
 
-- `/packsearch` Searches emoji.gg for packs.
 - `/backupemojis` backups the current list of emojis
+- `/config allowNSFW` disables/enables allowing to search for NSFW emotes from emoji.gg
+- Fix permission checks on `/search`, `/random`, and any other button-based commands etc
+
+## v1.8.0 - 2021-11-25
+
+### Added
+
+- `/packsearch` Searches emoji.gg for packs.
 
 ## v1.7.2 - 2021-11-24
 
-## Changed
+### Changed
 
 - `/displaystats` Now includes zero-count-used emojis.
-- Add NSFW filters to `/search` and `/random`.
+- `/search` `/random` Added NSFW filters.
 - `/removeunused` Now checks for zero-count-used emojis.
 
-## Fixed
+### Fixed
 
 - `/removeunused` Fixed bug where bot would ask to remove non-least-used emojis due to sorting most-to-least-used being
   broken.
