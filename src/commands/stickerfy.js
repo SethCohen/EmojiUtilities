@@ -152,7 +152,7 @@ module.exports = {
 				content: 'There was an error while executing this command!' +
 					'\nIf you think this is a proper bug, either please join the support server for help or create a github issue describing the problem.' +
 					'\nhttps://discord.gg/XaeERFAVfb' +
-					'\nhttps://github.com/SethCohen/EmojiStatistics/issues', ephemeral: true,
+					'\nhttps://github.com/SethCohen/EmojiUtilities/issues', ephemeral: true,
 			});
 		}
 

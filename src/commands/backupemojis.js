@@ -38,7 +38,7 @@ module.exports = {
 		await archive.finalize();
 
 		const embed = new MessageEmbed()
-			.setDescription('If you\'ve enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n[Vote for Emoji Utilities!](https://top.gg/bot/757326308547100712/vote) | [Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiStatistics)');
+			.setDescription('If you\'ve enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n[Vote for Emoji Utilities!](https://top.gg/bot/757326308547100712/vote) | [Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities)');
 		await interaction.editReply({
 			content: `Done. The file below contains all the emojis from **${interaction.guild.name}**.`,
 			embeds: [embed],

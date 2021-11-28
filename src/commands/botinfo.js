@@ -30,7 +30,7 @@ module.exports = {
 				},
 				{
 					name: 'Github Repo',
-					value: hyperlink('Github', 'https://github.com/SethCohen/EmojiStatistics'),
+					value: hyperlink('Github', 'https://github.com/SethCohen/EmojiUtilities'),
 					inline: true,
 				},
 				{ name: 'Guilds In:', value: guildsCount.toString(), inline: true },
