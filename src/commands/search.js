@@ -123,7 +123,7 @@ module.exports = {
 				if (i.customId === 'upload' && i.user === interaction.user) {
 					await i.update({ embeds: [embed], components: [disabledRow] });
 
-					if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+					if (!i.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 						return interaction.editReply({
 							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 							ephemeral: true,

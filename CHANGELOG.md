@@ -2,9 +2,18 @@
 
 ## Upcoming
 
-- `/backupemojis` backups the current list of emojis
+- `/config` Disable commands.
 - `/config allowNSFW` disables/enables allowing to search for NSFW emotes from emoji.gg
-- Fix permission checks on `/search`, `/random`, and any other button-based commands etc
+
+## V1.9.0 - 2021-11-28
+
+### Created
+
+- `/backupemojis` Sends a compressed file of all emojis in a guild.
+
+### Fixed
+
+- Fix permission checks on `/search`, `/random`, `/packsearch`, and `/removeunused`
 
 ## v1.8.1 - 2021-11-27
 
