@@ -52,7 +52,6 @@ module.exports = {
 					.setLabel('👉 Next')
 					.setStyle('SECONDARY'),
 			);
-
 		const actionButtons = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
@@ -64,7 +63,6 @@ module.exports = {
 					.setLabel('Cancel')
 					.setStyle('DANGER'),
 			);
-
 		const pageButtonsDisabled = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
@@ -78,7 +76,6 @@ module.exports = {
 					.setStyle('SECONDARY')
 					.setDisabled(true),
 			);
-
 		const actionButtonsDisabled = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
@@ -104,45 +101,50 @@ module.exports = {
 		const message = await interaction.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 120000 });
 		collector.on('collect', async i => {
-			if (i.customId === 'upload' && i.user === interaction.user) {
-				await i.update({ embeds: [embeds[index]], components: [pageButtons, actionButtonsDisabled] });
+			if (i.member === interaction.member) {
+				if (i.customId === 'upload') {
+					await i.update({ embeds: [embeds[index]], components: [pageButtons, actionButtonsDisabled] });
 
-				if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
-					return interaction.editReply({
-						content: 'You do not have enough permissions to use this command.\nYou need Manage Emojis perms to use this command.',
-						ephemeral: true,
-					});
+					if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+						return interaction.editReply({
+							content: 'You do not have enough permissions to use this command.\nYou need Manage Emojis perms to use this command.',
+							ephemeral: true,
+						});
+					}
+
+					interaction.guild.emojis
+						.create(packResponse.data.emotes[index].url, packResponse.data.emotes[index].name.replace(/-/g, ''))
+						.then(emoji => {
+							return interaction.editReply({ content: `Added ${emoji} to server!` });
+						})
+						.catch(e => {
+							return interaction.editReply({ content: `Emoji creation failed!\n${e.message}, ${packResponse.data.emotes[index].url}, ${packResponse.data.emotes[index].name}` });
+						});
 				}
-
-				interaction.guild.emojis
-					.create(packResponse.data.emotes[index].url, packResponse.data.emotes[index].name.replace(/-/g, ''))
-					.then(emoji => {
-						return interaction.editReply({ content: `Added ${emoji} to server!` });
-					})
-					.catch(e => {
-						return interaction.editReply({ content: `Emoji creation failed!\n${e.message}, ${packResponse.data.emotes[index].url}, ${packResponse.data.emotes[index].name}` });
+				else if (i.customId === 'cancel') {
+					await i.update({
+						embeds: [embeds[index]],
+						components: [pageButtonsDisabled, actionButtonsDisabled],
 					});
-			}
-			else if (i.customId === 'cancel' && i.user === interaction.user) {
-				await i.update({
-					embeds: [embeds[index]],
-					components: [pageButtonsDisabled, actionButtonsDisabled],
-				});
-				return interaction.editReply({ content: 'Canceled.' });
-			}
-			else if (i.customId === 'prev' && i.user === interaction.user && index > 0) {
-				--index;
-				await i.update({ embeds: [embeds[index]], components: [pageButtons, actionButtons] });
-			}
-			else if (i.customId === 'next' && i.user === interaction.user && index < embeds.length - 1) {
-				++index;
-				await i.update({ embeds: [embeds[index]], components: [pageButtons, actionButtons] });
-			}
-			else if (i.user !== interaction.user) {
-				await i.reply({ content: 'You are not the command author.', ephemeral: true });
+					return interaction.editReply({ content: 'Canceled.' });
+				}
+				else if (i.customId === 'prev' && index > 0) {
+					--index;
+					await i.update({ embeds: [embeds[index]], components: [pageButtons, actionButtons] });
+				}
+				else if (i.customId === 'next' && index < embeds.length - 1) {
+					++index;
+					await i.update({ embeds: [embeds[index]], components: [pageButtons, actionButtons] });
+				}
+				else {
+					await i.reply({ content: 'No valid page to go to.', ephemeral: true });
+				}
 			}
 			else {
-				await i.reply({ content: 'No valid page to go to.', ephemeral: true });
+				await i.reply({
+					content: 'You can\'t interact with this button. You are not the command author.',
+					ephemeral: true,
+				});
 			}
 		});
 

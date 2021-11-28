@@ -6,6 +6,22 @@
 - `/config allowNSFW` disables/enables allowing to search for NSFW emotes from emoji.gg
 - Fix permission checks on `/search`, `/random`, and any other button-based commands etc
 
+## v1.8.1 - 2021-11-27
+
+### Changed
+
+- Changed `/displaystats`, `/listemojis`, `/packsearch`, `/random`, `/removeunused`, `/search` buttons to only work with
+  command author.
+
+### Fixed
+
+- Fixed `/clapify` error on input being higher than discord character limit.
+- Fixed `/dancify` bug of ignoring capitalized characters.
+
+### Removed
+
+- `/help`
+
 ## v1.8.0 - 2021-11-25
 
 ### Added

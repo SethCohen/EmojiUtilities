@@ -1,3 +1,7 @@
+function sendErrorFeedback() {
+	return '\nIf you think this was an error, try joining our support server: https://discord.gg/XaeERFAVfb';
+}
+
 function setPerms(role, commandsList, flag) {
 	// guild.commands.fetch()                       // Guild commands
 	role.client.application?.commands.fetch() // Global commands
@@ -11,6 +15,5 @@ function setPerms(role, commandsList, flag) {
 }
 
 module.exports = {
-	setPerms,
-
+	sendErrorFeedback, setPerms,
 };

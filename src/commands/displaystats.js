@@ -91,11 +91,12 @@ module.exports = {
 			dateRange = '0';
 		}
 
-		// Grabs queried info
+		// Grabs queried info.
 		const data = (user ?
 			getDisplayStats(interaction.guild.id, dateRange, user.id) :
 			getDisplayStats(interaction.guild.id, dateRange));
 
+		// Maps database emoji counts to guild emojis, defaults to 0, and sorts by descending.
 		const occurrences = interaction.guild.emojis.cache.map(emoji => {
 			const item = data.find(row => row.emoji === emoji.id);
 			return item ? { emoji: emoji.id, count: item['COUNT(emoji)'] } : { emoji: emoji.id, count: 0 };
@@ -103,7 +104,7 @@ module.exports = {
 			return b.count - a.count;
 		});
 
-		// Paginates queried info
+		// Paginates queried info.
 		const chunkSize = 24;
 		const embeds = [];
 		const chunks = [];
@@ -112,11 +113,9 @@ module.exports = {
 		for (let i = 0, j = occurrences.length; i < j; i += chunkSize) {
 			const chunk = occurrences.slice(i, i + chunkSize);
 			chunks.push(chunk);
-
 		}
 		for (const chunk of chunks) {
 			const embed = new MessageEmbed()
-				.setColor('ORANGE')
 				.setTitle(`---------- ${user ? user.username : 'Server'}'s Statistics ----------`)
 				.setDescription(dateString)
 				.setFooter(`Page ${pageNumber++}/${chunks.length}`);
@@ -146,22 +145,33 @@ module.exports = {
 		const message = await interaction.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 30000 });
 		collector.on('collect', async i => {
-			if (i.customId === 'next' && index < embeds.length - 1) {
-				++index;
-				await i.update({ embeds: [embeds[index]] });
-			}
-			else if (i.customId === 'prev' && index > 0) {
-				--index;
-				await i.update({ embeds: [embeds[index]] });
+			if (i.member === interaction.member) {
+				if (i.customId === 'next' && index < embeds.length - 1) {
+					++index;
+					await i.update({ embeds: [embeds[index]] });
+				}
+				else if (i.customId === 'prev' && index > 0) {
+					--index;
+					await i.update({ embeds: [embeds[index]] });
+				}
+				else {
+					await i.reply({ content: 'No valid page to go to.', ephemeral: true });
+				}
 			}
 			else {
-				await i.reply({ content: 'No valid page to go to.', ephemeral: true });
+				await i.reply({
+					content: 'You can\'t interact with this button. You are not the command author.',
+					ephemeral: true,
+				});
 			}
 		});
 
 		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
-			interaction.editReply({ components: [] });
+			for (const button of buttonRow.components) {
+				button.setDisabled(true);
+			}
+			interaction.editReply({ components: [buttonRow] });
 			// console.log(`Collected ${collected.size} interactions.`);
 		});
 

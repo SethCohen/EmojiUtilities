@@ -1,5 +1,6 @@
 const { Permissions } = require('discord.js');
-const { setPerms } = require('../helpers/setCommandPerm');
+const { setPerms } = require('../helpers/utilities');
+
 module.exports = {
 	name: 'ready',
 	once: true,

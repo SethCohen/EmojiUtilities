@@ -52,16 +52,24 @@ module.exports = {
 		const message = await interaction.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 30000 });
 		collector.on('collect', async i => {
-			if (i.customId === 'next' && index < chunks.length - 1) {
-				++index;
-				await i.update({ content: chunks[index] });
-			}
-			else if (i.customId === 'prev' && index > 0) {
-				--index;
-				await i.update({ content: chunks[index] });
+			if (i.member === interaction.member) {
+				if (i.customId === 'next' && index < chunks.length - 1) {
+					++index;
+					await i.update({ content: chunks[index] });
+				}
+				else if (i.customId === 'prev' && index > 0) {
+					--index;
+					await i.update({ content: chunks[index] });
+				}
+				else {
+					await i.reply({ content: 'No valid page to go to.', ephemeral: true });
+				}
 			}
 			else {
-				await i.reply({ content: 'No valid page to go to.', ephemeral: true });
+				await i.reply({
+					content: 'You can\'t interact with this button. You are not the command author.',
+					ephemeral: true,
+				});
 			}
 		});
 

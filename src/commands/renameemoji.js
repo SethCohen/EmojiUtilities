@@ -18,7 +18,7 @@ module.exports = {
 		// Checks for valid permissions
 		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 			return interaction.reply({
-				content: 'You do not have enough permissions to use this command.\nYou need Manage Emojis perms to use this command.',
+				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
 			});
 		}

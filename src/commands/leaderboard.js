@@ -30,7 +30,7 @@ module.exports = {
 					['Hourly', 60],
 				])),
 	async execute(interaction) {
-		const embed = new MessageEmbed().setColor('ORANGE');
+		const embed = new MessageEmbed();
 
 		// Validate choices.
 		let dateRange = interaction.options.getInteger('daterange');

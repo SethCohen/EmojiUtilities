@@ -3,6 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const fs = require('fs');
 const axios = require('axios');
 const { exec } = require('child_process');
+const { sendErrorFeedback } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -27,7 +28,7 @@ module.exports = {
 		// Checks for valid permissions
 		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 			return interaction.editReply({
-				content: 'You do not have enough permissions to use this command.\nYou need Manage Emojis perms to use this command.',
+				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
 			});
 		}
@@ -96,9 +97,7 @@ module.exports = {
 								.catch(e => {
 									console.error(e);
 									return interaction.editReply({
-										content: 'There was an error while executing this command!' +
-											'\nIf you think this is a bug, feel free to join <https://discord.gg/XaeERFAVfb> for help.' +
-											`\nError: ${e.toString()}`,
+										content: 'There was an error while executing this command!' + sendErrorFeedback(),
 									});
 								});
 						});
@@ -134,9 +133,7 @@ module.exports = {
 								.catch(e => {
 									console.error(e);
 									return interaction.editReply({
-										content: 'There was an error while executing this command!' +
-											'\nIf you think this is a bug, feel free to join <https://discord.gg/XaeERFAVfb> for help.' +
-											`\nError: ${e.toString()}`,
+										content: 'There was an error while executing this command!' + sendErrorFeedback(),
 									});
 								});
 						});
@@ -150,7 +147,7 @@ module.exports = {
 			}
 		}
 		catch (e) {
-			console.error(e.toString());
+			console.error(e);
 			return interaction.editReply({
 				content: 'There was an error while executing this command!' +
 					'\nIf you think this is a proper bug, either please join the support server for help or create a github issue describing the problem.' +

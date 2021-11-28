@@ -42,11 +42,7 @@ module.exports = {
 					.setDisabled(true),
 			);
 
-		// console.log(Array.from(interaction.guild.emojis.cache.keys()));
-		// console.log(occurrences.filter(row => Array.from(interaction.guild.emojis.cache.keys()).includes(row.emoji)));
-		// const toRemove = occurrences.filter(row => Array.from(interaction.guild.emojis.cache.keys()).includes(row.emoji)).splice(-number);
-		// console.log(toRemove);
-
+		// Gets all emojis:count in guild by descending count and splices array to just bottom n rows.
 		const toRemove = interaction.guild.emojis.cache.map(emoji => {
 			const item = occurrences.find(row => row.emoji === emoji.id);
 			return item ? { emoji: emoji.id, count: item['COUNT(emoji)'] } : { emoji: emoji.id, count: 0 };
@@ -66,29 +62,34 @@ module.exports = {
 		const message = await interaction.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 30000 });
 		collector.on('collect', async i => {
-			if (i.customId === 'remove' && i.user === interaction.user) {
-				await i.update({ components: [] });
+			if (i.member === interaction.member) {
+				if (i.customId === 'remove') {
+					await i.update({ components: [] });
 
-				if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
-					return interaction.editReply({
-						content: 'You do not have enough permissions to use this command.\nYou need Manage Emojis perms to use this command.',
-						ephemeral: true,
-					});
+					if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+						return interaction.editReply({
+							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+							ephemeral: true,
+						});
+					}
+
+					for await (const emoji of emojis) {
+						await emoji.delete();
+					}
+					await interaction.editReply({ content: 'Emojis deleted.' });
+
+
 				}
-
-				for await (const emoji of emojis) {
-					await emoji.delete();
+				else if (i.customId === 'cancel') {
+					await i.update({ components: [disabledRow] });
+					await interaction.editReply({ content: `Emojis to remove: ${emojis}.\nCanceled.` });
 				}
-				await interaction.editReply({ content: 'Emojis deleted.' });
-
-
-			}
-			else if (i.customId === 'cancel' && i.user === interaction.user) {
-				await i.update({ components: [disabledRow] });
-				await interaction.editReply({ content: `Emojis to remove: ${emojis}.\nCanceled.` });
 			}
 			else {
-				await i.reply({ content: 'You are not the command author.', ephemeral: true });
+				await i.reply({
+					content: 'You can\'t interact with this button. You are not the command author.',
+					ephemeral: true,
+				});
 			}
 		});
 

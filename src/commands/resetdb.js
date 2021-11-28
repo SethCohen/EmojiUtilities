@@ -10,7 +10,7 @@ module.exports = {
 	async execute(interaction) {
 		if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
 			return interaction.reply({
-				content: 'You do not have enough permissions to use this command.',
+				content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
 				ephemeral: true,
 			});
 		}

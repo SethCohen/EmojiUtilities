@@ -11,8 +11,6 @@ module.exports = {
 				.setDescription('The emoji to get info for.')
 				.setRequired(true)),
 	async execute(interaction) {
-		const embed = new MessageEmbed().setColor('ORANGE');
-
 		// Validates emoji option.
 		const stringEmoji = interaction.options.getString('emoji');
 		const re = /(?<=:)\d*(?=>)/g;
@@ -36,12 +34,14 @@ module.exports = {
 		const count = getEmojiTotalCount(interaction.guild.id, emoji.id);
 
 		// Fills embed.
-		embed.setTitle(`${emoji.name}`).setThumbnail(`${emoji.url}`);
-		embed.addFields(
-			{ name: 'Author:', value: author.toString() },
-			{ name: 'Date Added:', value: emoji.createdAt.toString() },
-			{ name: 'Total Times Used:', value: count.toString() },
-		);
+		const embed = new MessageEmbed()
+			.setTitle(`${emoji.name}`)
+			.setThumbnail(`${emoji.url}`)
+			.addFields(
+				{ name: 'Author:', value: author.toString() },
+				{ name: 'Date Added:', value: emoji.createdAt.toString() },
+				{ name: 'Total Times Used:', value: count.toString() },
+			);
 
 		return interaction.reply({ embeds: [embed] });
 	},

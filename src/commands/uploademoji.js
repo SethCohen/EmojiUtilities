@@ -3,6 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
 const fs = require('fs');
 const { exec } = require('child_process');
+const { sendErrorFeedback } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -22,7 +23,7 @@ module.exports = {
 		// Checks for valid permissions
 		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 			return interaction.editReply({
-				content: 'You do not have enough permissions to use this command.\nYou need Manage Emojis perms to use this command.',
+				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
 			});
 		}
@@ -96,7 +97,8 @@ module.exports = {
 								return interaction.editReply({ content: `Added ${emoji} to server!` });
 							})
 							.catch(e => {
-								return interaction.editReply({ content: `Emoji creation failed!\n${e.message}` });
+								console.error(e);
+								return interaction.editReply({ content: `Emoji creation failed!${sendErrorFeedback()}` });
 							})
 							.finally(() => {
 								fs.unlink(path, (err) => {

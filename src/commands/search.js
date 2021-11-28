@@ -119,31 +119,36 @@ module.exports = {
 		const message = await interaction.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 30000 });
 		collector.on('collect', async i => {
-			if (i.customId === 'upload' && i.user === interaction.user) {
-				await i.update({ embeds: [embed], components: [disabledRow] });
+			if (i.member === interaction.member) {
+				if (i.customId === 'upload' && i.user === interaction.user) {
+					await i.update({ embeds: [embed], components: [disabledRow] });
 
-				if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
-					return interaction.editReply({
-						content: 'You do not have enough permissions to use this command.\nYou need Manage Emojis perms to use this command.',
-						ephemeral: true,
-					});
+					if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+						return interaction.editReply({
+							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+							ephemeral: true,
+						});
+					}
+
+					interaction.guild.emojis
+						.create(data[match.bestMatchIndex].image, data[match.bestMatchIndex].title)
+						.then(emoji => {
+							return interaction.editReply({ content: `Added ${emoji} to server!` });
+						})
+						.catch(e => {
+							return interaction.editReply({ content: `Emoji creation failed!\n${e.message}` });
+						});
 				}
-
-				interaction.guild.emojis
-					.create(data[match.bestMatchIndex].image, data[match.bestMatchIndex].title)
-					.then(emoji => {
-						return interaction.editReply({ content: `Added ${emoji} to server!` });
-					})
-					.catch(e => {
-						return interaction.editReply({ content: `Emoji creation failed!\n${e.message}` });
-					});
-			}
-			else if (i.customId === 'cancel' && i.user === interaction.user) {
-				await i.update({ embeds: [embed], components: [disabledRow] });
-				return interaction.editReply({ content: 'Canceled.' });
+				else if (i.customId === 'cancel' && i.user === interaction.user) {
+					await i.update({ embeds: [embed], components: [disabledRow] });
+					return interaction.editReply({ content: 'Canceled.' });
+				}
 			}
 			else {
-				await i.reply({ content: 'You are not the command author.', ephemeral: true });
+				await i.reply({
+					content: 'You can\'t interact with this button. You are not the command author.',
+					ephemeral: true,
+				});
 			}
 		});
 
