@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
 const { findBestMatch } = require('string-similarity');
 const { MessageActionRow, MessageButton, MessageEmbed, Permissions } = require('discord.js');
+const { getSetting } = require('../helpers/dbModel');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -50,18 +51,23 @@ module.exports = {
 
 		let data;
 		if (nsfw) {
-			await interaction.editReply({
-				content: 'Including NSFW results, eh? Kinky.',
-			});
+			if (getSetting(interaction.guildId, 'allownsfw')) {
+				await interaction.editReply({
+					content: 'Including NSFW results, eh? Kinky.',
+				});
 
-			data = category ? response.data.filter(json => {
-				return json.category === category;
-			}) : response.data;
+				data = category ? response.data.filter(json => {
+					return json.category === category;
+				}) : response.data;
+			}
+			else {
+				return await interaction.editReply({ content: 'Sorry, but searching for NSFW is disabled in this server.' });
+			}
 		}
 		else {
 			if (category === 9) {
-				await interaction.editReply({
-					content: 'Searching through the NSFW category? Freak.',
+				return await interaction.editReply({
+					content: 'Sorry, but searching through the NSFW category requires **includensfw: True**.',
 				});
 			}
 

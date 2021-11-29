@@ -14,14 +14,14 @@ function createDatabase(guildId) {
 		'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
 		'CREATE TABLE IF NOT EXISTS reactsSentActivity(emoji TEXT, user TEXT, datetime TEXT)',
 		'CREATE TABLE IF NOT EXISTS reactsReceivedActivity(emoji TEXT, user TEXT, datetime TEXT)',
-		'CREATE TABLE IF NOT EXISTS serverSettings(setting TEXT, flag INTEGER)',
+		'CREATE TABLE IF NOT EXISTS serverSettings(setting TEXT UNIQUE, flag INTEGER)',
 	].map(sql => db.prepare(sql));
 
 	for (const createStatement of createStatements) {
 		createStatement.run();
 	}
 
-	const insertStatement = db.prepare('INSERT INTO serverSettings (setting, flag) VALUES (@setting, @flag)');
+	const insertStatement = db.prepare('INSERT OR IGNORE INTO serverSettings (setting, flag) VALUES (@setting, @flag)');
 	const insertSettings = db.transaction((settings) => {
 		for (const setting of settings) insertStatement.run(setting);
 	});
@@ -30,6 +30,7 @@ function createDatabase(guildId) {
 		{ setting: 'countmessages', flag: 1 },
 		{ setting: 'countreacts', flag: 1 },
 		{ setting: 'countselfreacts', flag: 1 },
+		{ setting: 'allownsfw', flag: 0 },
 	]);
 
 	db.close();

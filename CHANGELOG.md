@@ -2,18 +2,28 @@
 
 ## Upcoming
 
-- `/config` Disable commands.
-- `/config allowNSFW` disables/enables allowing to search for NSFW emotes from emoji.gg
+- N/A...
 
-## V1.9.0 - 2021-11-28
+---
 
-### Created
+## v1.9.0 - 2021-11-29
+
+### Added
 
 - `/backupemojis` Sends a compressed file of all emojis in a guild.
+- `/config allownsfw` Allows to search for NSFW emotes from emoji.gg.
+- `/config togglecommand` Disable/Enables a specified command.
+
+### Changed
+
+- `/copysteal`, `/removeunused`, `/renameemoji`, `/stickerfy`, `/uploademoji` Now disabled for users without Manage
+  Emoji perms.
 
 ### Fixed
 
 - Fix permission checks on `/search`, `/random`, `/packsearch`, and `/removeunused`
+- Fixed bug with guild databases initializing multiple identical rows in configs table. config db now set to unique
+  rows.
 
 ## v1.8.1 - 2021-11-27
 

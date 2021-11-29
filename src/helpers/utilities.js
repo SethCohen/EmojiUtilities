@@ -1,3 +1,6 @@
+const adminCommands = ['config', 'resetdb'];
+const manageEmojisCommands = ['copysteal', 'removeunused', 'renameemoji', 'stickerfy', 'uploademoji'];
+
 function sendErrorFeedback() {
 	return '\nIf you think this was an error, try joining our support server: https://discord.gg/XaeERFAVfb';
 }
@@ -15,5 +18,5 @@ function setPerms(role, commandsList, flag) {
 }
 
 module.exports = {
-	sendErrorFeedback, setPerms,
+	sendErrorFeedback, setPerms, adminCommands, manageEmojisCommands,
 };

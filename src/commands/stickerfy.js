@@ -9,6 +9,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stickerfy')
 		.setDescription('Turns a given gif url into a sticker and adds it to server.')
+		.setDefaultPermission(false)
 		.addStringOption(option =>
 			option.setName('url')
 				.setDescription('The url of the gif to turn into a sticker.')

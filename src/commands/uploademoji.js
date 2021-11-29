@@ -9,6 +9,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('uploademoji')
 		.setDescription('Uploads a given url as an emoji.')
+		.setDefaultPermission(false)
 		.addStringOption(option =>
 			option.setName('url')
 				.setDescription('The url of the emoji to upload.')

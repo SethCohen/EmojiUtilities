@@ -5,6 +5,7 @@ const { MessageActionRow, MessageButton, Permissions } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('removeunused')
+		.setDefaultPermission(false)
 		.setDescription('Removes one or more of the least used emojis')
 		.addIntegerOption(option =>
 			option.setName('number')

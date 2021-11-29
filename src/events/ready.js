@@ -1,5 +1,5 @@
 const { Permissions } = require('discord.js');
-const { setPerms } = require('../helpers/utilities');
+const { setPerms, adminCommands, manageEmojisCommands } = require('../helpers/utilities');
 
 module.exports = {
 	name: 'ready',
@@ -7,9 +7,6 @@ module.exports = {
 	execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		client.user.setActivity('Now with slashes! /help');
-
-		const adminCommands = ['config', 'resetdb'];
-		const manageEmojisCommands = ['renameemoji', 'uploademoji', 'copysteal'];
 
 		// Try and set role permissions to admin commands.
 		client.guilds.cache.each(async guild => {

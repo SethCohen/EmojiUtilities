@@ -1,6 +1,6 @@
 const { createDatabase } = require('../helpers/dbModel');
 const { Permissions } = require('discord.js');
-const { setPerms } = require('../helpers/utilities');
+const { setPerms, adminCommands, manageEmojisCommands } = require('../helpers/utilities');
 
 module.exports = {
 	name: 'guildCreate',
@@ -21,9 +21,6 @@ module.exports = {
 		else {
 			console.log('No channel access found. Welcome message not sent.');
 		}
-
-		const adminCommands = ['config', 'resetdb'];
-		const manageEmojisCommands = ['renameemoji', 'uploademoji', 'copysteal'];
 
 		// Add admin commands role perm
 		guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !role.managed).each(adminRole => {

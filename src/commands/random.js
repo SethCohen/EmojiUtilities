@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
 const { MessageEmbed, MessageActionRow, MessageButton, Permissions } = require('discord.js');
+const { getSetting } = require('../helpers/dbModel');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -42,9 +43,20 @@ module.exports = {
 		const response = await axios.get('https://emoji.gg/api/');
 		const nsfw = interaction.options.getBoolean('includensfw') ? interaction.options.getBoolean('includensfw') : false;
 
-		const data = nsfw ? response.data : response.data.filter(json => {
-			return json.category !== 9;
-		});
+		let data;
+		if (nsfw) {
+			if (getSetting(interaction.guildId, 'allownsfw')) {
+				data = response.data;
+			}
+			else {
+				return interaction.editReply({ content: 'Sorry, but searching for NSFW is disabled in this server.' });
+			}
+		}
+		else {
+			data = response.data.filter(json => {
+				return json.category !== 9;
+			});
+		}
 
 		const item = data[Math.floor(Math.random() * data.length)];
 		const embed = new MessageEmbed()

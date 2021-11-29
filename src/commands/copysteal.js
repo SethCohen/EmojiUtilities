@@ -6,6 +6,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('copysteal')
 		.setDescription('Steals a custom emoji and uploads it to your server.')
+		.setDefaultPermission(false)
 		.addStringOption(option =>
 			option.setName('emoji')
 				.setDescription('The custom emoji to steal.')

@@ -1,11 +1,9 @@
 const { Permissions } = require('discord.js');
-const { setPerms } = require('../helpers/utilities');
+const { setPerms, adminCommands, manageEmojisCommands } = require('../helpers/utilities');
 
 module.exports = {
 	name: 'roleUpdate',
 	async execute(oldRole, newRole) {
-		const adminCommands = ['config', 'resetdb'];
-		const manageEmojisCommands = ['renameemoji', 'uploademoji', 'copysteal'];
 
 		// Admin checks
 		if (!oldRole.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && newRole.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !newRole.managed) {
