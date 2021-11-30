@@ -1,6 +1,7 @@
 const { getEmojiTotalCount } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -36,6 +37,7 @@ module.exports = {
 		// Fills embed.
 		const embed = new MessageEmbed()
 			.setTitle(`${emoji.name}`)
+			.setDescription(mediaLinks)
 			.setThumbnail(`${emoji.url}`)
 			.addFields(
 				{ name: 'Author:', value: author.toString() },

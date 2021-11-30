@@ -1,7 +1,8 @@
 const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder, hyperlink } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const ms = require('ms');
 const { getGetCount } = require('../helpers/dbModel');
+const { mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -20,19 +21,9 @@ module.exports = {
 
 		const embed = new MessageEmbed()
 			.setTitle(`${interaction.client.user.username}`)
-			.setDescription(hyperlink('Vote for Emoji Utilities!', 'https://top.gg/bot/757326308547100712'))
+			.setDescription(mediaLinks)
 			.setThumbnail(`${interaction.client.user.avatarURL()}`)
 			.addFields(
-				{
-					name: 'Support Server:',
-					value: hyperlink('Emoji Utilities', 'https://discord.gg/XaeERFAVfb'),
-					inline: true,
-				},
-				{
-					name: 'Github Repo',
-					value: hyperlink('Github', 'https://github.com/SethCohen/EmojiUtilities'),
-					inline: true,
-				},
 				{ name: 'Guilds In:', value: guildsCount.toString(), inline: true },
 				{ name: 'Current Uptime:', value: ms(uptime), inline: true },
 				{ name: 'Bot Created:', value: botCreatedDate, inline: true },

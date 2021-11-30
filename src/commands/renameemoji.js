@@ -1,5 +1,6 @@
-const { Permissions } = require('discord.js');
+const { Permissions, MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -34,7 +35,10 @@ module.exports = {
 					const name = interaction.options.getString('name');
 					fetchedEmoji.edit({ name: `${name}` })
 						.then(emoji => {
-							return interaction.reply({ content: `${emoji} has been renamed to ${emoji.name}.` });
+							const embed = new MessageEmbed()
+								.setTitle(`${emoji} has been renamed to ${emoji.name}.`)
+								.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
+							return interaction.reply({ embeds: [embed] });
 						})
 						.catch(e => {
 							console.error('renameemoji failed on edit.', e);

@@ -1,7 +1,7 @@
 const { setSetting } = require('../helpers/dbModel');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Permissions } = require('discord.js');
-const { setPerms, adminCommands, manageEmojisCommands } = require('../helpers/utilities');
+const { Permissions, MessageEmbed } = require('discord.js');
+const { setPerms, adminCommands, manageEmojisCommands, mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -76,6 +76,9 @@ module.exports = {
 			});
 		}
 
+		const embed = new MessageEmbed()
+			.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
+
 		await interaction.deferReply({ ephemeral: true });
 
 		const setting = interaction.options.getSubcommand();
@@ -105,9 +108,10 @@ module.exports = {
 			return interaction.editReply({ content: `\`/${commandName}\` ${flag ? 'enabled' : 'disabled'}.` });
 		}
 		else {
+			embed.setTitle(`\`${setting}\` set to \`${Boolean(flag)}\`.`);
 			// Set config flag in serversettings db table
 			setSetting(interaction.guild.id, setting, flag);
-			return interaction.editReply({ content: `Setting \`${setting}\` set to \`${Boolean(flag)}\`.` });
+			return interaction.editReply({ embeds: [embed] });
 		}
 
 	},

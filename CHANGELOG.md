@@ -2,11 +2,12 @@
 
 ## Upcoming
 
-- N/A...
+- Convert `/renameemoji` `/enlargeemoji` and similar commands into subcommands of `/emoji`
+- Allow external emojis to be used with `/enlargeemoji`
 
 ---
 
-## v1.9.0 - 2021-11-29
+## v1.9.1 - 2021-11-29
 
 ### Added
 
@@ -18,6 +19,7 @@
 
 - `/copysteal`, `/removeunused`, `/renameemoji`, `/stickerfy`, `/uploademoji` Now disabled for users without Manage
   Emoji perms.
+- Changed command output responses and added media links to most commands.
 
 ### Fixed
 

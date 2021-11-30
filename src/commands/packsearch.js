@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
 const { findBestMatch } = require('string-similarity');
 const { MessageActionRow, MessageButton, MessageEmbed, Permissions } = require('discord.js');
+const { mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -33,10 +34,10 @@ module.exports = {
 		const embeds = [];
 		for (const emoji of packResponse.data.emotes) {
 			const embed = new MessageEmbed()
-				.setTitle(packResponse.data.name)
-				.setDescription(emoji.name)
+				.setTitle(`${packResponse.data.name} Pack`)
+				.setDescription(mediaLinks)
 				.setImage(emoji.url)
-				.setFooter(`Page ${pageNumber++}/${packResponse.data.emotes.length}`);
+				.setFooter(`Page ${pageNumber++}/${packResponse.data.emotes.length} | ${emoji.name}`);
 			embeds.push(embed);
 		}
 

@@ -1,5 +1,6 @@
 const adminCommands = ['config', 'resetdb'];
 const manageEmojisCommands = ['copysteal', 'removeunused', 'renameemoji', 'stickerfy', 'uploademoji'];
+const mediaLinks = '[Vote for Emoji Utilities!](https://top.gg/bot/757326308547100712/vote) | [Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities)';
 
 function sendErrorFeedback() {
 	return '\nIf you think this was an error, try joining our support server: https://discord.gg/XaeERFAVfb';
@@ -18,5 +19,5 @@ function setPerms(role, commandsList, flag) {
 }
 
 module.exports = {
-	sendErrorFeedback, setPerms, adminCommands, manageEmojisCommands,
+	sendErrorFeedback, setPerms, adminCommands, manageEmojisCommands, mediaLinks,
 };

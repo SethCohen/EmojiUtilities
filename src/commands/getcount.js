@@ -1,6 +1,7 @@
 const { getGetCount } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -33,6 +34,7 @@ module.exports = {
 
 		// Fills embed
 		const embed = new MessageEmbed()
+			.setDescription(mediaLinks)
 			.setColor('ORANGE')
 			.setTitle(`${user ? user.username : 'Server'}'s Total Count Statistics`)
 			.addFields(

@@ -1,6 +1,6 @@
-const { Permissions } = require('discord.js');
+const { Permissions, MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { sendErrorFeedback } = require('../helpers/utilities');
+const { sendErrorFeedback, mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -43,7 +43,10 @@ module.exports = {
 			interaction.guild.emojis
 				.create(url, name ? name : regexEmoji[2])
 				.then(emoji => {
-					return interaction.reply({ content: `Added ${emoji} to server!` });
+					const embed = new MessageEmbed()
+						.setTitle(`Added ${emoji} to server!`)
+						.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
+					return interaction.reply({ embeds: [embed] });
 				})
 				.catch(e => {
 					console.error(e);
