@@ -4,6 +4,7 @@
 
 - Convert `/renameemoji` `/enlargeemoji` and similar commands into subcommands of `/emoji`
 - Allow external emojis to be used with `/enlargeemoji`
+- Fix `/stickerfy` bug not uploading the right unicode emoji for sticker.
 
 ---
 
