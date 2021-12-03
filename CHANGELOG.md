@@ -3,11 +3,14 @@
 ## Upcoming
 
 - Convert `/renameemoji` `/enlargeemoji` and similar commands into subcommands of `/emoji`
-- Allow external emojis to be used with `/enlargeemoji`
 
 ---
 
 ## v1.9.1 - 2021-11-29
+
+### Changed
+
+- `/enlargeemoji` Allow external emojis to be enlarged.
 
 ### Fixed
 
