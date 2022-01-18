@@ -4,6 +4,7 @@ const axios = require('axios');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { sendErrorFeedback, mediaLinks } = require('../helpers/utilities');
+const imageType = require('image-type');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -43,35 +44,10 @@ module.exports = {
 			const filename = Math.random().toString(36).substring(2, 10);
 			let path = `./src/temps/${filename}`;
 
-			const magicHex = {
-				jpg1: 'ffd8ffdb',
-				jpg2: 'ffd8ffe0',
-				jpg3: 'ffd8ffee',
-				jpg4: 'ffd8ffe1',
-				png: '89504e47',
-				gif: '47494638',
-			};
-
-			switch (buffer.toString('hex', 0, 4)) {
-			case (magicHex.jpg1):
-				path += '.jpg';
-				break;
-			case (magicHex.jpg2):
-				path += '.jpg';
-				break;
-			case (magicHex.jpg3):
-				path += '.jpg';
-				break;
-			case (magicHex.jpg4):
-				path += '.jpg';
-				break;
-			case magicHex.png:
-				path += '.png';
-				break;
-			case magicHex.gif:
-				path += '.gif';
-				break;
-			default:
+			if (imageType(buffer)) {
+				path += imageType(buffer).ext;
+			}
+			else {
 				return interaction.editReply({ content: 'Invalid image type. Command only supports .gif, .png, or .jpg' });
 			}
 
