@@ -2,15 +2,16 @@
 
 ## Upcoming
 
+- Add end-user response warning for if server has no more sticker/emoji slots.
 - Convert `/renameemoji` `/enlargeemoji` and similar commands into subcommands of `/emoji`
 
 ---
 
 ## v1.9.2 - 2022-01-18
 
-### Change
+### Changed
 
-- `uploadEmoji.js` Changed image support to support any and all image types (e.g.
+- `/uploadEmoji` Changed image support to support any and all image types (e.g.
   webp) [[b3557cf]](https://github.com/SethCohen/EmojiUtilities/commit/b3557cf6506bbf7f2163f692e4125cac80e89f8b)
 
 ## v1.9.1 - 2021-12-03
