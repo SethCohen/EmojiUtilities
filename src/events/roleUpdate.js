@@ -16,11 +16,11 @@ module.exports = {
 		}
 
 		// Manage Emojis check
-		if (!oldRole.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS) && newRole.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS) && !newRole.managed) {
+		if (!oldRole.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS) && newRole.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 			// If a role was given Manage Emojis perms...
 			setPerms(newRole, manageEmojisCommands, true);
 		}
-		else if (oldRole.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS) && !newRole.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS) && !newRole.managed) {
+		else if (oldRole.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS) && !newRole.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 			// If a role was removed Manage Emojis perms...
 			setPerms(newRole, manageEmojisCommands, false);
 		}

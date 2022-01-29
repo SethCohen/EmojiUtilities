@@ -27,7 +27,7 @@ module.exports = {
 			setPerms(adminRole, adminCommands, true);
 		});
 		// Add manage emojis commands role perm
-		guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS) && !role.managed).each(manageEmojisRole => {
+		guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)).each(manageEmojisRole => {
 			setPerms(manageEmojisRole, manageEmojisCommands, true);
 		});
 	},

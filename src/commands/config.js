@@ -95,7 +95,7 @@ module.exports = {
 			}
 			else if (manageEmojisCommands.includes(commandName)) {
 				// Sets manage emojis commands...
-				interaction.guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS) && !role.managed).each(manageEmojisRole => {
+				interaction.guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)).each(manageEmojisRole => {
 					setPerms(manageEmojisRole, manageEmojisCommands, flag);
 				});
 			}
