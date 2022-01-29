@@ -7,6 +7,14 @@
 
 ---
 
+## v1.9.3 - 2022-01-29
+
+### Fixed
+
+- All commands that require Manage Emojis & Stickers perms have been fixed for servers that use the booster role for
+  managing
+  emojis. [[6003dd9]](https://github.com/SethCohen/EmojiUtilities/commit/6003dd9a45ec21cb8397b4cbdf2ac54076959f20)
+
 ## v1.9.2 - 2022-01-18
 
 ### Changed
