@@ -24,7 +24,9 @@ function setPerms(role, commandsList, flag) {
 				const permission = [{ id: role.id, type: 'ROLE', permission: flag }];
 				await foundCommand.permissions.add({ guild: role.guild.id, permissions: permission });
 			}
-		}).catch(e => console.error(e.toString())); // Unable to fetch guild commands.
+		}).catch(e => {
+			console.error(`${role.guild.name}: ${e.toString()}`);
+		}); // Unable to fetch guild commands.
 }
 
 module.exports = {

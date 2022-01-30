@@ -4,20 +4,26 @@ const { setPerms, adminCommands, manageEmojisCommands } = require('../helpers/ut
 module.exports = {
 	name: 'ready',
 	once: true,
-	execute(client) {
+	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
-		client.user.setActivity('Use / To Use Commands!');
+		client.user.setActivity('Bot Now Uses Slash Commands! Re-Auth Bot If Needed.');
 
-		// Try and set role permissions to admin commands.
+		// Sets role permissions for special commands.
 		client.guilds.cache.each(async guild => {
-			// Add admin commands role perm
-			guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !role.managed).each(adminRole => {
-				setPerms(adminRole, adminCommands, true);
-			});
-			// Add manage emojis commands role perm
-			guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)).each(manageEmojisRole => {
-				setPerms(manageEmojisRole, manageEmojisCommands, true);
-			});
+			// Add admin commands role perms
+			guild.roles.fetch()
+				.then(roles => roles.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR))
+					.each(adminRole => {
+						setPerms(adminRole, adminCommands, true);
+					}))
+				.catch(console.error);
+			// Add manage emojis commands role perms
+			guild.roles.fetch()
+				.then(roles => roles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS))
+					.each(manageEmojisRole => {
+						setPerms(manageEmojisRole, manageEmojisCommands, true);
+					}))
+				.catch(console.error);
 		});
 	},
 };

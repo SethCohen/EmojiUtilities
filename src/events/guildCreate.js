@@ -23,7 +23,7 @@ module.exports = {
 		}
 
 		// Add admin commands role perm
-		guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !role.managed).each(adminRole => {
+		guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR)).each(adminRole => {
 			setPerms(adminRole, adminCommands, true);
 		});
 		// Add manage emojis commands role perm

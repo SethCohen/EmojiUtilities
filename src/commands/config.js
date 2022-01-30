@@ -89,7 +89,7 @@ module.exports = {
 
 			if (adminCommands.includes(commandName)) {
 				// Sets admin commands...
-				interaction.guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !role.managed).each(adminRole => {
+				interaction.guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR)).each(adminRole => {
 					setPerms(adminRole, adminCommands, flag);
 				});
 			}

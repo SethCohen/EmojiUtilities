@@ -6,11 +6,11 @@ module.exports = {
 	async execute(oldRole, newRole) {
 
 		// Admin checks
-		if (!oldRole.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && newRole.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !newRole.managed) {
+		if (!oldRole.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && newRole.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
 			// If a role was given Administrator perms...
 			setPerms(newRole, adminCommands, true);
 		}
-		else if (oldRole.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !newRole.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !newRole.managed) {
+		else if (oldRole.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !newRole.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
 			// If a role was removed Administrator perms...
 			setPerms(newRole, adminCommands, false);
 		}
