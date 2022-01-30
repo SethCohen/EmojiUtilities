@@ -5,7 +5,7 @@ const { mediaLinks, sendErrorFeedback, verifyEmojiString } = require('../helpers
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('emoji')
+		.setName('aboutemoji')
 		.setDescription('Displays generic information about an emoji.')
 		.addStringOption(option =>
 			option.setName('emoji')
