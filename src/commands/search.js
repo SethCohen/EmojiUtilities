@@ -132,6 +132,9 @@ module.exports = {
 							case 'Maximum number of emojis reached (50)':
 								interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
 								break;
+							case 'Invalid Form Body\nimage: File cannot be larger than 256.0 kb.':
+								interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName, 'Image filesize is too big. Cannot add to server, sorry.')] });
+								break;
 							default:
 								console.error(error);
 								return interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName)] });
