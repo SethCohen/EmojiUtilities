@@ -2,10 +2,16 @@
 
 ## Upcoming
 
-- Add end-user response warning for if server has no more sticker/emoji slots.
-- Convert `/renameemoji` `/enlargeemoji` and similar commands into subcommands of `/emoji`
+- Convert `/emoji` to `/aboutemoji`
 
 ---
+
+## v1.9.4 - 2022-01-29
+
+### Changed
+
+- Changed all error handling messages to be more descriptive to the
+  user. [[99829da]](https://github.com/SethCohen/EmojiUtilities/commit/99829dad64e866ab953d2e086bb476d095826214)
 
 ## v1.9.3 - 2022-01-29
 
