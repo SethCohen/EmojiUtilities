@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
 const { MessageEmbed, MessageActionRow, MessageButton, Permissions } = require('discord.js');
 const { getSetting } = require('../helpers/dbModel');
+const { sendErrorFeedback } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -85,8 +86,16 @@ module.exports = {
 						.then(emoji => {
 							return interaction.editReply({ content: `Added ${emoji} to server!` });
 						})
-						.catch(e => {
-							return interaction.editReply({ content: `Emoji creation failed!\n${e.message}` });
+						.catch(error => {
+							switch (error.message) {
+							case 'Maximum number of emojis reached (50)':
+								interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
+								break;
+							default:
+								console.error(error);
+								return interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName)] });
+							}
+
 						});
 				}
 				else if (i.customId === 'cancel' && i.user === interaction.user) {

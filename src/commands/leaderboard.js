@@ -1,6 +1,7 @@
 const { getLeaderboard } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { sendErrorFeedback } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -80,44 +81,50 @@ module.exports = {
 			dateRange = null;
 		}
 
-		// Validates emoji option.
-		const stringEmoji = interaction.options.getString('emoji');
-		const re = /(?<=:)\d*(?=>)/g;
-		const emojiIds = stringEmoji.match(re);
-		let emoji = null;
-		try {
-			emoji = await interaction.guild.emojis.fetch(emojiIds[0]);
-		}
-		catch {
-			return interaction.reply({ content: 'No emoji found in string.', ephemeral: true });
-		}
+		try { // Validates emoji option.
+			const stringEmoji = interaction.options.getString('emoji');
+			const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
+			const regexEmoji = stringEmoji.match(re);
+			const emoji = await interaction.guild.emojis.fetch(regexEmoji[3]);
 
-		// Grabs leaderboard info.
-		const type = interaction.options.getString('type');
-		const array = (dateRange ?
-			getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type, dateRange) :
-			getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type));
+			// Grabs leaderboard info.
+			const type = interaction.options.getString('type');
+			const array = (dateRange ?
+				getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type, dateRange) :
+				getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type));
 
-		// Catch for empty leaderboard.
-		if (!array.length) {
-			return interaction.reply({ content: 'Sorry, there\'s no info to display!' });
-		}
-
-		// Fills embed.
-		embed.setTitle(`${emoji.name} Leaderboard`).setThumbnail(`${emoji.url}`);
-		let pos = 1;
-		for await (const row of array) {
-			const count = Object.values(row)[1];
-			const userId = Object.values(row)[0];
-			try {
-				const user = await interaction.guild.members.fetch(userId);
-				embed.addField(`${pos}. ${user.displayName}`, `${count}`);
+			// Catch for empty leaderboard.
+			if (!array.length) {
+				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Sorry, there\'s no info to display!\nThe leaderboard is empty!')] });
 			}
-			catch (e) {
-				console.error(e);
+
+			// Fills embed.
+			embed.setTitle(`${emoji.name} Leaderboard`).setThumbnail(`${emoji.url}`);
+			let pos = 1;
+			for await (const row of array) {
+				const count = Object.values(row)[1];
+				const userId = Object.values(row)[0];
+				try {
+					const user = await interaction.guild.members.fetch(userId);
+					embed.addField(`${pos}. ${user.displayName}`, `${count}`);
+				}
+				catch (e) {
+					console.error(e);
+				}
+				pos++;
 			}
-			pos++;
+			return interaction.reply({ embeds: [embed] });
 		}
-		return interaction.reply({ embeds: [embed] });
+		catch (error) {
+			switch (error.message) {
+			case 'Cannot read properties of null (reading \'3\')':
+				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
+				break;
+			default:
+				console.error(error);
+				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+			}
+
+		}
 	},
 };

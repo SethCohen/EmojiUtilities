@@ -1,3 +1,4 @@
+const { sendErrorFeedback } = require('../helpers/utilities');
 module.exports = {
 	name: 'interactionCreate',
 	execute(interaction) {
@@ -12,13 +13,14 @@ module.exports = {
 			command.execute(interaction);
 		}
 		catch (error) {
-			console.error(error);
-			return interaction.reply({
-				content: 'There was an error while executing this command!' +
-					'\nIf you think this is a proper bug, either please join the support server for help or create a github issue describing the problem.' +
-					'\nhttps://discord.gg/XaeERFAVfb' +
-					'\nhttps://github.com/SethCohen/EmojiUtilities/issues', ephemeral: true,
-			});
+			switch (error.message) {
+			case 'Cannot read properties of null (reading \'1\')':
+				interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
+				break;
+			default:
+				console.error(error);
+				return interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+			}
 		}
 	},
 };

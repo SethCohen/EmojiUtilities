@@ -14,10 +14,18 @@ module.exports = {
 		let text = interaction.options.getString('text');
 		text = text.replace(/ /g, ' 👏 ');
 
-		if (text.length > 1998) {
-			return interaction.reply({ content: `Input is too long. Please try again. ${sendErrorFeedback()}` });
+		try {
+			return await interaction.reply({ content: `${text} 👏` });
 		}
-
-		return interaction.reply({ content: `${text} 👏` });
+		catch (error) {
+			switch (error.message) {
+			case 'Invalid Form Body\ndata.content: Must be 2000 or fewer in length.':
+				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must be less than 2000 characters.')] });
+				break;
+			default:
+				console.error(error);
+				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+			}
+		}
 	},
 };

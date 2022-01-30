@@ -76,9 +76,28 @@ module.exports = {
 									.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 								return interaction.editReply({ embeds: [embed] });
 							})
-							.catch(e => {
-								console.error(e);
-								return interaction.editReply({ content: `Emoji creation failed!${sendErrorFeedback()}` });
+							.catch(error => {
+								switch (error.message) {
+								case 'Invalid Form Body\nname: Must be between 2 and 32 in length.':
+									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length.')] });
+									break;
+								case 'Invalid Form Body\nname: Must be between 2 and 32 in length. String value did not match validation regex.':
+									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length and can only contain alphanumeric characters and underscores.')] });
+									break;
+								case 'Invalid Form Body\nname: String value did not match validation regex.':
+									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust only contain alphanumeric characters and underscores.')] });
+									break;
+								case 'Maximum number of emojis reached (50)':
+									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
+									break;
+								case 'Missing Permissions':
+									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
+									break;
+								default:
+									console.error(error.message);
+									return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+								}
+
 							})
 							.finally(() => {
 								fs.unlink(path, (err) => {
@@ -97,19 +116,41 @@ module.exports = {
 							.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 						return interaction.editReply({ embeds: [embed] });
 					})
-					.catch(e => {
-						return interaction.editReply({ content: `Emoji creation failed!\n${e.message}` });
+					.catch(error => {
+						switch (error.message) {
+						case 'Invalid Form Body\nname: Must be between 2 and 32 in length.':
+							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length.')] });
+							break;
+						case 'Invalid Form Body\nname: Must be between 2 and 32 in length. String value did not match validation regex.':
+							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length and can only contain alphanumeric characters and underscores.')] });
+							break;
+						case 'Invalid Form Body\nname: String value did not match validation regex.':
+							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust only contain alphanumeric characters and underscores.')] });
+							break;
+						case 'Maximum number of emojis reached (50)':
+							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
+							break;
+						case 'Missing Permissions':
+							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
+							break;
+						default:
+							console.error(error.message);
+							return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+						}
+
 					});
 			}
 		}
-		catch (e) {
-			console.error(e.toString());
-			return interaction.editReply({
-				content: 'There was an error while executing this command!' +
-					'\nIf you think this is a proper bug, either please join the support server for help or create a github issue describing the problem.' +
-					'\nhttps://discord.gg/XaeERFAVfb' +
-					'\nhttps://github.com/SethCohen/EmojiUtilities/issues', ephemeral: true,
-			});
+		catch (error) {
+			switch (error.message) {
+			case 'connect ECONNREFUSED ::1:80':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid url in `url`.')] });
+				break;
+			default:
+				console.error(error.message);
+				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+			}
+
 		}
 
 	},

@@ -38,21 +38,17 @@ module.exports = {
 		const url = interaction.options.getString('url');
 		const name = interaction.options.getString('name');
 		let tag = interaction.options.getString('tag');
+
+
 		try {
 			tag = converter.getShortcode(tag, false);
-		}
-		catch (e) {
-			console.error(e);
-			return interaction.editReply({ content: 'No valid unicode tag found! Please try again!', ephemeral: true });
-		}
 
-		const magicHex = {
-			jpg: 'ffd8ffe0',
-			png: '89504e47',
-			gif: '47494638',
-		};
+			const magicHex = {
+				jpg: 'ffd8ffe0',
+				png: '89504e47',
+				gif: '47494638',
+			};
 
-		try {
 			const response = await axios.get(url, { responseType: 'arraybuffer' });
 			const buffer = Buffer.from(response.data, 'utf-8');
 			const bytes = response.headers['content-length'];
@@ -67,7 +63,7 @@ module.exports = {
 
 				if (bytes > 500000) {
 					exec(`gifsicle --resize-touch 320x320 ${path}.gif -o ${path}.gif && gifsicle -S 320x320 --colors 32 ${path}.gif -o ${path}.gif && gif2apng ${path}.gif`,
-						(error, stdout, stderr) => {
+						async (error, stdout, stderr) => {
 							if (error) {
 								console.error(`error: ${error.message}`);
 								return;
@@ -77,33 +73,43 @@ module.exports = {
 								return;
 							}
 
-							interaction.guild.stickers.create(`${path}.png`, name, tag)
-								.then(sticker => {
-
-									fs.unlink(`${path}.gif`, (err) => {
-										if (err) throw err;
-										console.log(`${path} was deleted.`);
-									});
-									fs.unlink(`${path}.png`, (err) => {
-										if (err) throw err;
-										console.log(`${path} was deleted.`);
-									});
-
-									return interaction.editReply({
-										content: `Created new sticker with name **${sticker.name}**!`,
-									});
-								})
-								.catch(e => {
-									console.error(e);
-									return interaction.editReply({
-										content: 'There was an error while executing this command!' + sendErrorFeedback(),
-									});
+							try {
+								const sticker = await interaction.guild.stickers.create(`${path}.png`, name, tag);
+								await interaction.editReply({
+									content: `Created new sticker with name **${sticker.name}**!`,
 								});
+							}
+							catch (error) {
+								switch (error.message) {
+								case 'Maximum number of stickers reached (0)':
+									await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+									break;
+								case 'Missing Permissions':
+									await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
+									break;
+								default:
+									console.error(error.message);
+									return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+								}
+							}
+							finally {
+
+								fs.unlink(`${path}.gif`, (err) => {
+									if (err) throw err;
+									console.log(`${path} was deleted.`);
+								});
+								fs.unlink(`${path}.png`, (err) => {
+									if (err) throw err;
+									console.log(`${path} was deleted.`);
+								});
+
+							}
+
 						});
 				}
 				else {
 					exec(`gif2apng ${path}.gif`,
-						(error, stdout, stderr) => {
+						async (error, stdout, stderr) => {
 							if (error) {
 								console.error(`error: ${error.message}`);
 								return;
@@ -113,28 +119,38 @@ module.exports = {
 								return;
 							}
 
-							interaction.guild.stickers.create(`${path}.png`, name, tag)
-								.then(sticker => {
-
-									fs.unlink(`${path}.gif`, (err) => {
-										if (err) throw err;
-										console.log(`${path} was deleted.`);
-									});
-									fs.unlink(`${path}.png`, (err) => {
-										if (err) throw err;
-										console.log(`${path} was deleted.`);
-									});
-
-									return interaction.editReply({
-										content: `Created new sticker with name **${sticker.name}**!`,
-									});
-								})
-								.catch(e => {
-									console.error(e);
-									return interaction.editReply({
-										content: 'There was an error while executing this command!' + sendErrorFeedback(),
-									});
+							try {
+								const sticker = await interaction.guild.stickers.create(`${path}.png`, name, tag);
+								await interaction.editReply({
+									content: `Created new sticker with name **${sticker.name}**!`,
 								});
+							}
+							catch (error) {
+								switch (error.message) {
+								case 'Maximum number of stickers reached (0)':
+									await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+									break;
+								case 'Missing Permissions':
+									await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
+									break;
+								default:
+									console.error(error.message);
+									return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+								}
+							}
+							finally {
+
+								fs.unlink(`${path}.gif`, (err) => {
+									if (err) throw err;
+									console.log(`${path} was deleted.`);
+								});
+								fs.unlink(`${path}.png`, (err) => {
+									if (err) throw err;
+									console.log(`${path} was deleted.`);
+								});
+
+							}
+
 						});
 				}
 			}
@@ -145,14 +161,18 @@ module.exports = {
 				});
 			}
 		}
-		catch (e) {
-			console.error(e);
-			return interaction.editReply({
-				content: 'There was an error while executing this command!' +
-					'\nIf you think this is a proper bug, either please join the support server for help or create a github issue describing the problem.' +
-					'\nhttps://discord.gg/XaeERFAVfb' +
-					'\nhttps://github.com/SethCohen/EmojiUtilities/issues', ephemeral: true,
-			});
+		catch (error) {
+			switch (error.message) {
+			case 'Emoji doesn\'t exist':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `tag`.\nExpected default discord emoji, e.g. 🍌')] });
+				break;
+			case 'connect ECONNREFUSED ::1:80':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid url in `url`.')] });
+				break;
+			default:
+				console.error(error.message);
+				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+			}
 		}
 
 	},

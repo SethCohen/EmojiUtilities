@@ -35,7 +35,6 @@ module.exports = {
 		// Fills embed
 		const embed = new MessageEmbed()
 			.setDescription(mediaLinks)
-			.setColor('ORANGE')
 			.setTitle(`${user ? user.username : 'Server'}'s Total Count Statistics`)
 			.addFields(
 				{ name: 'All-Time', value: alltimeCount, inline: true },

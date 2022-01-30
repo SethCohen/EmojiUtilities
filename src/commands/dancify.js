@@ -17,10 +17,6 @@ module.exports = {
 			.replace(/[^a-zA-Z0-9 ]/g, '') // Removes any non-alphanumerical characters.
 			.replace(/  +/g, ' '); 			// Removes trailing spaces
 
-		if (text.length > 500) {
-			return interaction.reply({ content: 'Message is too long. Max character limit is 500.', ephemeral: true });
-		}
-
 		// Converts input characters into emojis.
 		let output = '';
 		for (const char of text) {
@@ -35,14 +31,22 @@ module.exports = {
 			}
 		}
 
-		if (output === '') {
-			return await interaction.reply({
-				content: 'Output is empty. This may be caused by invalid inputs such as unicode emojis or purely using non-alphanumerical characters. Please try again.' +
-					sendErrorFeedback(),
-				ephemeral: true,
-			});
+		try {
+			return await interaction.reply({ content: output });
 		}
+		catch (error) {
+			switch (error.message) {
+			case 'Invalid Form Body\ndata.content: Must be 2000 or fewer in length.':
+				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must be less than 500 characters.')] });
+				break;
+			case 'Message content must be a non-empty string.':
+				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must contain at least one or more alphanumerical character.\nSpecial characters and unicodes inputs are ignored.')] });
+				break;
+			default:
+				console.error(error);
+				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+			}
 
-		return await interaction.reply({ content: output });
+		}
 	},
 };
