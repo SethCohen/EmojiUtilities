@@ -1,6 +1,10 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { sendErrorFeedback } = require('../helpers/utilities');
 
+const clapifyText = (text) => {
+	return `${text.replace(/ /g, ' 👏 ')} 👏`;
+};
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('clapify')
@@ -11,11 +15,10 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(interaction) {
-		let text = interaction.options.getString('text');
-		text = text.replace(/ /g, ' 👏 ');
+		const text = interaction.options.getString('text');
 
 		try {
-			return await interaction.reply({ content: `${text} 👏` });
+			return await interaction.reply({ content: clapifyText(text) });
 		}
 		catch (error) {
 			switch (error.message) {
