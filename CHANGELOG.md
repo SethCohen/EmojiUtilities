@@ -6,6 +6,13 @@
 
 ---
 
+## v1.9.5 - 2022-01-30
+
+### Removed
+
+- Removed managed role checks for setting command perms on admin and manage emoji
+  commands. [[8e2a0db]](https://github.com/SethCohen/EmojiUtilities/commit/8e2a0dbc2654028ac789e12a09bdf92142b38180)
+
 ## v1.9.4 - 2022-01-29
 
 ### Changed
