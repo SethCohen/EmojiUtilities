@@ -76,13 +76,11 @@ module.exports = {
 			});
 		}
 
-		const embed = new MessageEmbed()
-			.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
-
 		await interaction.deferReply({ ephemeral: true });
-
 		const setting = interaction.options.getSubcommand();
 		const flag = interaction.options.getBoolean('flag') ? 1 : 0;
+		const embedSuccess = new MessageEmbed()
+			.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 
 		if (setting === 'togglecommand') {
 			const commandName = interaction.options.getString('commandname');
@@ -105,13 +103,13 @@ module.exports = {
 				setPerms(role, [commandName], flag);
 			}
 
-			return interaction.editReply({ content: `\`/${commandName}\` ${flag ? 'enabled' : 'disabled'}.` });
+			embedSuccess.setTitle(`\`/${commandName}\` ${flag ? 'enabled' : 'disabled'}.`);
+			return interaction.editReply({ embeds: [embedSuccess] });
 		}
 		else {
-			embed.setTitle(`\`${setting}\` set to \`${Boolean(flag)}\`.`);
-			// Set config flag in serversettings db table
+			embedSuccess.setTitle(`\`${setting}\` set to \`${Boolean(flag)}\`.`);
 			setSetting(interaction.guild.id, setting, flag);
-			return interaction.editReply({ embeds: [embed] });
+			return interaction.editReply({ embeds: [embedSuccess] });
 		}
 
 	},

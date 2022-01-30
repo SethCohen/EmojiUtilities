@@ -10,9 +10,8 @@ module.exports = {
 		.addUserOption(option =>
 			option.setName('user').setDescription('The user to get total emote usage stats for.')),
 	async execute(interaction) {
-
-		// Converts user input to Date object
 		const user = interaction.options.getUser('user');
+
 		const yearly = new Date();
 		yearly.setDate(yearly.getDate() - 365);
 		const monthly = new Date();
@@ -24,7 +23,6 @@ module.exports = {
 		const hourly = new Date();
 		hourly.setHours(hourly.getHours() - 1);
 
-		// Gets query
 		const alltimeCount = getGetCount(interaction.guild.id, user ? user.id : user, '0').toString();
 		const yearlyCount = getGetCount(interaction.guild.id, user ? user.id : user, yearly.toISOString()).toString();
 		const monthlyCount = getGetCount(interaction.guild.id, user ? user.id : user, monthly.toISOString()).toString();
@@ -32,8 +30,7 @@ module.exports = {
 		const dailyCount = getGetCount(interaction.guild.id, user ? user.id : user, daily.toISOString()).toString();
 		const hourlyCount = getGetCount(interaction.guild.id, user ? user.id : user, daily.toISOString()).toString();
 
-		// Fills embed
-		const embed = new MessageEmbed()
+		const embedSuccess = new MessageEmbed()
 			.setDescription(mediaLinks)
 			.setTitle(`${user ? user.username : 'Server'}'s Total Count Statistics`)
 			.addFields(
@@ -45,6 +42,6 @@ module.exports = {
 				{ name: 'Hourly', value: hourlyCount, inline: true },
 			)
 			.setThumbnail(`${user ? user.displayAvatarURL() : interaction.guild.iconURL()}`);
-		return interaction.reply({ embeds: [embed] });
+		return interaction.reply({ embeds: [embedSuccess] });
 	},
 };

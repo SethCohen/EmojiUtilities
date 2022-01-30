@@ -2,6 +2,26 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { guildId } = require('../../config.json');
 const { sendErrorFeedback } = require('../helpers/utilities');
 
+const dancifyText = async (text, interaction) => {
+	const guild = await interaction.client.guilds.fetch(guildId);
+
+	let result = '';
+	for (const char of text) {
+		if ((/[a-zA-Z0-9]/).test(char)) {
+			const foundEmoji = await guild.emojis.cache
+				.find(emoji => emoji.name === (char.toLowerCase() + '_'));	// Get dancing letter emojis from EmojiUtilities support server
+
+			if (foundEmoji) {
+				result += foundEmoji.toString();
+			}
+		}
+		else if (char === ' ') {
+			result += '    ';
+		}
+	}
+	return result;
+};
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('dancify')
@@ -12,27 +32,12 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(interaction) {
-		const guild = await interaction.client.guilds.fetch(guildId);
 		const text = interaction.options.getString('text')
 			.replace(/[^a-zA-Z0-9 ]/g, '') // Removes any non-alphanumerical characters.
 			.replace(/  +/g, ' '); 			// Removes trailing spaces
 
-		// Converts input characters into emojis.
-		let output = '';
-		for (const char of text) {
-			if ((/[a-zA-Z0-9]/).test(char)) {
-				const foundEmoji = await guild.emojis.cache.find(emoji => emoji.name === (char.toLowerCase() + '_'));
-				if (foundEmoji) {
-					output += foundEmoji.toString();
-				}
-			}
-			else if (char === ' ') {
-				output += '    ';
-			}
-		}
-
 		try {
-			return await interaction.reply({ content: output });
+			return await interaction.reply({ content: await dancifyText(text, interaction) });
 		}
 		catch (error) {
 			switch (error.message) {

@@ -1,5 +1,14 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { sendErrorFeedback } = require('../helpers/utilities');
+const { sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
+
+const getEmojiUrl = (emoji) => {
+	if (emoji[1]) {
+		return `https://cdn.discordapp.com/emojis/${emoji[3]}.gif`;
+	}
+	else {
+		return `https://cdn.discordapp.com/emojis/${emoji[3]}.png`;
+	}
+};
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -11,19 +20,11 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(interaction) {
-		// Validates emoji option.
 		const stringEmoji = interaction.options.getString('emoji');
-		const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
-		const regexEmoji = stringEmoji.match(re);
+		const verifiedEmoji = verifyEmojiString(stringEmoji);
 
-		try { // Checks for if emoji is animated or not.
-			let url;
-			if (regexEmoji[1]) {
-				url = `https://cdn.discordapp.com/emojis/${regexEmoji[3]}.gif`;
-			}
-			else {
-				url = `https://cdn.discordapp.com/emojis/${regexEmoji[3]}.png`;
-			}
+		try {
+			const url = getEmojiUrl(verifiedEmoji);
 
 			return interaction.reply({ content: `${url}` });
 		}

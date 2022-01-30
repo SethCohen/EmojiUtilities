@@ -2,6 +2,22 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { getDisplayStats } = require('../helpers/dbModel');
 const { MessageActionRow, MessageButton, Permissions } = require('discord.js');
 
+const actionButtons = (state) => {
+	return new MessageActionRow()
+		.addComponents(
+			new MessageButton()
+				.setCustomId('remove')
+				.setLabel('Confirm Remove')
+				.setStyle('SUCCESS')
+				.setDisabled(state),
+			new MessageButton()
+				.setCustomId('cancel')
+				.setLabel('Cancel')
+				.setStyle('DANGER')
+				.setDisabled(state),
+		);
+};
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('removeunused')
@@ -15,33 +31,6 @@ module.exports = {
 
 		const number = interaction.options.getInteger('number') ? interaction.options.getInteger('number') : 1;
 		const occurrences = getDisplayStats(interaction.guild.id, '0');
-
-		// Creates buttons
-		const buttonRow = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('remove')
-					.setLabel('Confirm Remove')
-					.setStyle('SUCCESS'),
-				new MessageButton()
-					.setCustomId('cancel')
-					.setLabel('Cancel')
-					.setStyle('DANGER'),
-			);
-
-		const disabledRow = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('remove')
-					.setLabel('Confirm Remove')
-					.setStyle('SUCCESS')
-					.setDisabled(true),
-				new MessageButton()
-					.setCustomId('cancel')
-					.setLabel('Cancel')
-					.setStyle('DANGER')
-					.setDisabled(true),
-			);
 
 		// Gets all emojis:count in guild by descending count and splices array to just bottom n rows.
 		// Essentially returns the n amount least used emojis in the server.
@@ -58,10 +47,9 @@ module.exports = {
 			const emoji = await interaction.guild.emojis.fetch(key.emoji);
 			emojis.push(emoji);
 		}
+		await interaction.editReply({ content: `Emojis to remove: ${emojis}`, components: [actionButtons(false)] });
 
-		await interaction.editReply({ content: `Emojis to remove: ${emojis}`, components: [buttonRow] });
-
-		// Adds button listeners
+		// Create button listeners
 		const message = await interaction.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 30000 });
 		collector.on('collect', async i => {
@@ -84,7 +72,7 @@ module.exports = {
 
 				}
 				else if (i.customId === 'cancel') {
-					await i.update({ components: [disabledRow] });
+					await i.update({ components: [actionButtons(true)] });
 					await interaction.editReply({ content: `Emojis to remove: ${emojis}.\nCanceled.` });
 				}
 			}
@@ -95,7 +83,6 @@ module.exports = {
 				});
 			}
 		});
-
 		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
 			interaction.editReply({ content: `Emojis to remove: ${emojis}.\nCommand timed out.`, components: [] });

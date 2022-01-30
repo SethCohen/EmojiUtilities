@@ -1,7 +1,7 @@
 const { getEmojiTotalCount } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { mediaLinks, sendErrorFeedback } = require('../helpers/utilities');
+const { mediaLinks, sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -12,20 +12,15 @@ module.exports = {
 				.setDescription('The emoji to get info for.')
 				.setRequired(true)),
 	async execute(interaction) {
-		// Validates emoji option.
 		const stringEmoji = interaction.options.getString('emoji');
-		const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
-		const regexEmoji = stringEmoji.match(re);
 
 		try {
-			const emoji = await interaction.guild.emojis.fetch(regexEmoji[3]);
-
-			// Fetches content
+			const verifiedEmoji = verifyEmojiString(stringEmoji);
+			const emoji = await interaction.guild.emojis.fetch(verifiedEmoji[3]);
 			const author = await emoji.fetchAuthor();
 			const count = getEmojiTotalCount(interaction.guild.id, emoji.id);
 
-			// Fills embed.
-			const embed = new MessageEmbed()
+			const embedSuccess = new MessageEmbed()
 				.setTitle(`${emoji.name}`)
 				.setDescription(mediaLinks)
 				.setThumbnail(`${emoji.url}`)
@@ -35,7 +30,7 @@ module.exports = {
 					{ name: 'Total Times Used:', value: count.toString() },
 				);
 
-			return interaction.reply({ embeds: [embed] });
+			return interaction.reply({ embeds: [embedSuccess] });
 		}
 		catch (error) {
 			switch (error.message) {

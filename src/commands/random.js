@@ -4,6 +4,22 @@ const { MessageEmbed, MessageActionRow, MessageButton, Permissions } = require('
 const { getSetting } = require('../helpers/dbModel');
 const { sendErrorFeedback } = require('../helpers/utilities');
 
+const actionButtons = (state) => {
+	return new MessageActionRow()
+		.addComponents(
+			new MessageButton()
+				.setCustomId('upload')
+				.setLabel('Upload To Server')
+				.setStyle('SUCCESS')
+				.setDisabled(state),
+			new MessageButton()
+				.setCustomId('cancel')
+				.setLabel('Cancel')
+				.setStyle('DANGER')
+				.setDisabled(state),
+		);
+};
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('random')
@@ -11,46 +27,19 @@ module.exports = {
 		.addBooleanOption(option =>
 			option.setName('includensfw')
 				.setDescription('Includes NSFW results. Default: False')),
-	async execute(interaction) {
-		await interaction.deferReply();
-
-		// Creates buttons
-		const buttonRow = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('upload')
-					.setLabel('Upload To Server')
-					.setStyle('SUCCESS'),
-				new MessageButton()
-					.setCustomId('cancel')
-					.setLabel('Cancel')
-					.setStyle('DANGER'),
-			);
-
-		const disabledRow = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('upload')
-					.setLabel('Upload To Server')
-					.setStyle('SUCCESS')
-					.setDisabled(true),
-				new MessageButton()
-					.setCustomId('cancel')
-					.setLabel('Cancel')
-					.setStyle('DANGER')
-					.setDisabled(true),
-			);
+	async execute(interactionCommand) {
+		await interactionCommand.deferReply();
 
 		const response = await axios.get('https://emoji.gg/api/');
-		const nsfw = interaction.options.getBoolean('includensfw') ? interaction.options.getBoolean('includensfw') : false;
+		const nsfw = interactionCommand.options.getBoolean('includensfw') ? interactionCommand.options.getBoolean('includensfw') : false;
 
 		let data;
 		if (nsfw) {
-			if (getSetting(interaction.guildId, 'allownsfw')) {
+			if (getSetting(interactionCommand.guildId, 'allownsfw')) {
 				data = response.data;
 			}
 			else {
-				return interaction.editReply({ content: 'Sorry, but searching for NSFW is disabled in this server.' });
+				return interactionCommand.editReply({ content: 'Sorry, but searching for NSFW is disabled in this server.' });
 			}
 		}
 		else {
@@ -64,56 +53,55 @@ module.exports = {
 			.setTitle(item.title)
 			.setImage(item.image);
 
-		await interaction.editReply({ embeds: [embed], components: [buttonRow] });
+		await interactionCommand.editReply({ embeds: [embed], components: [actionButtons(false)] });
 
-		// Adds button listeners
-		const message = await interaction.fetchReply();
+		// Create button listeners
+		const message = await interactionCommand.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 30000 });
-		collector.on('collect', async i => {
-			if (i.member === interaction.member) {
-				if (i.customId === 'upload') {
-					await i.update({ embeds: [embed], components: [disabledRow] });
+		collector.on('collect', async interactionButton => {
+			if (interactionButton.member === interactionCommand.member) {
+				if (interactionButton.customId === 'upload') {
+					await interactionButton.update({ embeds: [embed], components: [actionButtons(true)] });
 
-					if (!i.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
-						return interaction.editReply({
+					if (!interactionButton.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+						return interactionCommand.editReply({
 							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 							ephemeral: true,
 						});
 					}
 
-					interaction.guild.emojis
+					interactionCommand.guild.emojis
 						.create(item.image, item.title)
 						.then(emoji => {
-							return interaction.editReply({ content: `Added ${emoji} to server!` });
+							return interactionCommand.editReply({ content: `Added ${emoji} to server!` });
 						})
 						.catch(error => {
 							switch (error.message) {
 							case 'Maximum number of emojis reached (50)':
-								interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
+								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'No emoji slots available in server.')] });
 								break;
 							default:
 								console.error(error);
-								return interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName)] });
+								return interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
 							}
 
 						});
 				}
-				else if (i.customId === 'cancel' && i.user === interaction.user) {
-					await i.update({ embeds: [embed], components: [disabledRow] });
-					return interaction.editReply({ content: 'Canceled.' });
+				else if (interactionButton.customId === 'cancel' && interactionButton.user === interactionCommand.user) {
+					await interactionButton.update({ embeds: [embed], components: [actionButtons(true)] });
+					return interactionCommand.editReply({ content: 'Canceled.' });
 				}
 			}
 			else {
-				await i.reply({
+				await interactionButton.reply({
 					content: 'You can\'t interact with this button. You are not the command author.',
 					ephemeral: true,
 				});
 			}
 		});
-
 		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
-			interaction.editReply({ content: 'Command timed out.', components: [disabledRow] });
+			interactionCommand.editReply({ content: 'Command timed out.', components: [actionButtons(true)] });
 			// console.log(`Collected ${collected.size} interactions.`);
 		});
 	},

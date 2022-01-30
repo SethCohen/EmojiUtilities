@@ -5,6 +5,22 @@ const { MessageActionRow, MessageButton, MessageEmbed, Permissions } = require('
 const { getSetting } = require('../helpers/dbModel');
 const { sendErrorFeedback } = require('../helpers/utilities');
 
+const actionButtons = (state) => {
+	return new MessageActionRow()
+		.addComponents(
+			new MessageButton()
+				.setCustomId('upload')
+				.setLabel('Upload To Server')
+				.setStyle('SUCCESS')
+				.setDisabled(state),
+			new MessageButton()
+				.setCustomId('cancel')
+				.setLabel('Cancel')
+				.setStyle('DANGER')
+				.setDisabled(state),
+		);
+};
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('search')
@@ -84,50 +100,20 @@ module.exports = {
 			return json.title;
 		}));
 
-		// console.log(match);
-		// console.log(data[match.bestMatchIndex]);
-
-		// Creates buttons
-		const buttonRow = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('upload')
-					.setLabel('Upload To Server')
-					.setStyle('SUCCESS'),
-				new MessageButton()
-					.setCustomId('cancel')
-					.setLabel('Cancel')
-					.setStyle('DANGER'),
-			);
-
-		const disabledRow = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('upload')
-					.setLabel('Upload To Server')
-					.setStyle('SUCCESS')
-					.setDisabled(true),
-				new MessageButton()
-					.setCustomId('cancel')
-					.setLabel('Cancel')
-					.setStyle('DANGER')
-					.setDisabled(true),
-			);
-
 		const embed = new MessageEmbed()
 			.setTitle(data[match.bestMatchIndex].title)
 			.setDescription(`This emoji had the highest percent likeness to your search parameters at ${(match.bestMatch.rating * 100).toFixed(2)}%`)
 			.setImage(data[match.bestMatchIndex].image);
 
-		await interaction.editReply({ embeds: [embed], components: [buttonRow] });
+		await interaction.editReply({ embeds: [embed], components: [actionButtons(false)] });
 
-		// Adds button listeners
+		// Create button listeners
 		const message = await interaction.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 30000 });
 		collector.on('collect', async i => {
 			if (i.member === interaction.member) { 	// Checks if buttton interaction user is same as command interaction user
 				if (i.customId === 'upload' && i.user === interaction.user) {
-					await i.update({ embeds: [embed], components: [disabledRow] });
+					await i.update({ embeds: [embed], components: [actionButtons(true)] });
 
 					if (!i.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 						return interaction.editReply({
@@ -154,7 +140,7 @@ module.exports = {
 						});
 				}
 				else if (i.customId === 'cancel' && i.user === interaction.user) {
-					await i.update({ embeds: [embed], components: [disabledRow] });
+					await i.update({ embeds: [embed], components: [actionButtons(true)] });
 					return interaction.editReply({ content: 'Canceled.' });
 				}
 			}
@@ -165,10 +151,9 @@ module.exports = {
 				});
 			}
 		});
-
 		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
-			interaction.editReply({ content: 'Command timed out.', components: [disabledRow] });
+			interaction.editReply({ content: 'Command timed out.', components: [actionButtons(true)] });
 			// console.log(`Collected ${collected.size} interactions.`);
 		});
 	}

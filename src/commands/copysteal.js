@@ -1,6 +1,15 @@
 const { Permissions, MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { sendErrorFeedback, mediaLinks } = require('../helpers/utilities');
+const { sendErrorFeedback, mediaLinks, verifyEmojiString } = require('../helpers/utilities');
+
+const getEmojiUrl = (emoji) => {
+	if (emoji[1]) {
+		return `https://cdn.discordapp.com/emojis/${emoji[3]}.gif`;
+	}
+	else {
+		return `https://cdn.discordapp.com/emojis/${emoji[3]}.png`;
+	}
+};
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -23,29 +32,18 @@ module.exports = {
 			});
 		}
 
-		const stringEmoji = interaction.options.getString('emoji');
 		const name = interaction.options.getString('name');
-
-		const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
-		const regexEmoji = stringEmoji.match(re);
-
-
-		// Checks for if emoji is animated or not.
-		let url;
-		if (regexEmoji[1]) {
-			url = `https://cdn.discordapp.com/emojis/${regexEmoji[3]}.gif`;
-		}
-		else {
-			url = `https://cdn.discordapp.com/emojis/${regexEmoji[3]}.png`;
-		}
+		const stringEmoji = interaction.options.getString('emoji');
+		const verifiedEmoji = verifyEmojiString(stringEmoji);
+		const url = getEmojiUrl(verifiedEmoji);
 
 		interaction.guild.emojis
-			.create(url, name ? name : regexEmoji[2])
+			.create(url, name ? name : verifiedEmoji[2])
 			.then(emoji => {
-				const embed = new MessageEmbed()
+				const embedSuccess = new MessageEmbed()
 					.setTitle(`Added ${emoji} to server!`)
 					.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
-				return interaction.reply({ embeds: [embed] });
+				return interaction.reply({ embeds: [embedSuccess] });
 			})
 			.catch(async error => {
 				switch (error.message) {

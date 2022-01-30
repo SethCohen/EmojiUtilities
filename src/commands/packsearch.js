@@ -4,6 +4,54 @@ const { findBestMatch } = require('string-similarity');
 const { MessageActionRow, MessageButton, MessageEmbed, Permissions } = require('discord.js');
 const { mediaLinks, sendErrorFeedback } = require('../helpers/utilities');
 
+const navigationButtons = (state) => {
+	return new MessageActionRow()
+		.addComponents(
+			new MessageButton()
+				.setCustomId('prev')
+				.setLabel('👈 Prev')
+				.setStyle('SECONDARY')
+				.setDisabled(state),
+			new MessageButton()
+				.setCustomId('next')
+				.setLabel('👉 Next')
+				.setStyle('SECONDARY')
+				.setDisabled(state),
+		);
+};
+
+const actionButtons = (state) => {
+	return new MessageActionRow()
+		.addComponents(
+			new MessageButton()
+				.setCustomId('upload')
+				.setLabel('Upload To Server')
+				.setStyle('SUCCESS')
+				.setDisabled(state),
+			new MessageButton()
+				.setCustomId('cancel')
+				.setLabel('Cancel')
+				.setStyle('DANGER')
+				.setDisabled(state),
+		);
+};
+
+const createPages = (packResponse) => {
+	const pages = [];
+	let pageNumber = 1;
+	for (const emoji of packResponse.data.emotes) {
+		const embed = new MessageEmbed()
+			.setTitle(`${packResponse.data.name} Pack`)
+			.setDescription(mediaLinks)
+			.setImage(emoji.url)
+			.setFooter({
+				text: `Page ${pageNumber++}/${packResponse.data.emotes.length} | ${emoji.name}`,
+			});
+		pages.push(embed);
+	}
+	return pages;
+};
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('packsearch')
@@ -12,156 +60,99 @@ module.exports = {
 			option.setName('name')
 				.setDescription('Name of the pack to search for.')
 				.setRequired(true)),
-	async execute(interaction) {
-		await interaction.deferReply();
+	async execute(interactionCommand) {
+		await interactionCommand.deferReply();
 
 		const apiResponse = await axios.get('https://emoji.gg/api/packs');
-		const name = interaction.options.getString('name');
+		const name = interactionCommand.options.getString('name');
 		const data = apiResponse.data;
-
-		// Searches for best match
 		const match = findBestMatch(name, data.map(json => {
 			return json.name;
 		}));
 
 		const slug = data[match.bestMatchIndex].slug;
 		const packResponse = await axios.get(`https://emoji.gg/pack/${slug}&type=json`);
-		// console.log(match);
-		// console.log(data[match.bestMatchIndex]);
 
-		let index = 0;
-		let pageNumber = 1;
-		const embeds = [];
-		for (const emoji of packResponse.data.emotes) {
-			const embed = new MessageEmbed()
-				.setTitle(`${packResponse.data.name} Pack`)
-				.setDescription(mediaLinks)
-				.setImage(emoji.url)
-				.setFooter(`Page ${pageNumber++}/${packResponse.data.emotes.length} | ${emoji.name}`);
-			embeds.push(embed);
-		}
-
-		// Creates buttons
-		const pageButtons = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('prev')
-					.setLabel('👈 Prev')
-					.setStyle('SECONDARY'),
-				new MessageButton()
-					.setCustomId('next')
-					.setLabel('👉 Next')
-					.setStyle('SECONDARY'),
-			);
-		const actionButtons = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('upload')
-					.setLabel('Upload To Server')
-					.setStyle('SUCCESS'),
-				new MessageButton()
-					.setCustomId('cancel')
-					.setLabel('Cancel')
-					.setStyle('DANGER'),
-			);
-		const pageButtonsDisabled = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('prev')
-					.setLabel('👈 Prev')
-					.setStyle('SECONDARY')
-					.setDisabled(true),
-				new MessageButton()
-					.setCustomId('next')
-					.setLabel('👉 Next')
-					.setStyle('SECONDARY')
-					.setDisabled(true),
-			);
-		const actionButtonsDisabled = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('upload')
-					.setLabel('Upload To Server')
-					.setStyle('SUCCESS')
-					.setDisabled(true),
-				new MessageButton()
-					.setCustomId('cancel')
-					.setLabel('Cancel')
-					.setStyle('DANGER')
-					.setDisabled(true),
-			)
-		;
-
-		await interaction.editReply({
+		let currentPageIndex = 0;
+		const pages = createPages(packResponse);
+		await interactionCommand.editReply({
 			content: `This pack had the highest percent likeness to your search parameters at ${(match.bestMatch.rating * 100).toFixed(2)}%`,
-			embeds: [embeds[index]],
-			components: [pageButtons, actionButtons],
+			embeds: [pages[currentPageIndex]],
+			components: [navigationButtons(false), actionButtons(false)],
 		});
 
-		// Adds button listeners
-		const message = await interaction.fetchReply();
+		// Create button listeners
+		const message = await interactionCommand.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 120000 });
-		collector.on('collect', async i => {
-			if (i.member === interaction.member) {
-				if (i.customId === 'upload') {
-					await i.update({ embeds: [embeds[index]], components: [pageButtons, actionButtonsDisabled] });
+		collector.on('collect', async interactionButton => {
+			if (interactionButton.member === interactionCommand.member) {
+				if (interactionButton.customId === 'upload') {
+					await interactionButton.update({
+						embeds: [pages[currentPageIndex]],
+						components: [navigationButtons(false), actionButtons(true)],
+					});
 
-					if (!i.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
-						return interaction.editReply({
+					if (!interactionButton.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+						return interactionCommand.editReply({
 							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 							ephemeral: true,
 						});
 					}
 
-					interaction.guild.emojis
-						.create(packResponse.data.emotes[index].url, packResponse.data.emotes[index].name.replace(/-/g, ''))
+					interactionCommand.guild.emojis
+						.create(packResponse.data.emotes[currentPageIndex].url, packResponse.data.emotes[currentPageIndex].name.replace(/-/g, ''))
 						.then(emoji => {
-							return interaction.editReply({ content: `Added ${emoji} to server!` });
+							return interactionCommand.editReply({ content: `Added ${emoji} to server!` });
 						})
 						.catch(error => {
 							switch (error.message) {
 							case 'Maximum number of emojis reached (50)':
-								interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
+								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'No emoji slots available in server.')] });
 								break;
 							default:
 								console.error(error);
-								return interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName)] });
+								return interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
 							}
 
 						});
 				}
-				else if (i.customId === 'cancel') {
-					await i.update({
-						embeds: [embeds[index]],
-						components: [pageButtonsDisabled, actionButtonsDisabled],
+				else if (interactionButton.customId === 'cancel') {
+					await interactionButton.update({
+						embeds: [pages[currentPageIndex]],
+						components: [navigationButtons(true), actionButtons(true)],
 					});
-					return interaction.editReply({ content: 'Canceled.' });
+					return interactionCommand.editReply({ content: 'Canceled.' });
 				}
-				else if (i.customId === 'prev' && index > 0) {
-					--index;
-					await i.update({ embeds: [embeds[index]], components: [pageButtons, actionButtons] });
+				else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
+					--currentPageIndex;
+					await interactionButton.update({
+						embeds: [pages[currentPageIndex]],
+						components: [navigationButtons(false), actionButtons(false)],
+					});
 				}
-				else if (i.customId === 'next' && index < embeds.length - 1) {
-					++index;
-					await i.update({ embeds: [embeds[index]], components: [pageButtons, actionButtons] });
+				else if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
+					++currentPageIndex;
+					await interactionButton.update({
+						embeds: [pages[currentPageIndex]],
+						components: [navigationButtons(false), actionButtons(false)],
+					});
 				}
 				else {
-					await i.reply({ content: 'No valid page to go to.', ephemeral: true });
+					await interactionButton.reply({ content: 'No valid page to go to.', ephemeral: true });
 				}
 			}
 			else {
-				await i.reply({
+				await interactionButton.reply({
 					content: 'You can\'t interact with this button. You are not the command author.',
 					ephemeral: true,
 				});
 			}
 		});
-
 		// eslint-disable-next-line no-unused-vars
 		collector.on('end', collected => {
-			interaction.editReply({
+			interactionCommand.editReply({
 				content: 'Command timed out.',
-				components: [pageButtonsDisabled, actionButtonsDisabled],
+				components: [navigationButtons(true), actionButtons(true)],
 			});
 			// console.log(`Collected ${collected.size} interactions.`);
 		});

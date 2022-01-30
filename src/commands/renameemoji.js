@@ -1,6 +1,6 @@
 const { Permissions, MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { mediaLinks, sendErrorFeedback } = require('../helpers/utilities');
+const { mediaLinks, sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -17,7 +17,6 @@ module.exports = {
 				.setDescription('The new name for the emoji.')
 				.setRequired(true)),
 	async execute(interaction) {
-		// Checks for valid permissions
 		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 			return interaction.reply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
@@ -25,13 +24,11 @@ module.exports = {
 			});
 		}
 
-		// Validates emoji option.
-		const stringEmoji = interaction.options.getString('emoji');
-		const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
-		const regexEmoji = stringEmoji.match(re);
-
 		try {
-			interaction.guild.emojis.fetch(regexEmoji[3])
+			const stringEmoji = interaction.options.getString('emoji');
+			const verifiedEmoji = verifyEmojiString(stringEmoji);
+
+			interaction.guild.emojis.fetch(verifiedEmoji[3])
 				.then(fetchedEmoji => {
 					const name = interaction.options.getString('name');
 					fetchedEmoji.edit({ name: `${name}` })
