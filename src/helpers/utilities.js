@@ -3,6 +3,17 @@ const adminCommands = ['config', 'resetdb'];
 const manageEmojisCommands = ['copysteal', 'removeunused', 'renameemoji', 'stickerfy', 'uploademoji'];
 const mediaLinks = '[Vote for Emoji Utilities!](https://top.gg/bot/757326308547100712/vote) | [Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities)';
 
+/** verifyEmojiString
+ *		Pattern matches a string formatted emoji to verify if it is in fact an emoji.
+ *
+ * @param input 	The string emoji
+ * @returns {*}		Returns either null or a regex object
+ */
+function verifyEmojiString(input) {
+	const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
+	return input.match(re);
+}
+
 function capitalizeFirstLetter(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -32,5 +43,5 @@ function setPerms(role, commandsList, flag) {
 }
 
 module.exports = {
-	sendErrorFeedback, setPerms, adminCommands, manageEmojisCommands, mediaLinks,
+	sendErrorFeedback, setPerms, adminCommands, manageEmojisCommands, mediaLinks, verifyEmojiString,
 };
