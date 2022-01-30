@@ -13,14 +13,14 @@ module.exports = {
 		// Send ES deprecation warning
 		if (message.content.substring(0, 2) === 'ES') {
 			const esWarning = 'Hey! Sorry for the inconvenience! We\'ve recently converted the bot completely to slash' +
-				' commands (Check it out with `/help`!) to comply with Discord\'s upcoming changes.' +
+				' commands to adapt to Discord\'s upcoming changes.' +
 				'\nYou can find out more about those changes at ' +
 				'<https://support-dev.discord.com/hc/en-us/articles/4404772028055-Message-Content-Access-Deprecation-for-Verified-Bots>' +
 				'\nAlso, this update was quite a big update so if you notice any bugs, please report' +
 				' them in our Support Server: https://discord.gg/XaeERFAVfb' +
 				'\nThe server is also a good way to keep up to date with bot changelogs or make feature requests.' +
 				'\n\n**IF YOU\'RE THE SERVER OWNER, YOU HAVE TO RE-AUTH THE BOT TO THE SERVER FOR SLASH COMMAND ACCESS! Please re-auth the bot by clicking:** ' +
-				'\nhttps://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=1073835072&scope=bot%20applications.commands';
+				'\nhttps://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=1074129984&scope=bot%20applications.commands';
 			message.reply(esWarning)
 				.catch(replyError => {
 					console.error(replyError.toString(), `for guild id ${message.guildId}. Can't reply ES warning on messageCreate. Bot does not have permissions to send message.`);
@@ -31,7 +31,7 @@ module.exports = {
 
 
 		try {
-			if (getSetting(message.guildId, 'countmessages')) { // Count messages
+			if (getSetting(message.guildId, 'countmessages')) { // Check server flag for if counting messages for emoji usage is allowed
 				const guildId = message.guildId;
 				const messageAuthorId = message.author.id;
 				const dateTime = message.createdAt.toISOString();

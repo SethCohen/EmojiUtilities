@@ -19,7 +19,7 @@ module.exports = {
 				'\nUse /help to find the list of commands. Thanks again and have a nice day!');
 		}
 		else {
-			console.log('No channel access found. Welcome message not sent.');
+			console.error('No channel access found. Welcome message not sent.');
 		}
 
 		// Add admin commands role perm

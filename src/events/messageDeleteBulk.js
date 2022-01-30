@@ -23,7 +23,7 @@ module.exports = {
 			}
 
 			try {
-				if (getSetting(message.guildId, 'countmessages')) { // Count messages
+				if (getSetting(message.guildId, 'countmessages')) { // Check server flag for if counting messages for emoji usage is allowed
 					const guildId = message.guildId;
 					const messageAuthorId = message.author.id;
 					const dateTime = message.createdAt.toISOString();
@@ -48,17 +48,16 @@ module.exports = {
 				console.error('messageDelete message delete failed', e);
 			}
 
-
 			try {
-				if (getSetting(message.guildId, 'countreacts')) { // Count reacts
+				if (getSetting(message.guildId, 'countreacts')) { // Check server flag for if counting reacts for emoji usage is allowed
 					const guildId = message.guildId;
 					const messageAuthorId = message.author.id;
 					const dateTime = message.createdAt.toISOString();
 
 					message.reactions.cache.each(reaction => {
 						reaction.users.cache.each(user => {
-							// p -> q       Dont pass if message author is reaction user AND countselfreacts flag is false
-							if (!(messageAuthorId === user.id) || getSetting(guildId, 'countselfreacts')) {
+							// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
+							if (!(messageAuthorId === user.id) || getSetting(guildId, 'countselfreacts')) { // Check server flag for if counting self-reacts for emoji usage is allowed
 								deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, 'reactsSentActivity', 'messageDeleteBulk - reaction:Sent');
 								deleteFromDb(guildId, reaction.emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageDeleteBulk - reaction:Given');
 							}

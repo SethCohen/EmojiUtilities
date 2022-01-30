@@ -24,7 +24,7 @@ module.exports = {
 		}
 
 
-		if (getSetting(newMessage.guildId, 'countmessages')) { // Count messages
+		if (getSetting(newMessage.guildId, 'countmessages')) { // Check server flag for if counting messages for emoji usage is allowed
 			const guildId = newMessage.guildId;
 			const messageAuthorId = newMessage.author.id;
 			const dateTime = newMessage.createdAt.toISOString();

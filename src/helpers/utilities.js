@@ -24,9 +24,11 @@ function setPerms(role, commandsList, flag) {
 				const permission = [{ id: role.id, type: 'ROLE', permission: flag }];
 				await foundCommand.permissions.add({ guild: role.guild.id, permissions: permission });
 			}
-		}).catch(e => {
+		})
+		.catch(e => {
+			// Unable to fetch guild commands. Typically thrown when a guild hasn't re-authed the bot for application.commands scope.
 			console.error(`${role.guild.name}: ${e.toString()}`);
-		}); // Unable to fetch guild commands.
+		});
 }
 
 module.exports = {

@@ -31,14 +31,14 @@ module.exports = {
 		}
 
 		try {
-			if (getSetting(messageReaction.message.guildId, 'countreacts')) { // Count reacts
+			if (getSetting(messageReaction.message.guildId, 'countreacts')) { // Check server flag for if counting reacts for emoji usage is allowed
 				const guildId = messageReaction.message.guildId;
 				const reactionAuthorId = user.id;
 				const messageAuthorId = messageReaction.message.author.id;
 				const dateTime = messageReaction.message.createdAt.toISOString();
 
-				// p -> q       Dont pass if message author is reaction user AND countselfreacts flag is false
-				if (!(messageAuthorId === reactionAuthorId) || getSetting(guildId, 'countselfreacts')) {
+				// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
+				if (!(messageAuthorId === reactionAuthorId) || getSetting(guildId, 'countselfreacts')) { // Check server flag for if counting self-reacts for emoji usage is allowed
 					if (messageReaction.emoji.id) { // if not unicode emoji
 						messageReaction.message.guild.emojis
 							.fetch(messageReaction.emoji.id)

@@ -26,15 +26,15 @@ module.exports = {
 			reactions.each(reaction => {
 				// console.log(reaction.count, reaction.emoji.id, reaction)
 				reaction.users.cache.each(user => {
-					if (getSetting(message.guildId, 'countreacts')) { // Count reacts
+					if (getSetting(message.guildId, 'countreacts')) { // Check server flag for if counting reacts for emoji usage is allowed
 						const guildId = message.guildId;
 						const reactionAuthorId = user.id;
 						const messageAuthorId = message.author.id;
 						const dateTime = message.createdAt.toISOString();
 
-						// p -> q       Dont pass if message author is reaction user AND countselfreacts flag is false
-						if (!(messageAuthorId === reactionAuthorId) || getSetting(guildId, 'countselfreacts')) {
-							if (reaction.emoji.id) { // if not unicode emoji
+						// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
+						if (!(messageAuthorId === reactionAuthorId) || getSetting(guildId, 'countselfreacts')) { // Check server flag for if counting self-reacts for emoji usage is allowed
+							if (reaction.emoji.id) { // if not unicode/default emoji...
 								message.guild.emojis
 									.fetch(reaction.emoji.id)
 									.then(emoji => {
