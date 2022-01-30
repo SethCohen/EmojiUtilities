@@ -1,9 +1,18 @@
+const { MessageEmbed } = require('discord.js');
 const adminCommands = ['config', 'resetdb'];
 const manageEmojisCommands = ['copysteal', 'removeunused', 'renameemoji', 'stickerfy', 'uploademoji'];
 const mediaLinks = '[Vote for Emoji Utilities!](https://top.gg/bot/757326308547100712/vote) | [Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities)';
 
-function sendErrorFeedback() {
-	return '\nIf you think this was an error, try joining our support server: https://discord.gg/XaeERFAVfb';
+function capitalizeFirstLetter(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function sendErrorFeedback(title, error) {
+	const unknownError = 'Unknown Error Found! Don\'t worry, the error was logged to the bot owner. A fix should be released soon. Thank you! 🙂';
+
+	return new MessageEmbed()
+		.setTitle(`${capitalizeFirstLetter(title)} Error!`)
+		.setDescription(`**${error ? error : unknownError}**\n\nThink this error wasn't supposed to happen?\nTry joining our [support server](https://discord.gg/XaeERFAVfb) for help!`);
 }
 
 function setPerms(role, commandsList, flag) {
