@@ -2,9 +2,19 @@
 
 ## Upcoming
 
-- Convert `/emoji` to `/aboutemoji`
-
 ---
+
+## v1.10.0 - 2022-01-30
+
+### Fixed
+
+- `/random` `/search` Fixed error not being caught for images greater than 256kb trying to be added to a
+  server. [[9d75d1c]](https://github.com/SethCohen/EmojiUtilities/commit/9d75d1ca1f863ca8b880f4f7160ca638ca7e7a81)
+
+### Changed
+
+- Changed `/emoji` to `/aboutemoji` to be more descriptive of what the command
+  does. [[1c5516c]](https://github.com/SethCohen/EmojiUtilities/commit/1c5516c56d80447047ed9e084f80573def57a3a2)
 
 ## v1.9.5 - 2022-01-30
 
@@ -211,7 +221,7 @@
 - `messageCreate.js` Fixed send messages error for old command usage warning
 - `leaderboard.js` Fixed displaying empty leaderboard.
 - `displaystats.js` Fixed bug where displaystats tries to call a deprecated column.
-- `emoji.js` Fixed bug where bot can't display proper info due to missing server permissions.
+- `aboutemoji.js` Fixed bug where bot can't display proper info due to missing server permissions.
 
 ## v1.4.3 - 2021-09-28
 
