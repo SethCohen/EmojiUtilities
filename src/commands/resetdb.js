@@ -49,9 +49,6 @@ module.exports = {
 
 		const message = await interaction.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 30000 });
-
-		// console.log(embeds.length, "length")
-
 		collector.on('collect', async i => {
 			if (i.customId === 'confirm') {
 				await i.update({ components: [disabledRow] });

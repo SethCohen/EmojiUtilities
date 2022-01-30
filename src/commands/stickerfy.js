@@ -39,29 +39,30 @@ module.exports = {
 		const name = interaction.options.getString('name');
 		let tag = interaction.options.getString('tag');
 
-
 		try {
-			tag = converter.getShortcode(tag, false);
-
-			const magicHex = {
-				jpg: 'ffd8ffe0',
-				png: '89504e47',
-				gif: '47494638',
-			};
+			tag = converter.getShortcode(tag, false);		// Convert unicode emoji to discord string name
 
 			const response = await axios.get(url, { responseType: 'arraybuffer' });
 			const buffer = Buffer.from(response.data, 'utf-8');
 			const bytes = response.headers['content-length'];
+			const magicHex = {
+				gif: '47494638',
+			};
 
+			// Checks for if image is a gif, else cancel command.
 			if (buffer.toString('hex', 0, 4) === magicHex.gif) {
 				const filename = Math.random().toString(36).substring(2, 10);
 				const path = `./src/temps/${filename}`;
 
-				fs.writeFile(`${path}.gif`, buffer, function(err) {
-					if (err) throw err;
-				});
-
 				if (bytes > 500000) {
+
+					fs.writeFile(`${path}.gif`, buffer, function(err) {
+						if (err) throw err;
+					});
+
+					// Uses several CLI toots to process a gif into an apng.
+					// Each command has been heavily tested for optimal optimizations to retain gif quality
+					// whilst conforming to discord's stickers upload limitations.
 					exec(`gifsicle --resize-touch 320x320 ${path}.gif -o ${path}.gif && gifsicle -S 320x320 --colors 32 ${path}.gif -o ${path}.gif && gif2apng ${path}.gif`,
 						async (error, stdout, stderr) => {
 							if (error) {
@@ -93,7 +94,6 @@ module.exports = {
 								}
 							}
 							finally {
-
 								fs.unlink(`${path}.gif`, (err) => {
 									if (err) throw err;
 									console.log(`${path} was deleted.`);
@@ -108,6 +108,7 @@ module.exports = {
 						});
 				}
 				else {
+					// Converts gif to apng
 					exec(`gif2apng ${path}.gif`,
 						async (error, stdout, stderr) => {
 							if (error) {
@@ -139,7 +140,6 @@ module.exports = {
 								}
 							}
 							finally {
-
 								fs.unlink(`${path}.gif`, (err) => {
 									if (err) throw err;
 									console.log(`${path} was deleted.`);

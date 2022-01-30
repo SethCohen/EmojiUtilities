@@ -44,6 +44,7 @@ module.exports = {
 			);
 
 		// Gets all emojis:count in guild by descending count and splices array to just bottom n rows.
+		// Essentially returns the n amount least used emojis in the server.
 		const toRemove = interaction.guild.emojis.cache.map(emoji => {
 			const item = occurrences.find(row => row.emoji === emoji.id);
 			return item ? { emoji: emoji.id, count: item['COUNT(emoji)'] } : { emoji: emoji.id, count: 0 };
@@ -51,6 +52,7 @@ module.exports = {
 			return b.count - a.count;
 		}).splice(-number);
 
+		// Fetches and stores Emoji objects for later removal.
 		const emojis = [];
 		for await (const key of toRemove) {
 			const emoji = await interaction.guild.emojis.fetch(key.emoji);

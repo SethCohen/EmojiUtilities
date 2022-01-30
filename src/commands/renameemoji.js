@@ -29,6 +29,7 @@ module.exports = {
 		const stringEmoji = interaction.options.getString('emoji');
 		const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
 		const regexEmoji = stringEmoji.match(re);
+
 		try {
 			interaction.guild.emojis.fetch(regexEmoji[3])
 				.then(fetchedEmoji => {

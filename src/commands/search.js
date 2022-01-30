@@ -51,8 +51,8 @@ module.exports = {
 		const category = interaction.options.getInteger('category');
 
 		let data;
-		if (nsfw) {
-			if (getSetting(interaction.guildId, 'allownsfw')) {
+		if (nsfw) {	// Checks if user is searching for nsfw emojis
+			if (getSetting(interaction.guildId, 'allownsfw')) {	// Checks server flag for if searching for nsfw emojis are allowed
 				await interaction.editReply({
 					content: 'Including NSFW results, eh? Kinky.',
 				});
@@ -66,7 +66,7 @@ module.exports = {
 			}
 		}
 		else {
-			if (category === 9) {
+			if (category === 9) {	// Checks if user tried searching for NSFW category without setting the `includensfw` flag
 				return await interaction.editReply({
 					content: 'Sorry, but searching through the NSFW category requires **includensfw: True**.',
 				});
@@ -114,7 +114,6 @@ module.exports = {
 					.setDisabled(true),
 			);
 
-
 		const embed = new MessageEmbed()
 			.setTitle(data[match.bestMatchIndex].title)
 			.setDescription(`This emoji had the highest percent likeness to your search parameters at ${(match.bestMatch.rating * 100).toFixed(2)}%`)
@@ -126,7 +125,7 @@ module.exports = {
 		const message = await interaction.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 30000 });
 		collector.on('collect', async i => {
-			if (i.member === interaction.member) {
+			if (i.member === interaction.member) { 	// Checks if buttton interaction user is same as command interaction user
 				if (i.customId === 'upload' && i.user === interaction.user) {
 					await i.update({ embeds: [embed], components: [disabledRow] });
 

@@ -34,16 +34,14 @@ module.exports = {
 		const randGenName = Math.random().toString(36).substring(2, 10);
 		const name = interaction.options.getString('name') ? interaction.options.getString('name') : randGenName;
 
-
-		// Reads in url
 		try {
 			const response = await axios.get(url, { responseType: 'arraybuffer' });
 			const buffer = Buffer.from(response.data, 'utf-8');
 			const bytes = response.headers['content-length'];
-
 			const filename = Math.random().toString(36).substring(2, 10);
 			let path = `./src/temps/${filename}`;
 
+			// Checks if url is an image and sets temp file path if image needs processing
 			if (imageType(buffer)) {
 				path += imageType(buffer).ext;
 			}
@@ -57,6 +55,7 @@ module.exports = {
 					if (err) throw err;
 				});
 
+				// Uses ImageMagick CLI to process image
 				exec(`convert -resize "128x128>" ${path} ${path}`,
 					(error, stdout, stderr) => {
 						if (error) {
