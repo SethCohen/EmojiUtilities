@@ -9,7 +9,7 @@
 ### Fixed
 
 - `/stickerfy` Fixed gifsicle failing for some
-  gifs [[965189a]](https://github.com/SethCohen/EmojiUtilities/commit/965189a11ab12a7e94426d64e933c37eb38babf6)
+  gifs [[d33afb7]](https://github.com/SethCohen/EmojiUtilities/commit/d33afb782f748c0cb432f1ab2ead945aaff30444)
 
 ## v1.10.0 - 2022-01-30
 
