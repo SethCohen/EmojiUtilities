@@ -1,7 +1,82 @@
 const { getLeaderboard } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { sendErrorFeedback } = require('../helpers/utilities');
+const { sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
+
+const validateDateRange = (dateRange) => {
+	let dateString;
+
+	switch (dateRange) {
+	case 0:
+		// all time
+		dateString = 'All-Time';
+		dateRange = '0';
+		break;
+	case 365:
+		// yearly
+		dateString = 'Yearly';
+		dateRange = new Date();
+		dateRange.setDate(dateRange.getDate() - 365);
+		dateRange = dateRange.toISOString();
+		break;
+	case 30:
+		// monthly
+		dateString = 'Monthly';
+		dateRange = new Date();
+		dateRange.setMonth(dateRange.getMonth() - 1);
+		dateRange = dateRange.toISOString();
+		break;
+	case 7:
+		// weekly
+		dateString = 'Weekly';
+		dateRange = new Date();
+		dateRange.setDate(dateRange.getDate() - 7);
+		dateRange = dateRange.toISOString();
+		break;
+	case 1:
+		// daily
+		dateString = 'Daily';
+		dateRange = new Date();
+		dateRange.setDate(dateRange.getDate() - 1);
+		dateRange = dateRange.toISOString();
+		break;
+	case 60:
+		// daily
+		dateString = 'Hourly';
+		dateRange = new Date();
+		dateRange.setHours(dateRange.getHours() - 1);
+		dateRange = dateRange.toISOString();
+		break;
+	default:
+		dateString = 'All-Time';
+		dateRange = null;
+	}
+
+	return { dateString, dateRange };
+
+};
+
+const createOutput = async (interaction, emoji, date, array) => {
+	const embed = new MessageEmbed()
+		.setTitle(`${emoji.name} Leaderboard`)
+		.setDescription(date.dateString)
+		.setThumbnail(`${emoji.url}`);
+	let leaderboardPos = 1;
+	for await (const row of array) {
+		const count = Object.values(row)[1];
+		const userId = Object.values(row)[0];
+		try {
+			const user = await interaction.guild.members.fetch(userId);
+			embed.addField(`${leaderboardPos}. ${user.displayName}`, `${count}`);
+		}
+		catch (e) {
+			console.error(e);
+		}
+		leaderboardPos++;
+	}
+
+	return embed;
+};
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -31,89 +106,26 @@ module.exports = {
 					['Hourly', 60],
 				])),
 	async execute(interaction) {
-		const embed = new MessageEmbed();
+		const type = interaction.options.getString('type');
+		const stringEmoji = interaction.options.getString('emoji');
+		const dateRange = interaction.options.getInteger('daterange');
 
-		// Validate choices.
-		let dateRange = interaction.options.getInteger('daterange');
-		switch (dateRange) {
-		case 0:
-			// all time
-			embed.setDescription('All-Time');
-			dateRange = '0';
-			break;
-		case 365:
-			// yearly
-			embed.setDescription('Yearly');
-			dateRange = new Date();
-			dateRange.setDate(dateRange.getDate() - 365);
-			dateRange = dateRange.toISOString();
-			break;
-		case 30:
-			// monthly
-			embed.setDescription('Monthly');
-			dateRange = new Date();
-			dateRange.setMonth(dateRange.getMonth() - 1);
-			dateRange = dateRange.toISOString();
-			break;
-		case 7:
-			// weekly
-			embed.setDescription('Weekly');
-			dateRange = new Date();
-			dateRange.setDate(dateRange.getDate() - 7);
-			dateRange = dateRange.toISOString();
-			break;
-		case 1:
-			// daily
-			embed.setDescription('Daily');
-			dateRange = new Date();
-			dateRange.setDate(dateRange.getDate() - 1);
-			dateRange = dateRange.toISOString();
-			break;
-		case 60:
-			// daily
-			embed.setDescription('Hourly');
-			dateRange = new Date();
-			dateRange.setHours(dateRange.getHours() - 1);
-			dateRange = dateRange.toISOString();
-			break;
-		default:
-			embed.setDescription('All-Time');
-			dateRange = null;
-		}
+		try {
+			const date = validateDateRange(dateRange);
 
-		try { // Validates emoji option.
-			const stringEmoji = interaction.options.getString('emoji');
-			const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
-			const regexEmoji = stringEmoji.match(re);
-			const emoji = await interaction.guild.emojis.fetch(regexEmoji[3]);
+			const verifiedEmoji = verifyEmojiString(stringEmoji);
+			const emoji = await interaction.guild.emojis.fetch(verifiedEmoji[3]);
 
-			// Grabs leaderboard info.
-			const type = interaction.options.getString('type');
-			const array = (dateRange ?
-				getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type, dateRange) :
+			const data = (date.dateRange ?
+				getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type, date.dateRange) :
 				getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type));
-
-			// Catch for empty leaderboard.
-			if (!array.length) {
+			if (!data.length) {
 				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Sorry, there\'s no info to display!\nThe leaderboard is empty!')] });
 			}
 
-			// Fills embed.
-			embed.setTitle(`${emoji.name} Leaderboard`).setThumbnail(`${emoji.url}`);
-			let pos = 1;
-			for await (const row of array) {
-				const count = Object.values(row)[1];
-				const userId = Object.values(row)[0];
-				try {
-					const user = await interaction.guild.members.fetch(userId);
-					embed.addField(`${pos}. ${user.displayName}`, `${count}`);
-				}
-				catch (e) {
-					console.error(e);
-				}
-				pos++;
-			}
-			return interaction.reply({ embeds: [embed] });
+			const embedSuccess = await createOutput(interaction, emoji, date, data);
+
+			return interaction.reply({ embeds: [embedSuccess] });
 		}
 		catch (error) {
 			switch (error.message) {
@@ -124,7 +136,6 @@ module.exports = {
 				console.error(error);
 				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
-
 		}
 	},
 };
