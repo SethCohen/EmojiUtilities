@@ -14,10 +14,23 @@ function verifyEmojiString(input) {
 	return input.match(re);
 }
 
+/**	capitalizeFirstLetter
+ * 		Converts the first character of a string into a capital
+ *
+ * @param string		String to convert
+ * @returns {string}	Converted String
+ */
 function capitalizeFirstLetter(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+/**	sendErrorFeedback
+ * 		Controls the response the user sees when an error is thrown.
+ *
+ * @param title				Where the error was thrown.
+ * @param error				An error message to display to the user - if any.
+ * @returns {MessageEmbed}	The resultant formatted error response.
+ */
 function sendErrorFeedback(title, error) {
 	const unknownError = 'Unknown Error Found! Don\'t worry, the error was logged to the bot owner. A fix should be released soon. Thank you! 🙂';
 
@@ -26,6 +39,14 @@ function sendErrorFeedback(title, error) {
 		.setDescription(`**${error ? error : unknownError}**\n\nThink this error wasn't supposed to happen?\nTry joining our [support server](https://discord.gg/XaeERFAVfb) for help!`);
 }
 
+/**	setPerms
+ * 		Sets if a guild role is/isn't allowed to use a global command.
+ * 		Controlled from ready.js, guildCreate.js, roleUpdate.js events, and config.js command.
+ *
+ * @param role			The role to set perms for.
+ * @param commandsList	The type of commands to set perms for (e.g. Admin commands or Manage Emoji commands)
+ * @param flag			The flag to set (i.e. True or False)
+ */
 function setPerms(role, commandsList, flag) {
 	// guild.commands.fetch()                       // Guild commands
 	role.client.application?.commands.fetch() // Global commands
