@@ -81,7 +81,7 @@ const getSortedOccurrences = (interaction, data) => {
 	});
 };
 
-const createOutput = async (user, date, interaction, occurrences) => {
+const getPages = async (user, date, interaction, occurrences) => {
 	// Divide occurrences into chunks
 	const chunkSize = 24;
 	const chunks = [];
@@ -146,10 +146,10 @@ module.exports = {
 			getDisplayStats(interactionCommand.guild.id, date.dateRange, user.id) :
 			getDisplayStats(interactionCommand.guild.id, date.dateRange));
 		const occurrences = getSortedOccurrences(interactionCommand, data);
-		const pages = await createOutput(user, date, interactionCommand, occurrences);
-		let currentPageIndex = 0;
 
 		// Output
+		const pages = await getPages(user, date, interactionCommand, occurrences);
+		let currentPageIndex = 0;
 		if (pages.length) {
 			await interactionCommand.editReply({
 				embeds: [pages[currentPageIndex]],
