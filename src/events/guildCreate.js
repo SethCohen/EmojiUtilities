@@ -16,7 +16,7 @@ module.exports = {
 		if (foundChannel) {
 			foundChannel.send('Hey, thanks for adding me to your server! ' +
 				'\nThere\'s no need to do anything else, the database has been setup for you.' +
-				'\nUse /help to find the list of commands. Thanks again and have a nice day!');
+				'\nUse `/` to access the list of commands. Thanks again and have a nice day!');
 		}
 		else {
 			console.error('No channel access found. Welcome message not sent.');
