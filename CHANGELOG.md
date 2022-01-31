@@ -4,6 +4,12 @@
 
 ---
 
+## v.1.10.1 - 2022-01-31
+
+### Fixed
+
+- `/stickerfy` Fixed gifsicle failing for some gifs
+
 ## v1.10.0 - 2022-01-30
 
 ### Fixed
