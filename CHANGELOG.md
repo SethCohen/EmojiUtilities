@@ -8,7 +8,8 @@
 
 ### Fixed
 
-- `/stickerfy` Fixed gifsicle failing for some gifs
+- `/stickerfy` Fixed gifsicle failing for some
+  gifs [[965189a]](https://github.com/SethCohen/EmojiUtilities/commit/965189a11ab12a7e94426d64e933c37eb38babf6)
 
 ## v1.10.0 - 2022-01-30
 
