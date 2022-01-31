@@ -7,3 +7,4 @@ src/commands/test.py
 /config.json
 /backups/
 /src/helpers/updateDatabases.js
+ecosystem.config.js
