@@ -31,7 +31,7 @@ function capitalizeFirstLetter(string) {
  * @param error				An error message to display to the user - if any.
  * @returns {MessageEmbed}	The resultant formatted error response.
  */
-function sendErrorFeedback(title, error) {
+function sendErrorFeedback(title, error = null) {
 	const unknownError = 'Unknown Error Found! Don\'t worry, the error was logged to the bot owner. A fix should be released soon. Thank you! 🙂';
 
 	return new MessageEmbed()

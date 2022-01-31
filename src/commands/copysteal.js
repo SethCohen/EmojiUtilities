@@ -3,7 +3,9 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { sendErrorFeedback, mediaLinks, verifyEmojiString } = require('../helpers/utilities');
 
 const getEmojiUrl = (emoji) => {
-	if (emoji[1]) {
+	const isAnimated = emoji[1];
+
+	if (isAnimated) {
 		return `https://cdn.discordapp.com/emojis/${emoji[3]}.gif`;
 	}
 	else {
