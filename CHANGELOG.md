@@ -4,7 +4,14 @@
 
 ---
 
-## v.1.10.1 - 2022-01-31
+## v1.10.2 - 2022-01-31
+
+### Removed
+
+- `guildCreate.js` Removed references to deprecated /help command in bot
+  greeting [[a3a7a27]](https://github.com/SethCohen/EmojiUtilities/commit/a3a7a27a1ea2abf9ac0ade98c928fc102ed94acb)
+
+## v1.10.1 - 2022-01-31
 
 ### Fixed
 
