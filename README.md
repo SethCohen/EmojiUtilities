@@ -65,7 +65,7 @@ use custom emotes, those get added to your server's database and you can query t
 
   ![](https://i.imgur.com/k2riODl.gif)
   </details>
-- /emoji `emoji: <emoji>`
+- /aboutemoji `emoji: <emoji>`
     - Displays basic info about an emoji such as the emoji creator, when it was added, etc.
   <details>
     <summary>Example</summary>
