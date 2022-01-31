@@ -63,7 +63,7 @@ module.exports = {
 					// Uses several CLI toots to process a gif into an apng.
 					// Each command has been heavily tested for optimal optimizations to retain gif quality
 					// whilst conforming to discord's stickers upload limitations.
-					exec(`gifsicle --resize-touch 320x320 ${path}.gif -o ${path}.gif && gifsicle -S 320x320 --colors 32 ${path}.gif -o ${path}.gif && gif2apng ${path}.gif`,
+					exec(`gifsicle --colors 32 --resize-touch 320x320 ${path}.gif -o ${path}.gif && gifsicle -S 320x320 ${path}.gif -o ${path}.gif && gif2apng ${path}.gif`,
 						async (error, stdout, stderr) => {
 							if (error) {
 								console.error(`error: ${error.message}`);
