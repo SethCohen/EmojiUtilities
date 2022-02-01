@@ -40,6 +40,9 @@ module.exports = {
 			case 'Client must have Manage Emojis and Stickers permission in guild Emoji Utilities Support to see emoji authors.':
 				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
 				break;
+			case 'Unknown Emoji':
+				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `emoji` is from another server.\nI can\'t get info on emojis from other servers, sorry!\n\nIf you were trying to get an emoji from another server though, try `/copysteal`. ')] });
+				break;
 			default:
 				console.error(error);
 				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
