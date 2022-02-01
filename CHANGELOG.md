@@ -4,6 +4,13 @@
 
 ---
 
+## v1.10.3 - 2022-02-01
+
+### Fixed
+
+- `/aboutemoji` Fixed unknown error being thrown when user tries to get info about an external emoji from another
+  server. [[112e2b3]](https://github.com/SethCohen/EmojiUtilities/commit/112e2b3e7da9766e032d67f88c37b80706f23f69)
+
 ## v1.10.2 - 2022-01-31
 
 ### Removed
