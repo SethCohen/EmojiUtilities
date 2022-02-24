@@ -1,6 +1,6 @@
 # EmojiUtilities
 
-## All your custom emoji-related tools, utilities, and info in one convenient bot.
+## A Discord Bot for all your custom emoji-related tools, utilities, and info in one convenient bot.
 
 <p align="center"> <a href="https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=1074129984&scope=bot%20applications.commands">Invite To Server</a> | <a href="https://top.gg/bot/757326308547100712/vote">Vote For Emoji Utilities!</a> | <a href="https://sethdev.ca/support-me">Support Me</a> | <a href="https://discord.gg/XaeERFAVfb">Server</a> | <a href="https://github.com/SethCohen/EmojiUtilities">Github</a></p>
 
