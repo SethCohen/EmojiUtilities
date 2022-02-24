@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+- Emoji Locking; Ability for an Administrator to set an emoji to be role-specific.
+
 ---
 
 ## v1.10.3 - 2022-02-01

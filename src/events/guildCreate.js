@@ -6,6 +6,10 @@ module.exports = {
 	name: 'guildCreate',
 	async execute(guild) {
 		// console.log(`guildCreate: ${guild.name}, ${guild.id}.`);
+
+		const guildsCount = guild.client.guilds.cache.size;
+		console.log(`Guild Created. Current Count: ${guildsCount}`);
+
 		createDatabase(guild.id);
 
 		// Send greeting

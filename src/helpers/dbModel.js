@@ -8,7 +8,7 @@ const Database = require('better-sqlite3');
 function createDatabase(guildId) {
 	// console.log(`createDatabase(${guildId}) called.`)
 
-	const db = new Database(`./src/databases/${guildId}.sqlite`, { verbose: console.log });
+	const db = new Database(`./src/databases/${guildId}.sqlite`);
 
 	const createStatements = [
 		'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
