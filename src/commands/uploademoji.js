@@ -57,9 +57,9 @@ module.exports = {
 
 				// Uses ImageMagick CLI to process image
 				exec(`convert -resize "128x128>" ${path} ${path}`,
-					(error, stdout, stderr) => {
-						if (error) {
-							console.error(`error: ${error.message}`);
+					(execError, stdout, stderr) => {
+						if (execError) {
+							console.error(`error: ${execError.message}`);
 							return;
 						}
 						if (stderr) {
@@ -75,8 +75,8 @@ module.exports = {
 									.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 								return interaction.editReply({ embeds: [embed] });
 							})
-							.catch(error => {
-								switch (error.message) {
+							.catch(createEmojiError => {
+								switch (createEmojiError.message) {
 								case 'Invalid Form Body\nname: Must be between 2 and 32 in length.':
 									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length.')] });
 									break;
@@ -92,11 +92,13 @@ module.exports = {
 								case 'Missing Permissions':
 									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
 									break;
+								case 'Invalid Form Body\nimage: Invalid image data':
+									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid image type. Discord only supports .jpg, .jpeg, .png, and .gif images.')] });
+									break;
 								default:
-									console.error(error.message);
+									console.error(`Command:\n${interaction.commandName}\nError Message:\n${createEmojiError.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}`);
 									return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 								}
-
 							})
 							.finally(() => {
 								fs.unlink(path, (err) => {
@@ -115,8 +117,8 @@ module.exports = {
 							.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 						return interaction.editReply({ embeds: [embed] });
 					})
-					.catch(error => {
-						switch (error.message) {
+					.catch(createEmojiError => {
+						switch (createEmojiError.message) {
 						case 'Invalid Form Body\nname: Must be between 2 and 32 in length.':
 							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length.')] });
 							break;
@@ -132,11 +134,13 @@ module.exports = {
 						case 'Missing Permissions':
 							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
 							break;
+						case 'Invalid Form Body\nimage: Invalid image data':
+							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid image type. Discord only supports .jpg, .jpeg, .png, and .gif images.')] });
+							break;
 						default:
-							console.error(error.message);
+							console.error(`Command:\n${interaction.commandName}\nError Message:\n${createEmojiError.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}`);
 							return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 						}
-
 					});
 			}
 		}
