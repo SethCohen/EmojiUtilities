@@ -44,7 +44,7 @@ module.exports = {
 				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `emoji` is from another server.\nI can\'t get info on emojis from other servers, sorry!\n\nIf you were trying to get an emoji from another server though, try `/copysteal`. ')] });
 				break;
 			default:
-				console.error(error);
+				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('emoji')}`);
 				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}

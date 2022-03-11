@@ -133,7 +133,7 @@ module.exports = {
 				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
 				break;
 			default:
-				console.error(error);
+				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('type')}\n${interaction.options.getString('emoji')}\n${interaction.options.getInteger('daterange')}`);
 				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}

@@ -110,7 +110,7 @@ module.exports = {
 								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'No emoji slots available in server.')] });
 								break;
 							default:
-								console.error(error);
+								console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand.options.getString('name')}`);
 								return interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
 							}
 

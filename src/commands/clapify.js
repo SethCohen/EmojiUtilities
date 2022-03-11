@@ -26,7 +26,7 @@ module.exports = {
 				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must be less than 2000 characters.')] });
 				break;
 			default:
-				console.error(error);
+				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('text')}`);
 				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}

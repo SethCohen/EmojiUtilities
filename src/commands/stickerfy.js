@@ -64,9 +64,9 @@ module.exports = {
 					// Each command has been heavily tested for optimal optimizations to retain gif quality
 					// whilst conforming to discord's stickers upload limitations.
 					exec(`gifsicle --colors 32 --resize-touch 320x320 ${path}.gif -o ${path}.gif && gifsicle -S 320x320 ${path}.gif -o ${path}.gif && gif2apng ${path}.gif`,
-						async (error, stdout, stderr) => {
-							if (error) {
-								console.error(`error: ${error.message}`);
+						async (execError, stdout, stderr) => {
+							if (execError) {
+								console.error(`error: ${execError.message}`);
 								return;
 							}
 							if (stderr) {
@@ -89,7 +89,7 @@ module.exports = {
 									await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
 									break;
 								default:
-									console.error(error.message);
+									console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
 									return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 								}
 							}
@@ -110,9 +110,9 @@ module.exports = {
 				else {
 					// Converts gif to apng
 					exec(`gif2apng ${path}.gif`,
-						async (error, stdout, stderr) => {
-							if (error) {
-								console.error(`error: ${error.message}`);
+						async (execError, stdout, stderr) => {
+							if (execError) {
+								console.error(`error: ${execError.message}`);
 								return;
 							}
 							if (stderr) {
@@ -135,7 +135,7 @@ module.exports = {
 									await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
 									break;
 								default:
-									console.error(error.message);
+									console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
 									return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 								}
 							}

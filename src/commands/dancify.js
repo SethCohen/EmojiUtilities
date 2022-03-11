@@ -48,7 +48,7 @@ module.exports = {
 				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must contain at least one or more alphanumerical character.\nSpecial characters and unicodes inputs are ignored.')] });
 				break;
 			default:
-				console.error(error);
+				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('text')}`);
 				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 

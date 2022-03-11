@@ -56,7 +56,7 @@ module.exports = {
 					await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
 					break;
 				default:
-					console.error(error);
+					console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getString('name')}`);
 					return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 				}
 			});

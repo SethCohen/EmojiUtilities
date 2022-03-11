@@ -84,7 +84,7 @@ module.exports = {
 								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'Image filesize is too big. Cannot add to server, sorry.')] });
 								break;
 							default:
-								console.error(error);
+								console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand}`);
 								return interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
 							}
 
