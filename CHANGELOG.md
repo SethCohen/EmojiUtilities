@@ -6,6 +6,22 @@
 
 ---
 
+## v1.10.4 - 2022-03-11
+
+## Added
+
+- `leaderboard` Added error catch for external
+  emojis. [[c3a5db7]](https://github.com/SethCohen/EmojiUtilities/commit/c3a5db708e9c09b47f3ebcd44154c2e8ce6c2f5a)
+- `uploademoji` Added error catch for unsupported image
+  types. [[81aec8c]](https://github.com/SethCohen/EmojiUtilities/commit/81aec8ca022fd751790ca66aa504831aa71c78f6)
+
+## Changed
+
+- `dancify` Maximum characters in error feedback was wrong. Dancify only supports ~80 characters. Changed error feedback
+  accordingly. [[099d0f0]](https://github.com/SethCohen/EmojiUtilities/commit/099d0f08604fdd30a1268cb3c81ef774461f7f38)
+- Changed error logging to be more descriptive for
+  debugging. [[a1ce981]](https://github.com/SethCohen/EmojiUtilities/tree/81aec8ca022fd751790ca66aa504831aa71c78f6)
+
 ## v1.10.3 - 2022-02-01
 
 ### Fixed
