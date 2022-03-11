@@ -132,6 +132,9 @@ module.exports = {
 			case 'Cannot read properties of null (reading \'3\')':
 				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
 				break;
+			case 'Unknown Emoji':
+				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji found in `emoji` is not from this server.')] });
+				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('type')}\n${interaction.options.getString('emoji')}\n${interaction.options.getInteger('daterange')}`);
 				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
