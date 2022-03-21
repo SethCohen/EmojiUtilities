@@ -83,6 +83,9 @@ module.exports = {
 							case 'Invalid Form Body\nimage: File cannot be larger than 256.0 kb.':
 								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'Image filesize is too big. Cannot add to server, sorry.')] });
 								break;
+							case 'Missing Permissions':
+								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'Cannot add emoji to server.\nBot is missing Manage Emojis & Stickers permission.')] });
+								break;
 							default:
 								console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand}`);
 								return interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
