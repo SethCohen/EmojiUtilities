@@ -3,8 +3,17 @@
 ## Upcoming
 
 - Emoji Locking; Ability for an Administrator to set an emoji to be role-specific.
+- Add error catching for axios emoji.gg api in case website is down.
 
 ---
+
+## v1.10.5 - 2022-03-20
+
+### Fixed
+
+- `/random` Fixed uncaught Missing Permissions error if bot does not have permissions to Manage/Upload emojis to a
+  server. Now properly tells user the bot is missing permission to upload
+  emoji. [[050101e]](https://github.com/SethCohen/EmojiUtilities/commit/050101edd1db167a756e59a1cffd03b2042d874a)
 
 ## v1.10.4 - 2022-03-11
 
