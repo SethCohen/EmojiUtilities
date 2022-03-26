@@ -6,6 +6,51 @@ const { exec } = require('child_process');
 const { sendErrorFeedback } = require('../helpers/utilities');
 const converter = require('discord-emoji-converter');
 
+const uploadSticker = async (interaction, path, name, tag) => {
+	try {
+		const sticker = await interaction.guild.stickers.create(`${path}.png`, name, tag);
+		await interaction.editReply({
+			content: `Created new sticker with name **${sticker.name}**!`,
+		});
+	}
+	catch (error) {
+		switch (error.message) {
+		case 'Maximum number of stickers reached (0)':
+			await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+			break;
+		case 'Missing Permissions':
+			await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
+			break;
+		case 'Asset exceeds maximum size: 33554432':
+			await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker to server. Output sticker is too large.\nUnable to optimize gif into a sticker that fits Discord\'s upload requirements.\nThis may be because the input gif is either too large or too small, contains too much noise, colours, frames, etc.\nTry optimizing the gif before using the command.')] });
+			break;
+		default:
+			console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
+			await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+		}
+	}
+	finally {
+		fs.unlink(`${path}.gif`, (err) => {
+			if (err) {
+				console.error(`Unable to delete image: ${err}`);
+			}
+			else {
+				console.log(`${path}.gif was deleted.`);
+			}
+		});
+		fs.unlink(`${path}.png`, (err) => {
+			if (err) {
+				console.error(`Unable to delete image: ${err}`);
+			}
+			else {
+				console.log(`${path}.png was deleted.`);
+			}
+		});
+
+	}
+
+};
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stickerfy')
@@ -65,45 +110,10 @@ module.exports = {
 					// whilst conforming to discord's stickers upload limitations.
 					exec(`gifsicle --colors 32 --resize-touch 320x320 ${path}.gif -o ${path}.gif && gifsicle -S 320x320 ${path}.gif -o ${path}.gif && gif2apng ${path}.gif`,
 						async (execError, stdout, stderr) => {
-							if (execError) {
-								console.error(`error: ${execError.message}`);
-								return;
-							}
-							if (stderr) {
-								console.error(`stderr: ${stderr}`);
-								return;
-							}
+							if (execError) throw execError;
+							if (stderr) console.error(stderr);
 
-							try {
-								const sticker = await interaction.guild.stickers.create(`${path}.png`, name, tag);
-								await interaction.editReply({
-									content: `Created new sticker with name **${sticker.name}**!`,
-								});
-							}
-							catch (error) {
-								switch (error.message) {
-								case 'Maximum number of stickers reached (0)':
-									await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
-									break;
-								case 'Missing Permissions':
-									await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
-									break;
-								default:
-									console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
-									return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
-								}
-							}
-							finally {
-								fs.unlink(`${path}.gif`, (err) => {
-									if (err) throw err;
-									console.log(`${path} was deleted.`);
-								});
-								fs.unlink(`${path}.png`, (err) => {
-									if (err) throw err;
-									console.log(`${path} was deleted.`);
-								});
-
-							}
+							await uploadSticker(interaction, path, name, tag);
 
 						});
 				}
@@ -111,46 +121,10 @@ module.exports = {
 					// Converts gif to apng
 					exec(`gif2apng ${path}.gif`,
 						async (execError, stdout, stderr) => {
-							if (execError) {
-								console.error(`error: ${execError.message}`);
-								return;
-							}
-							if (stderr) {
-								console.error(`stderr: ${stderr}`);
-								return;
-							}
+							if (execError) throw execError;
+							if (stderr) console.error(stderr);
 
-							try {
-								const sticker = await interaction.guild.stickers.create(`${path}.png`, name, tag);
-								await interaction.editReply({
-									content: `Created new sticker with name **${sticker.name}**!`,
-								});
-							}
-							catch (error) {
-								switch (error.message) {
-								case 'Maximum number of stickers reached (0)':
-									await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
-									break;
-								case 'Missing Permissions':
-									await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
-									break;
-								default:
-									console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
-									return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
-								}
-							}
-							finally {
-								fs.unlink(`${path}.gif`, (err) => {
-									if (err) throw err;
-									console.log(`${path} was deleted.`);
-								});
-								fs.unlink(`${path}.png`, (err) => {
-									if (err) throw err;
-									console.log(`${path} was deleted.`);
-								});
-
-							}
-
+							await uploadSticker(interaction, path, name, tag);
 						});
 				}
 			}
