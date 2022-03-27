@@ -49,7 +49,6 @@ function sendErrorFeedback(title, error = null) {
  * @param flag			The flag to set (i.e. True or False)
  */
 async function setPerms(guild, rolesList, commandsList, flag) {
-
 	const permission = {
 		guild: guild.id,
 		permissions: [...rolesList.map(role => {
@@ -63,8 +62,13 @@ async function setPerms(guild, rolesList, commandsList, flag) {
 
 	const applicationCommands = await guild.client.application.commands.fetch();
 	const foundCommands = await applicationCommands.filter(command => commandsList.includes(command.name));
-	foundCommands.forEach(async command => {
-		await command.permissions.add(permission);
+	foundCommands.each(async command => {
+		try {
+			await command.permissions.add(permission);
+		}
+		catch (error) {
+			console.error(`Failed setting command permissions in ${guild.name}: ${error.message}`);
+		}
 	});
 }
 
