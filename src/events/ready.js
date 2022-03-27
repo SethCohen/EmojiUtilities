@@ -10,20 +10,16 @@ module.exports = {
 
 		// Sets role permissions for special commands.
 		client.guilds.cache.each(async guild => {
-			// Add admin commands role perms
-			guild.roles.fetch()
-				.then(roles => roles.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR))
-					.each(adminRole => {
-						setPerms(adminRole, adminCommands, true);
-					}))
-				.catch(console.error);
-			// Add manage emojis commands role perms
-			guild.roles.fetch()
-				.then(roles => roles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS))
-					.each(manageEmojisRole => {
-						setPerms(manageEmojisRole, manageEmojisCommands, true);
-					}))
-				.catch(console.error);
+			const guildRoles = await guild.roles.fetch();
+
+			// Add admin commands role perm
+			const adminRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS));
+			await setPerms(guild, adminRoles, adminCommands, true);
+
+			// Add manage emojis commands role perm
+			const manageEmojisRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS));
+			await setPerms(guild, manageEmojisRoles, manageEmojisCommands, true);
+
 		});
 	},
 };

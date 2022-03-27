@@ -1,6 +1,6 @@
 const { createDatabase } = require('../helpers/dbModel');
 const { Permissions } = require('discord.js');
-const { setPerms, adminCommands, manageEmojisCommands } = require('../helpers/utilities');
+const { manageEmojisCommands, adminCommands, setPerms } = require('../helpers/utilities');
 
 module.exports = {
 	name: 'guildCreate',
@@ -12,7 +12,7 @@ module.exports = {
 
 		createDatabase(guild.id);
 
-		// Send greeting
+		/* // Send greeting
 		const channels = await guild.channels.cache;
 		const foundChannel = await channels.find(channel => (channel.isText()
 			&& channel.permissionsFor(guild.me).has('SEND_MESSAGES')
@@ -24,15 +24,17 @@ module.exports = {
 		}
 		else {
 			console.error('No channel access found. Welcome message not sent.');
-		}
+		}*/
+
+		const guildRoles = await guild.roles.fetch();
 
 		// Add admin commands role perm
-		guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR)).each(adminRole => {
-			setPerms(adminRole, adminCommands, true);
-		});
+		const adminRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS));
+		await setPerms(guild, adminRoles, adminCommands, true);
+
 		// Add manage emojis commands role perm
-		guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)).each(manageEmojisRole => {
-			setPerms(manageEmojisRole, manageEmojisCommands, true);
-		});
+		const manageEmojisRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS));
+		await setPerms(guild, manageEmojisRoles, manageEmojisCommands, true);
+
 	},
 };

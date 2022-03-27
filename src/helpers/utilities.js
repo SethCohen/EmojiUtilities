@@ -43,24 +43,29 @@ function sendErrorFeedback(title, error = null) {
  * 		Sets if a guild role is/isn't allowed to use a global command.
  * 		Controlled from ready.js, guildCreate.js, roleUpdate.js events, and config.js command.
  *
- * @param role			The role to set perms for.
+ * @param guild			The guild to set perms for
+ * @param rolesList		The list of roles to apply perms to
  * @param commandsList	The type of commands to set perms for (e.g. Admin commands or Manage Emoji commands)
  * @param flag			The flag to set (i.e. True or False)
  */
-function setPerms(role, commandsList, flag) {
-	// guild.commands.fetch()                       // Guild commands
-	role.client.application?.commands.fetch() // Global commands
-		.then(async commands => {
-			for (const name of commandsList) {
-				const foundCommand = await commands.find(command => command.name === name);
-				const permission = [{ id: role.id, type: 'ROLE', permission: flag }];
-				await foundCommand.permissions.add({ guild: role.guild.id, permissions: permission });
-			}
-		})
-		.catch(e => {
-			// Unable to fetch guild commands. Typically thrown when a guild hasn't re-authed the bot for application.commands scope.
-			console.error(`${role.guild.name}: ${e.toString()}`);
-		});
+async function setPerms(guild, rolesList, commandsList, flag) {
+
+	const permission = {
+		guild: guild.id,
+		permissions: [...rolesList.map(role => {
+			return {
+				id: role.id,
+				type: 'ROLE',
+				permission: flag,
+			};
+		})],
+	};
+
+	const applicationCommands = await guild.client.application.commands.fetch();
+	const foundCommands = await applicationCommands.filter(command => commandsList.includes(command.name));
+	foundCommands.forEach(async command => {
+		await command.permissions.add(permission);
+	});
 }
 
 module.exports = {

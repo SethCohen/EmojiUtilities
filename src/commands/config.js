@@ -85,22 +85,22 @@ module.exports = {
 		if (setting === 'togglecommand') {
 			const commandName = interaction.options.getString('commandname');
 
+			const guildRoles = await interaction.guild.roles.fetch();
+
 			if (adminCommands.includes(commandName)) {
-				// Sets admin commands...
-				interaction.guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR)).each(adminRole => {
-					setPerms(adminRole, adminCommands, flag);
-				});
+				// sets admin commands role perm
+				const adminRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS));
+				await setPerms(interaction.guild, adminRoles, [commandName], !!flag);
 			}
 			else if (manageEmojisCommands.includes(commandName)) {
-				// Sets manage emojis commands...
-				interaction.guild.roles.cache.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)).each(manageEmojisRole => {
-					setPerms(manageEmojisRole, manageEmojisCommands, flag);
-				});
+				// Sets manage emojis commands role perm
+				const manageEmojisRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS));
+				await setPerms(interaction.guild, manageEmojisRoles, [commandName], !!flag);
 			}
 			else {
 				// Sets @everyone commands...
 				const role = interaction.guild.roles.cache.get(interaction.guildId);
-				setPerms(role, [commandName], flag);
+				await setPerms(interaction.guild, [role], [commandName], !!flag);
 			}
 
 			embedSuccess.setTitle(`\`/${commandName}\` ${flag ? 'enabled' : 'disabled'}.`);
