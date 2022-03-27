@@ -1,6 +1,6 @@
 const { createDatabase } = require('../helpers/dbModel');
-const { Permissions } = require('discord.js');
-const { manageEmojisCommands, adminCommands, setPerms } = require('../helpers/utilities');
+const { Permissions, MessageEmbed } = require('discord.js');
+const { manageEmojisCommands, adminCommands, setPerms, mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
 	name: 'guildCreate',
@@ -12,19 +12,27 @@ module.exports = {
 
 		createDatabase(guild.id);
 
-		/* // Send greeting
-		const channels = await guild.channels.cache;
-		const foundChannel = await channels.find(channel => (channel.isText()
-			&& channel.permissionsFor(guild.me).has('SEND_MESSAGES')
-			&& channel.permissionsFor(guild.me).has('VIEW_CHANNEL')));
-		if (foundChannel) {
-			foundChannel.send('Hey, thanks for adding me to your server! ' +
-				'\nThere\'s no need to do anything else, the database has been setup for you.' +
-				'\nUse `/` to access the list of commands. Thanks again and have a nice day!');
-		}
-		else {
-			console.error('No channel access found. Welcome message not sent.');
-		}*/
+		// Send greeting
+		const embed = new MessageEmbed()
+			.setTitle('Hello! Nice to meet you!')
+			.setDescription(mediaLinks + '\n\nThanks For Adding Me To Your Server!\nDon\'t worry, everything has been setup for you.\nDo `/help` for a list of commands and if you have any issues or questions, feel free to join our support server.\n\nThanks again and have a nice day! 🙂');
+
+		const publicUpdatesChannel = await guild.publicUpdatesChannel;
+		publicUpdatesChannel
+			.send({ embeds: [embed] })
+			.catch(async error => {
+				console.error(`Can't post to public updates channel in ${guild.name}: ${error.message}\nDefaulting to first available text channel.`);
+				const channels = await guild.channels.cache;
+				const foundChannel = await channels.find(channel => (channel.isText()
+					&& channel.permissionsFor(guild.me).has('SEND_MESSAGES')
+					&& channel.permissionsFor(guild.me).has('VIEW_CHANNEL')));
+				if (foundChannel) {
+					foundChannel.send({ embeds: [embed] });
+				}
+				else {
+					console.error('No channel access found. Welcome message not sent.');
+				}
+			});
 
 		const guildRoles = await guild.roles.fetch();
 
