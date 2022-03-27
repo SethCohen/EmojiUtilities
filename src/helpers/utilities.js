@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const adminCommands = ['config', 'resetdb'];
+const adminCommands = ['config', 'resetdb', 'lockemoji'];
 const manageEmojisCommands = ['copysteal', 'removeunused', 'renameemoji', 'stickerfy', 'uploademoji'];
 const mediaLinks = '[Vote for Emoji Utilities!](https://top.gg/bot/757326308547100712/vote) | [Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities)';
 
@@ -7,7 +7,7 @@ const mediaLinks = '[Vote for Emoji Utilities!](https://top.gg/bot/7573263085471
  *		Pattern matches a string formatted emoji to verify if it is in fact an emoji.
  *
  * @param input 	The string emoji
- * @returns {*}		Returns either null or a regex object
+ * @returns {*}		Returns either null or a regex object of [0] whole match, [1] isAnimated, [2] name, [3] id
  */
 function verifyEmojiString(input) {
 	const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
