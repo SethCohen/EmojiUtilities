@@ -2,10 +2,29 @@
 
 ## Upcoming
 
-- Emoji Locking; Ability for an Administrator to set an emoji to be role-specific.
 - Add error catching for axios emoji.gg api in case website is down.
 
 ---
+
+## v1.11.0 - 2022-03-26
+
+### Added
+
+- `/lockemoji` Admin-only command. Restricts a specified emoji so only the specified role can use
+  it. [[6a9e92a]](https://github.com/SethCohen/EmojiUtilities/commit/6a9e92a32860c50c6c719ee1cf57e46ddc3974d3)
+- `/help` Prints a list of useful resources to chat, e.g. supported
+  commands. [[b2c6f98]](https://github.com/SethCohen/EmojiUtilities/commit/b2c6f98fb2bef738d1c6a9dd5bf872d06812847d)
+
+### Fixed
+
+- `/config togglecommand` Fixed error where all perm-specific slash commands got disabled instead of just the one chosen
+  command. e.g. if disabling `renameemoji`, all other Manage Emoji commands got disabled. This has been
+  fixed. [[a039166]](https://github.com/SethCohen/EmojiUtilities/commit/a0391666fe268fe0cfae16968c64e57ad78be6a0)
+- `guildCreate` `ready` `roleUpdate` Fixed error where slash commands perms were not properly being set to
+  role. [[a039166]](https://github.com/SethCohen/EmojiUtilities/commit/a0391666fe268fe0cfae16968c64e57ad78be6a0)
+- `/stickerfy` Fixed uncaught upload error max filesize exceeded error. Now throws a proper warning to user if output
+  sticker apng is too large to upload to
+  server. [[98cc98a]](https://github.com/SethCohen/EmojiUtilities/commit/98cc98a55d5fdb5a27622ac3d6d14c68732dd181)
 
 ## v1.10.5 - 2022-03-20
 
