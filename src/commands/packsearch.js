@@ -109,6 +109,9 @@ module.exports = {
 							case 'Maximum number of emojis reached (50)':
 								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'No emoji slots available in server.')] });
 								break;
+							case 'Invalid Form Body\nimage: File cannot be larger than 256.0 kb.':
+								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'For some reason, even though this image is on emoji.gg, it\'s over 256kb and thus cannot be uploaded to the server.')] });
+								break;
 							default:
 								console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand.options.getString('name')}`);
 								return interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
