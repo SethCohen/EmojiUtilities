@@ -62,14 +62,12 @@ async function setPerms(guild, rolesList, commandsList, flag) {
 
 	const applicationCommands = await guild.client.application.commands.fetch();
 	const foundCommands = await applicationCommands.filter(command => commandsList.includes(command.name));
-	foundCommands.each(async command => {
-		try {
-			await command.permissions.add(permission);
-		}
-		catch (error) {
-			console.error(`Failed setting command permissions in ${guild.name}: ${error.message}`);
-		}
-	});
+
+	const listPromises = [...foundCommands.map(command => {
+		return command.permissions.add(permission);
+	})];
+
+	return Promise.all(listPromises).catch(error => console.error(`Can't set command perms. ${guild.name}: ${error.message}`));
 }
 
 module.exports = {
