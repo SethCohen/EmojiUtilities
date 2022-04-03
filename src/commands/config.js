@@ -53,8 +53,10 @@ module.exports = {
 							['emoji', 'emoji'],
 							['enlargeemoji', 'enlargeemoji'],
 							['getcount', 'getcount'],
+							['help', 'help'],
 							['leaderboard', 'leaderboard'],
 							['listemojis', 'listemojis'],
+							['lockemoji', 'lockemoji'],
 							['packsearch', 'packsearch'],
 							['random', 'random'],
 							['removeunused', 'removeunused'],
@@ -62,6 +64,7 @@ module.exports = {
 							['resetdb', 'resetdb'],
 							['search', 'search'],
 							['stickerfy', 'stickerfy'],
+							['unlockemoji', 'unlockemoji'],
 							['uploademoji', 'uploademoji'],
 						]))
 				.addBooleanOption(option =>
