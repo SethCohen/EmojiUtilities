@@ -1,4 +1,12 @@
 # Changelog
+## 1.12.0 (2022-04-03)
+
+
+### Features
+
+* added automated changelogging ([dba606c](https://github.com/SethCohen/EmojiStatistics/commit/dba606c52f5ac9400e1323e4dc1d5ffab77a3731))
+
+# Changelog
 
 ## Upcoming
 
