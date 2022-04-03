@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const adminCommands = ['config', 'resetdb', 'lockemoji'];
+const adminCommands = ['config', 'resetdb', 'lockemoji', 'unlockemoji'];
 const manageEmojisCommands = ['copysteal', 'removeunused', 'renameemoji', 'stickerfy', 'uploademoji'];
 const mediaLinks = '[Vote for Emoji Utilities!](https://top.gg/bot/757326308547100712/vote) | [Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities)';
 
