@@ -1,4 +1,16 @@
 # Changelog
+## [1.13.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.12.1...v1.13.0) (2022-04-03)
+
+
+### Features
+
+* added /unlockemoji command ([7967857](https://github.com/SethCohen/EmojiUtilities/commit/7967857aff1ee06416a978fe961cc8f09dcb3a66))
+
+
+### Bug Fixes
+
+* fixed `/config togglecommand` missing commands ([2f3e158](https://github.com/SethCohen/EmojiUtilities/commit/2f3e158326cfe83cf323f8cf7e16bcd2714c2c4d))
+
 ## [1.12.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.12.0...v1.12.1) (2022-04-03)
 
 
