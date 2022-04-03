@@ -1,4 +1,15 @@
 # Changelog
+## [1.12.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.12.0...v1.12.1) (2022-04-03)
+
+
+### Styles
+
+* restyled changelog.md ([d33d9b9](https://github.com/SethCohen/EmojiUtilities/commit/d33d9b999dc341ca0130ea6a97648c80ecc07adc))
+
+
+### Removed
+
+* deprecated prefix ES command usage warning ([65c001c](https://github.com/SethCohen/EmojiUtilities/commit/65c001cde504358957fae1e4a4b5cab2b7cb6984))
 
 ## 1.12.0 (2022-04-03)
 
