@@ -1,4 +1,11 @@
 # Changelog
+## [1.13.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.13.0...v1.13.1) (2022-04-04)
+
+
+### Styles
+
+* added additional line to welcome message. ([b0f8bed](https://github.com/SethCohen/EmojiUtilities/commit/b0f8bed05c776337894864a50caf5264c80378f5))
+
 ## [1.13.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.12.1...v1.13.0) (2022-04-03)
 
 
