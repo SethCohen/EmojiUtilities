@@ -13,7 +13,7 @@ module.exports = {
 			const guildRoles = await guild.roles.fetch();
 
 			// Add admin commands role perm
-			const adminRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS));
+			const adminRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR));
 			await setPerms(guild, adminRoles, adminCommands, true);
 
 			// Add manage emojis commands role perm

@@ -92,7 +92,7 @@ module.exports = {
 
 			if (adminCommands.includes(commandName)) {
 				// sets admin commands role perm
-				const adminRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS));
+				const adminRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR));
 				await setPerms(interaction.guild, adminRoles, [commandName], !!flag);
 			}
 			else if (manageEmojisCommands.includes(commandName)) {
