@@ -1,4 +1,11 @@
 # Changelog
+## [1.13.2](https://github.com/SethCohen/EmojiUtilities/compare/v1.13.1...v1.13.2) (2022-04-05)
+
+
+### Bug Fixes
+
+* fixed admin commands not being properly set. ([2b51ee2](https://github.com/SethCohen/EmojiUtilities/commit/2b51ee27c75461e86e59d3f8c794e5b840d8d83d))
+
 ## [1.13.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.13.0...v1.13.1) (2022-04-04)
 
 
