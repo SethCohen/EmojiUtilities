@@ -49,6 +49,8 @@ function sendErrorFeedback(title, error = null) {
  * @param flag			The flag to set (i.e. True or False)
  */
 async function setPerms(guild, rolesList, commandsList, flag) {
+	if (rolesList.size >= 100) return console.log(`Server ${guild.name} has too many roles to set perms. `); // TODO find fix for too many roles per server.
+
 	const permission = {
 		guild: guild.id,
 		permissions: [...rolesList.map(role => {
