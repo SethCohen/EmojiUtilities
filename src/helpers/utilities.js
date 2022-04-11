@@ -1,6 +1,4 @@
 const { MessageEmbed } = require('discord.js');
-const adminCommands = ['config', 'resetdb', 'lockemoji', 'unlockemoji'];
-const manageEmojisCommands = ['copysteal', 'removeunused', 'renameemoji', 'stickerfy', 'uploademoji'];
 const mediaLinks = '[Vote for Emoji Utilities!](https://top.gg/bot/757326308547100712/vote) | [Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities)';
 
 /** verifyEmojiString
@@ -39,39 +37,6 @@ function sendErrorFeedback(title, error = null) {
 		.setDescription(`**${error ? error : unknownError}**\n\nThink this error wasn't supposed to happen?\nTry joining our [support server](https://discord.gg/XaeERFAVfb) for help!`);
 }
 
-/**	setPerms
- * 		Sets if a guild role is/isn't allowed to use a global command.
- * 		Controlled from ready.js, guildCreate.js, roleUpdate.js events, and config.js command.
- *
- * @param guild			The guild to set perms for
- * @param rolesList		The list of roles to apply perms to
- * @param commandsList	The type of commands to set perms for (e.g. Admin commands or Manage Emoji commands)
- * @param flag			The flag to set (i.e. True or False)
- */
-async function setPerms(guild, rolesList, commandsList, flag) {
-	if (rolesList.size >= 100) return console.log(`Server ${guild.name} has too many roles to set perms. `); // TODO find fix for too many roles per server.
-
-	const permission = {
-		guild: guild.id,
-		permissions: [...rolesList.map(role => {
-			return {
-				id: role.id,
-				type: 'ROLE',
-				permission: flag,
-			};
-		})],
-	};
-
-	const applicationCommands = await guild.client.application.commands.fetch();
-	const foundCommands = await applicationCommands.filter(command => commandsList.includes(command.name));
-
-	const listPromises = [...foundCommands.map(command => {
-		return command.permissions.add(permission);
-	})];
-
-	return Promise.all(listPromises).catch(error => console.error(`Can't set command perms. ${guild.name}: ${error.message}`));
-}
-
 module.exports = {
-	sendErrorFeedback, setPerms, adminCommands, manageEmojisCommands, mediaLinks, verifyEmojiString,
+	sendErrorFeedback, mediaLinks, verifyEmojiString,
 };

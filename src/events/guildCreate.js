@@ -1,6 +1,6 @@
 const { createDatabase } = require('../helpers/dbModel');
-const { Permissions, MessageEmbed } = require('discord.js');
-const { manageEmojisCommands, adminCommands, setPerms, mediaLinks } = require('../helpers/utilities');
+const { MessageEmbed } = require('discord.js');
+const { mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
 	name: 'guildCreate',
@@ -33,16 +33,5 @@ module.exports = {
 					console.error('No channel access found. Welcome message not sent.');
 				}
 			});
-
-		const guildRoles = await guild.roles.fetch();
-
-		// Add admin commands role perm
-		const adminRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR));
-		await setPerms(guild, adminRoles, adminCommands, true);
-
-		// Add manage emojis commands role perm
-		const manageEmojisRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS));
-		await setPerms(guild, manageEmojisRoles, manageEmojisCommands, true);
-
 	},
 };

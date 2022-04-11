@@ -14,8 +14,7 @@ module.exports = {
 		.addRoleOption(option =>
 			option.setName('role')
 				.setDescription('The role that has access to the emoji.')
-				.setRequired(true))
-		.setDefaultPermission(false),
+				.setRequired(true)),
 	async execute(interaction) {
 		if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
 			return interaction.reply({

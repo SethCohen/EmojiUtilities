@@ -21,12 +21,18 @@ const actionButtons = (state) => {
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('removeunused')
-		.setDefaultPermission(false)
 		.setDescription('Removes one or more of the least used emojis')
 		.addIntegerOption(option =>
 			option.setName('number')
 				.setDescription('How many emojis to remove. Default: 1')),
 	async execute(interaction) {
+		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+			return interaction.reply({
+				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+				ephemeral: true,
+			});
+		}
+
 		await interaction.deferReply();
 
 		const number = interaction.options.getInteger('number') ? interaction.options.getInteger('number') : 1;

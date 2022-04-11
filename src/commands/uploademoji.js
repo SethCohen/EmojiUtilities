@@ -10,7 +10,6 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('uploademoji')
 		.setDescription('Uploads a given url as an emoji.')
-		.setDefaultPermission(false)
 		.addStringOption(option =>
 			option.setName('url')
 				.setDescription('The url of the emoji to upload.')
@@ -20,15 +19,14 @@ module.exports = {
 			option.setName('name')
 				.setDescription('Name for the emoji')),
 	async execute(interaction) {
-		await interaction.deferReply();
-
-		// Checks for valid permissions
 		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 			return interaction.editReply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
 			});
 		}
+
+		await interaction.deferReply();
 
 		const url = interaction.options.getString('url');
 		const randGenName = Math.random().toString(36).substring(2, 10);

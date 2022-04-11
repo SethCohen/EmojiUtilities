@@ -6,7 +6,6 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('renameemoji')
 		.setDescription('Renames a specified custom emoji.')
-		.setDefaultPermission(false)
 		.addStringOption(option =>
 			option.setName('emoji')
 				.setDescription('The emoji to rename.')

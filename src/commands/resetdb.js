@@ -21,8 +21,7 @@ const actionButtons = (state) => {
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('resetdb')
-		.setDescription('Clears your server\'s databases.')
-		.setDefaultPermission(false),
+		.setDescription('Clears your server\'s databases.'),
 	async execute(interactionCommand) {
 		if (!interactionCommand.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
 			return interactionCommand.reply({

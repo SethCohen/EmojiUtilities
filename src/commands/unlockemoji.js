@@ -10,8 +10,7 @@ module.exports = {
 			option.setName('emoji')
 				.setDescription('The emoji to unlock.')
 				.setRequired(true),
-		)
-		.setDefaultPermission(false),
+		),
 	async execute(interaction) {
 		if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
 			return interaction.reply({

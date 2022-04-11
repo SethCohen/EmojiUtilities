@@ -1,13 +1,28 @@
 const { setSetting } = require('../helpers/dbModel');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { Permissions, MessageEmbed } = require('discord.js');
-const { setPerms, adminCommands, manageEmojisCommands, mediaLinks } = require('../helpers/utilities');
+const { mediaLinks } = require('../helpers/utilities');
+
+const setCommandAvailability = async (guild, commandName, flag) => {
+	const applicationCommands = await guild.client.application.commands.fetch();
+	const foundCommand = await applicationCommands.filter(command => command.name === commandName);
+
+	const permission = {
+		guild: guild.id,
+		permissions: {
+			id: guild.id,
+			type: 'ROLE',
+			permission: flag,
+		},
+	};
+
+	return foundCommand.first().permissions.add(permission);
+};
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('config')
 		.setDescription('Change various bot functionalities.')
-		.setDefaultPermission(false)
 		.addSubcommand(subcommand =>
 			subcommand.setName('countmessages')
 				.setDescription('Allows bot to count reactions. Default: true')
@@ -87,24 +102,7 @@ module.exports = {
 
 		if (setting === 'togglecommand') {
 			const commandName = interaction.options.getString('commandname');
-
-			const guildRoles = await interaction.guild.roles.fetch();
-
-			if (adminCommands.includes(commandName)) {
-				// sets admin commands role perm
-				const adminRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.ADMINISTRATOR));
-				await setPerms(interaction.guild, adminRoles, [commandName], !!flag);
-			}
-			else if (manageEmojisCommands.includes(commandName)) {
-				// Sets manage emojis commands role perm
-				const manageEmojisRoles = await guildRoles.filter(role => role.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS));
-				await setPerms(interaction.guild, manageEmojisRoles, [commandName], !!flag);
-			}
-			else {
-				// Sets @everyone commands...
-				const role = interaction.guild.roles.cache.get(interaction.guildId);
-				await setPerms(interaction.guild, [role], [commandName], !!flag);
-			}
+			await setCommandAvailability(interaction.guild, commandName, !!flag);
 
 			embedSuccess.setTitle(`\`/${commandName}\` ${flag ? 'enabled' : 'disabled'}.`);
 			return interaction.editReply({ embeds: [embedSuccess] });

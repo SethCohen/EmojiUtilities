@@ -55,7 +55,6 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stickerfy')
 		.setDescription('Turns a given gif url into a sticker and adds it to server.')
-		.setDefaultPermission(false)
 		.addStringOption(option =>
 			option.setName('url')
 				.setDescription('The url of the gif to turn into a sticker.')
@@ -70,15 +69,14 @@ module.exports = {
 				.setDescription('The Discord unicode emoji to represent the sticker.')
 				.setRequired(true)),
 	async execute(interaction) {
-		await interaction.deferReply();
-
-		// Checks for valid permissions
 		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 			return interaction.editReply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
 			});
 		}
+
+		await interaction.deferReply();
 
 		const url = interaction.options.getString('url');
 		const name = interaction.options.getString('name');
