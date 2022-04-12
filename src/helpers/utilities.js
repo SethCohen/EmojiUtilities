@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const mediaLinks = '[Vote for Emoji Utilities!](https://top.gg/bot/757326308547100712/vote) | [Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities)';
+const mediaLinks = '[Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities)';
 
 /** verifyEmojiString
  *		Pattern matches a string formatted emoji to verify if it is in fact an emoji.
