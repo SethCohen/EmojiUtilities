@@ -1,4 +1,34 @@
 # Changelog
+## [1.14.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.13.2...v1.14.0) (2022-04-12)
+
+
+### Features
+
+* added `.png` and `.jpeg` support to `/stickerfy` ([651c39c](https://github.com/SethCohen/EmojiUtilities/commit/651c39c4995a54cbb69d6deb6cbc165952f4401d))
+
+
+### Bug Fixes
+
+* fixed welcome message throwing error on no public updates channel found. ([4e3017c](https://github.com/SethCohen/EmojiUtilities/commit/4e3017c20aceef8a82f9cd2bdc5042df99550385))
+
+
+### Code Refactoring
+
+* added check for too many roles perm set ([e1cf958](https://github.com/SethCohen/EmojiUtilities/commit/e1cf958b095dac1760ca7265257231ef0b5dfea8))
+* refactored stickerfy efficacy ([54785b9](https://github.com/SethCohen/EmojiUtilities/commit/54785b90e8f4774850a6b10e4cce6e038b8aa0a9))
+
+
+### Removed
+
+* removed default slash command permissions ([2f17ef7](https://github.com/SethCohen/EmojiUtilities/commit/2f17ef7ba03b3a45453fdd99bd07db25b7c5db4f))
+* tinify api ([1b5a5c7](https://github.com/SethCohen/EmojiUtilities/commit/1b5a5c711dfc3460f0457be288f8111539781b39))
+
+
+### Styles
+
+* changed bot status message ([fe06ce0](https://github.com/SethCohen/EmojiUtilities/commit/fe06ce0db8d8ecde7962ab927ae2ca695a6995a2))
+* removed top.gg link from bot media links. ([dd7ea7b](https://github.com/SethCohen/EmojiUtilities/commit/dd7ea7b64944d643709b0477dac7b4aa0501bbc3))
+
 ## [1.13.2](https://github.com/SethCohen/EmojiUtilities/compare/v1.13.1...v1.13.2) (2022-04-05)
 
 
