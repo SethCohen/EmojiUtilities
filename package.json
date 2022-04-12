@@ -14,15 +14,15 @@
     "@discordjs/builders": "^0.12.0",
     "@discordjs/rest": "^0.3.0",
     "archiver": "^5.3.0",
-    "axios": "^0.25.0",
-    "better-sqlite3": "^7.5.0",
-    "discord-api-types": "^0.26.1",
-    "discord-emoji-converter": "^1.2.3",
+    "axios": "^0.26.1",
+    "better-sqlite3": "^7.5.1",
+    "discord-api-types": "^0.31.1",
+    "discord-emoji-converter": "^1.2.5",
     "discord.js": "^13.6.0",
     "image-type": "^4.1.0",
     "ms": "^2.1.3",
-    "npm-check-updates": "^12.5.4",
-    "pm2": "^5.1.2",
+    "npm-check-updates": "^12.5.8",
+    "pm2": "^5.2.0",
     "replace": "^1.2.1",
     "request": "^2.88.2",
     "sharp": "^0.30.3",
@@ -30,7 +30,7 @@
     "string-similarity": "^4.0.4"
   },
   "devDependencies": {
-    "eslint": "^8.8.0"
+    "eslint": "^8.13.0"
   },
   "standard-version": {
     "scripts": {
