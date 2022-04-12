@@ -8,6 +8,32 @@ const converter = require('discord-emoji-converter');
 const imageType = require('image-type');
 const sharp = require('sharp');
 
+const uploadEmoji = (interaction, input, name, tag) => {
+	return interaction.guild.stickers.create(input, name, tag)
+		.then(async sticker => {
+			await interaction.editReply({
+				content: `Created new sticker with name **${sticker.name}**!`,
+			});
+		})
+		.catch(async error => {
+			console.error(error);
+			switch (error.message) {
+			case 'Maximum number of stickers reached (0)':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+				break;
+			case 'Missing Permissions':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
+				break;
+			case 'Asset exceeds maximum size: 33554432':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker to server. Output image is too large to upload to server. Try again with a more optimized gif.')] });
+				break;
+			default:
+				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+			}
+		});
+};
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stickerfy')
@@ -49,9 +75,34 @@ module.exports = {
 
 			switch (imageType(buffer).ext) {
 			case 'png': {
+				await sharp(buffer)
+					.resize(320, 320, { fit: 'contain' })
+					.toFile(`${path}.png`);
+
+				uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
+					fs.unlink(`${path}.png`, (err) => {
+						if (err) {
+							console.error(`Unable to delete image: ${err}`);
+						}
+					});
+				});
+
 				break;
 			}
 			case 'jpg': {
+				await sharp(buffer)
+					.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+					.png()
+					.toFile(`${path}.png`);
+
+				uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
+					fs.unlink(`${path}.png`, (err) => {
+						if (err) {
+							console.error(`Unable to delete image: ${err}`);
+						}
+					});
+				});
+
 				break;
 			}
 			case 'gif': {
@@ -65,40 +116,18 @@ module.exports = {
 						if (execError) throw execError;
 						if (stderr) console.error(stderr);
 
-						interaction.guild.stickers.create(`${path}.png`, name, tag)
-							.then(sticker => {
-								interaction.editReply({
-									content: `Created new sticker with name **${sticker.name}**!`,
-								});
-							})
-							.catch(error => {
-								switch (error.message) {
-								case 'Maximum number of stickers reached (0)':
-									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
-									break;
-								case 'Missing Permissions':
-									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
-									break;
-								case 'Asset exceeds maximum size: 33554432':
-									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker to server. Output image is too large to upload to server. Try again with a more optimized gif.')] });
-									break;
-								default:
-									console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
-									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+						uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
+							fs.unlink(`${path}.gif`, (err) => {
+								if (err) {
+									console.error(`Unable to delete image: ${err}`);
 								}
-							})
-							.finally(() => {
-								fs.unlink(`${path}.gif`, (err) => {
-									if (err) {
-										console.error(`Unable to delete image: ${err}`);
-									}
-								});
-								fs.unlink(`${path}.png`, (err) => {
-									if (err) {
-										console.error(`Unable to delete image: ${err}`);
-									}
-								});
 							});
+							fs.unlink(`${path}.png`, (err) => {
+								if (err) {
+									console.error(`Unable to delete image: ${err}`);
+								}
+							});
+						});
 					});
 
 				break;
