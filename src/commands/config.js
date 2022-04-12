@@ -9,11 +9,11 @@ const setCommandAvailability = async (guild, commandName, flag) => {
 
 	const permission = {
 		guild: guild.id,
-		permissions: {
+		permissions: [{
 			id: guild.id,
 			type: 'ROLE',
 			permission: flag,
-		},
+		}],
 	};
 
 	return foundCommand.first().permissions.add(permission);
