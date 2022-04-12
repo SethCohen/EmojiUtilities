@@ -1,4 +1,11 @@
 # Changelog
+## [1.14.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.14.0...v1.14.1) (2022-04-12)
+
+
+### Bug Fixes
+
+* fixed `/config togglecommand` not properly toggling commands. ([d7d4d12](https://github.com/SethCohen/EmojiUtilities/commit/d7d4d1236142ebb028e96fad24d5ab119d5e1e93))
+
 ## [1.14.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.13.2...v1.14.0) (2022-04-12)
 
 
