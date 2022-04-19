@@ -1,4 +1,22 @@
 # Changelog
+## [1.15.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.14.1...v1.15.0) (2022-04-19)
+
+
+### Features
+
+* added emoji id and emoji name support to `/unlockemoji` ([859871a](https://github.com/SethCohen/EmojiUtilities/commit/859871ae96f8664be0b8388a243be946f88a294c))
+* added pm2 config ([b76b3a5](https://github.com/SethCohen/EmojiUtilities/commit/b76b3a5c3d243268b0da90eff6b9589be18cbf00))
+
+
+### Bug Fixes
+
+* fixed `unlockemoji` error on invalid emoji input with non-server emoji. ([877eb1e](https://github.com/SethCohen/EmojiUtilities/commit/877eb1ea6ccba05d7b17049c245d9dbd8db3d77c))
+
+
+### Code Refactoring
+
+* moved databases location ([dc685fa](https://github.com/SethCohen/EmojiUtilities/commit/dc685fabcfd5329d431436d25872c15a173f0c0e))
+
 ## [1.14.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.14.0...v1.14.1) (2022-04-12)
 
 
