@@ -8,3 +8,4 @@ src/commands/test.py
 /backups/
 /src/helpers/updateDatabases.js
 ecosystem.config.js
+/databases/
