@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "deploy": "node src/helpers/deployCommands.js",
-    "server": "pm2 start ecosystem.config.js",
+    "start-server": "pm2 start ecosystem.config.js",
     "release": "standard-version",
     "postrelease": "git push --follow-tags origin master"
   },
