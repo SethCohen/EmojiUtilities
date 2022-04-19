@@ -8,7 +8,7 @@ module.exports = {
 		.setDescription('Unlocks a specified emoji so it is accessible to everyone')
 		.addStringOption(option =>
 			option.setName('emoji')
-				.setDescription('The emoji to unlock.')
+				.setDescription('The emoji to unlock. Can be either emoji object, emoji name, or emoji id.')
 				.setRequired(true),
 		),
 	async execute(interaction) {
@@ -25,8 +25,10 @@ module.exports = {
 		const verifiedEmoji = verifyEmojiString(stringEmoji);
 
 		try {
-			const emoji = await interaction.guild.emojis.fetch(verifiedEmoji[3]);
-			emoji.edit({ roles: [`${interaction.guild.id}`] })
+			const findEmoji = await interaction.guild.emojis.cache.find(emoji => emoji.name === stringEmoji || emoji.id === stringEmoji);
+			const foundEmoji = findEmoji ? findEmoji : await interaction.guild.emojis.fetch(verifiedEmoji[3]);
+
+			foundEmoji.edit({ roles: [`${interaction.guild.id}`] })
 				.then(editedEmoji => {
 					const embed = new MessageEmbed()
 						.setTitle(`Unlocked ${editedEmoji} for role everyone.`)
@@ -47,9 +49,14 @@ module.exports = {
 		}
 		catch (e) {
 			switch (e.message) {
+			case 'Cannot read properties of null (reading \'3\')':
+				await interaction.editReply({
+					embeds: [sendErrorFeedback(interaction.commandName, 'Invalid input. No such server emoji found. Please try again.')],
+				});
+				break;
 			case 'Unknown Emoji':
 				await interaction.editReply({
-					embeds: [sendErrorFeedback(interaction.commandName, 'Non-server emoji specified in field `emoji`.\nPlease try again with an emoji from this server.')],
+					embeds: [sendErrorFeedback(interaction.commandName, 'Invalid input. No such server emoji found. Please try again.')],
 				});
 				break;
 			default:
