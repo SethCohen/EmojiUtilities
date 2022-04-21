@@ -2,14 +2,13 @@
 
 ## A Discord Bot for all your custom emoji-related tools, utilities, and info in one convenient bot.
 
-<p align="center"> <a href="https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=1074129984&scope=bot%20applications.commands">Invite To Server</a> | <a href="https://top.gg/bot/757326308547100712/vote">Vote For Emoji Utilities!</a> | <a href="https://sethdev.ca/support-me">Support Me</a> | <a href="https://discord.gg/XaeERFAVfb">Server</a> | <a href="https://github.com/SethCohen/EmojiUtilities">Github</a></p>
+<p align="center"> <a href="https://discord.com/api/oauth2/authorize?client_id=757326308547100712&permissions=1074129984&scope=bot%20applications.commands">Invite To Server</a> | <a href="https://sethdev.ca/portfolio/programming/emojiutilities/privacy/">Privacy Policy</a> | <a href="https://sethdev.ca/support-me">Donate</a> | <a href="https://discord.gg/XaeERFAVfb">Support Server</a> | <a href="https://github.com/SethCohen/EmojiUtilities/wiki">Documentation</a></p>
 
 ### Table Of Contents
 
 - [Intro](#some-things-the-bot-can-do)
 - [How To Use](#how-to-use)
 - [Supported Commands](#supported-commands)
-- [Documentation](#documentation)
 
 ---
 
@@ -36,8 +35,4 @@ use custom emotes, those get added to your server's database and you can query t
 
 ## Supported Commands:
 
-![](https://i.imgur.com/yt6P22D.png)
-
-## Documentation:
-
-All documentation has been moved to the [Wiki page](https://github.com/SethCohen/EmojiUtilities/wiki)
+![](https://i.imgur.com/177V8Nu.png)
