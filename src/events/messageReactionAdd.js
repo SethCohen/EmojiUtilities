@@ -1,4 +1,4 @@
-const { insertToDb } = require('../helpers/dbModel');
+const { insertToDb, getOpt } = require('../helpers/dbModel');
 const { getSetting } = require('../helpers/dbModel');
 
 module.exports = {
@@ -44,8 +44,10 @@ module.exports = {
 							.fetch(messageReaction.emoji.id)
 							.then(emoji => {
 								// console.log(emoji)
-								insertToDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionAdd');
-								insertToDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionAdd');
+
+								// If users have not opted out of logging...
+								if (getOpt(guildId, messageAuthorId)) insertToDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionAdd');
+								if (getOpt(guildId, reactionAuthorId)) insertToDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionAdd');
 							})
 							.catch(ignoreError => {
 								// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)

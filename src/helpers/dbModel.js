@@ -15,6 +15,7 @@ function createDatabase(guildId) {
 		'CREATE TABLE IF NOT EXISTS reactsSentActivity(emoji TEXT, user TEXT, datetime TEXT)',
 		'CREATE TABLE IF NOT EXISTS reactsReceivedActivity(emoji TEXT, user TEXT, datetime TEXT)',
 		'CREATE TABLE IF NOT EXISTS serverSettings(setting TEXT UNIQUE, flag INTEGER)',
+		'CREATE TABLE IF NOT EXISTS usersOpt(user TEXT UNIQUE, flag INTEGER)',
 	].map(sql => db.prepare(sql));
 
 	for (const createStatement of createStatements) {
@@ -480,6 +481,63 @@ function getEmojiTotalCount(guildId, emojiId) {
 
 }
 
+/**	getOpt
+ * 		Returns whether user has opted-in (true) or opted-out (false) of emoji usage logging.
+ * @param guildId       The server the record is associated with.
+ * @param userId    	The user to query for.
+ * @returns {*|number|OpenMode|string|boolean}	A truthy value of user opt-in/out.
+ */
+function getOpt(guildId, userId) {
+	const db = new Database(`./databases/${guildId}.sqlite`);
+	const statement = db.prepare('SELECT flag FROM usersOpt WHERE user = ?');
+	try {
+		return statement.get(userId).flag;
+	}
+	catch (e) {
+		return true;
+	}
+	finally {
+		db.close();
+	}
+}
+
+/**	setOpt
+ * 		Sets user opt-in/out from emoji usage logging.
+ * @param guildId       The server the record is associated with.
+ * @param userId    	The user to set flag for.
+ * @param flag			The flag state to set.
+ */
+function setOpt(guildId, userId, flag) {
+	const db = new Database(`./databases/${guildId}.sqlite`);
+	const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
+	statement.run({
+		user: userId,
+		flag: Number(flag),
+	});
+	db.close();
+}
+
+/**	clearUserFromDb
+ * 		Removes all records of a user from the emoji usage logging databases.
+ * @param guildId	The guild to remove the user from.
+ * @param userId	The user to remove records of.
+ */
+function clearUserFromDb(guildId, userId) {
+	const db = new Database(`./databases/${guildId}.sqlite`);
+
+	const statements = [
+		'DELETE FROM messageActivity WHERE user = @user',
+		'DELETE FROM reactsSentActivity WHERE user = @user',
+		'DELETE FROM reactsReceivedActivity WHERE user = @user',
+	].map(sql => db.prepare(sql));
+
+	for (const statement of statements) {
+		statement.run({ user: userId });
+	}
+
+	db.close();
+}
+
 module.exports = {
 	createDatabase,
 	deleteFromDb,
@@ -491,4 +549,7 @@ module.exports = {
 	setSetting,
 	resetDb,
 	getEmojiTotalCount,
+	getOpt,
+	setOpt,
+	clearUserFromDb,
 };

@@ -1,4 +1,4 @@
-const { deleteFromDb } = require('../helpers/dbModel');
+const { deleteFromDb, getOpt } = require('../helpers/dbModel');
 const { getSetting } = require('../helpers/dbModel');
 
 module.exports = {
@@ -36,7 +36,8 @@ module.exports = {
 						message.guild.emojis
 							.fetch(emoji[3])
 							.then(fetchedEmoji => {
-								deleteFromDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageDeleteBulk - message');
+								// If users have not opted out of logging...
+								if (getOpt(guildId, messageAuthorId)) deleteFromDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageDeleteBulk - message');
 							})
 							.catch(ignoreError => {
 								// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
@@ -58,8 +59,9 @@ module.exports = {
 						reaction.users.cache.each(user => {
 							// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
 							if (!(messageAuthorId === user.id) || getSetting(guildId, 'countselfreacts')) { // Check server flag for if counting self-reacts for emoji usage is allowed
-								deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, 'reactsSentActivity', 'messageDeleteBulk - reaction:Sent');
-								deleteFromDb(guildId, reaction.emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageDeleteBulk - reaction:Given');
+								// If users have not opted out of logging...
+								if (getOpt(guildId, user.id)) deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, 'reactsSentActivity', 'messageDeleteBulk - reaction:Sent');
+								if (getOpt(guildId, messageAuthorId)) deleteFromDb(guildId, reaction.emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageDeleteBulk - reaction:Given');
 							}
 						});
 					});

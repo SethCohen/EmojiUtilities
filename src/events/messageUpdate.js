@@ -1,4 +1,4 @@
-const { insertToDb } = require('../helpers/dbModel');
+const { insertToDb, getOpt } = require('../helpers/dbModel');
 const { deleteFromDb } = require('../helpers/dbModel');
 const { getSetting } = require('../helpers/dbModel');
 
@@ -38,7 +38,9 @@ module.exports = {
 			for (const emoji of emojisBefore) {
 				oldMessage.guild.emojis
 					.fetch(emoji[3])
-					.then(fetchedEmoji => deleteFromDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageUpdate'))
+					.then(fetchedEmoji => {
+						if (getOpt(guildId, messageAuthorId)) deleteFromDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageUpdate');
+					})
 					.catch(ignoreError => {
 						// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
 					});
@@ -48,7 +50,9 @@ module.exports = {
 			for (const emoji of emojisAfter) {
 				newMessage.guild.emojis
 					.fetch(emoji[3])
-					.then(fetchedEmoji => insertToDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageUpdate'))
+					.then(fetchedEmoji => {
+						if (getOpt(guildId, messageAuthorId)) insertToDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageUpdate');
+					})
 					.catch(ignoreError => {
 						// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
 					});

@@ -1,4 +1,4 @@
-const { deleteFromDb } = require('../helpers/dbModel');
+const { deleteFromDb, getOpt } = require('../helpers/dbModel');
 const { getSetting } = require('../helpers/dbModel');
 
 module.exports = {
@@ -44,8 +44,10 @@ module.exports = {
 							.fetch(messageReaction.emoji.id)
 							.then(emoji => {
 								// console.log(emoji)
-								deleteFromDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionRemove');
-								deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionRemove');
+
+								// If users have not opted out of logging...
+								if (getOpt(guildId, messageAuthorId)) deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionRemove');
+								if (getOpt(guildId, reactionAuthorId)) deleteFromDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionRemove');
 							})
 							.catch(ignoreError => {
 								// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
