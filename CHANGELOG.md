@@ -1,4 +1,11 @@
 # Changelog
+## [1.16.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.15.0...v1.16.0) (2022-04-21)
+
+
+### Features
+
+* added `/optself` so user can now opt in/out of emoji usage logging. ([517c30d](https://github.com/SethCohen/EmojiUtilities/commit/517c30dc835801e8fdf114da2c75890c91bcf6a3))
+
 ## [1.15.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.14.1...v1.15.0) (2022-04-19)
 
 
