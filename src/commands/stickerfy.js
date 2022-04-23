@@ -66,7 +66,7 @@ module.exports = {
 		let tag = interaction.options.getString('tag');
 
 		try {
-			const dir = '../temps';
+			const dir = './temps';
 			if (!fs.existsSync(dir)) {
 				fs.mkdirSync(dir);
 			}

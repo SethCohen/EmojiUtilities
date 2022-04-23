@@ -33,7 +33,7 @@ module.exports = {
 		const name = interaction.options.getString('name') ? interaction.options.getString('name') : randGenName;
 
 		try {
-			const dir = '../temps';
+			const dir = './temps';
 			if (!fs.existsSync(dir)) {
 				fs.mkdirSync(dir);
 			}

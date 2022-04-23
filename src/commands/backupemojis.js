@@ -6,7 +6,7 @@ const { MessageEmbed } = require('discord.js');
 const { mediaLinks } = require('../helpers/utilities');
 
 const createZip = async (interaction) => {
-	const dir = '../temps';
+	const dir = './temps';
 	if (!fs.existsSync(dir)) {
 		fs.mkdirSync(dir);
 	}
