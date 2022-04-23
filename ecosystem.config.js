@@ -3,6 +3,6 @@ module.exports = {
 		name: 'EmojiUtilities',
 		script: './src/index.js',
 		watch: ['src'],
-		ignore_watch: ['node_modules', 'databases'],
+		ignore_watch: ['node_modules', 'databases', 'temps'],
 	}],
 };

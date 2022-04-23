@@ -33,11 +33,16 @@ module.exports = {
 		const name = interaction.options.getString('name') ? interaction.options.getString('name') : randGenName;
 
 		try {
+			const dir = '../temps';
+			if (!fs.existsSync(dir)) {
+				fs.mkdirSync(dir);
+			}
+
 			const response = await axios.get(url, { responseType: 'arraybuffer' });
 			const buffer = Buffer.from(response.data, 'utf-8');
 			const bytes = response.headers['content-length'];
 			const filename = Math.random().toString(36).substring(2, 10);
-			let path = `./src/temps/${filename}`;
+			let path = `${dir}/${filename}`;
 
 			// Checks if url is an image and sets temp file path if image needs processing
 			if (imageType(buffer)) {

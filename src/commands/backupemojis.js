@@ -6,7 +6,11 @@ const { MessageEmbed } = require('discord.js');
 const { mediaLinks } = require('../helpers/utilities');
 
 const createZip = async (interaction) => {
-	const dirPath = `./src/temps/${interaction.guildId}_emojis`;
+	const dir = '../temps';
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir);
+	}
+	const dirPath = `${dir}/${interaction.guildId}_emojis`;
 	const output = fs.createWriteStream(dirPath + '.zip');
 	const archive = archiver('zip');
 

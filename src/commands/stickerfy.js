@@ -66,12 +66,17 @@ module.exports = {
 		let tag = interaction.options.getString('tag');
 
 		try {
+			const dir = '../temps';
+			if (!fs.existsSync(dir)) {
+				fs.mkdirSync(dir);
+			}
+
 			tag = converter.getShortcode(tag, false);		// Convert unicode emoji to discord string name
 
 			const response = await axios.get(url, { responseType: 'arraybuffer' });
 			const buffer = Buffer.from(response.data, 'utf-8');
 			const filename = Math.random().toString(36).substring(2, 10);
-			const path = `./src/temps/${filename}`;
+			const path = `${dir}/${filename}`;
 
 			switch (imageType(buffer).ext) {
 			case 'png': {
