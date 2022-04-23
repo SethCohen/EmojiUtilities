@@ -35,7 +35,10 @@ module.exports = {
 
 		let data;
 		if (nsfw) {
-			if (getSetting(interactionCommand.guildId, 'allownsfw')) {
+			if (!interactionCommand.channel.nsfw) {
+				return interactionCommand.editReply({ content: 'Sorry, but NSFW content is only allowed NSFW channels.' });
+			}
+			else if (getSetting(interactionCommand.guildId, 'allownsfw')) {
 				data = response.data;
 			}
 			else {

@@ -68,7 +68,10 @@ module.exports = {
 
 		let data;
 		if (nsfw) {	// Checks if user is searching for nsfw emojis
-			if (getSetting(interaction.guildId, 'allownsfw')) {	// Checks server flag for if searching for nsfw emojis are allowed
+			if (!interaction.channel.nsfw) {
+				return interaction.editReply({ content: 'Sorry, but NSFW content is only allowed NSFW channels.' });
+			}
+			else if (getSetting(interaction.guildId, 'allownsfw')) {	// Checks server flag for if searching for nsfw emojis are allowed
 				await interaction.editReply({
 					content: 'Including NSFW results, eh? Kinky.',
 				});
