@@ -1,4 +1,21 @@
 # Changelog
+## [1.17.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.16.0...v1.17.0) (2022-04-23)
+
+
+### Features
+
+* added NSFW-channel restriction to NSFW commands. ([e9cb882](https://github.com/SethCohen/EmojiUtilities/commit/e9cb8822f4246167b00a3cc3627f383397e64d01))
+
+
+### Bug Fixes
+
+* `/aboutemoji` fixed uncaught missing perms error ([a69a17b](https://github.com/SethCohen/EmojiUtilities/commit/a69a17bbda82ebb1f84cc4661cfc2304d23139e8))
+
+
+### Styles
+
+* updated README.md ([eede4fd](https://github.com/SethCohen/EmojiUtilities/commit/eede4fd88b9de77b6f4c970654eacbbf22ce8317))
+
 ## [1.16.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.15.0...v1.16.0) (2022-04-21)
 
 
