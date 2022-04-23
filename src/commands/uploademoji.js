@@ -20,7 +20,7 @@ module.exports = {
 				.setDescription('Name for the emoji')),
 	async execute(interaction) {
 		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
-			return interaction.editReply({
+			return interaction.reply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
 			});
