@@ -1,4 +1,12 @@
 # Changelog
+## [1.17.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.17.0...v1.17.1) (2022-04-23)
+
+
+### Code Refactoring
+
+* `/aboutemoji` changed Manage Emojis error catch to still allow command output. ([e9bff10](https://github.com/SethCohen/EmojiUtilities/commit/e9bff105891d1819c5a7140ab2114ac7cc43758d))
+* moved `temps` folder outside of `src` folder and added check for if dir exists. ([f84ce50](https://github.com/SethCohen/EmojiUtilities/commit/f84ce50cc24a6dea4ad6a7219f1d795ab979e586))
+
 ## [1.17.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.16.0...v1.17.0) (2022-04-23)
 
 
