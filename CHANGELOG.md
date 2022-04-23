@@ -1,4 +1,12 @@
 # Changelog
+## [1.17.2](https://github.com/SethCohen/EmojiUtilities/compare/v1.17.1...v1.17.2) (2022-04-23)
+
+
+### Bug Fixes
+
+* fixed `/stickerfy` and `/uploademoji` error on user not having the right permissions. ([52441c0](https://github.com/SethCohen/EmojiUtilities/commit/52441c0cd5fe5014b4351b785bc390c8c378fd30))
+* fixed `temps` filepath ([f0dd266](https://github.com/SethCohen/EmojiUtilities/commit/f0dd2664ff7b2e7e8b5ffa73016a6e12844ca4be))
+
 ## [1.17.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.17.0...v1.17.1) (2022-04-23)
 
 
