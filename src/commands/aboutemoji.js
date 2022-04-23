@@ -33,19 +33,21 @@ module.exports = {
 			return interaction.reply({ embeds: [embedSuccess] });
 		}
 		catch (error) {
-			switch (error.message) {
-			case 'Cannot read properties of null (reading \'3\')':
-				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
-				break;
-			case 'Client must have Manage Emojis and Stickers permission in guild Emoji Utilities Support to see emoji authors.':
-				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
-				break;
-			case 'Unknown Emoji':
-				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `emoji` is from another server.\nI can\'t get info on emojis from other servers, sorry!\n\nIf you were trying to get an emoji from another server though, try `/copysteal`. ')] });
-				break;
-			default:
-				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('emoji')}`);
-				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+			if (error.message.includes('Client must have Manage Emojis and Stickers permission')) {
+				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
+			}
+			else {
+				switch (error.message) {
+				case 'Cannot read properties of null (reading \'3\')':
+					await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
+					break;
+				case 'Unknown Emoji':
+					await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `emoji` is from another server.\nI can\'t get info on emojis from other servers, sorry!\n\nIf you were trying to get an emoji from another server though, try `/copysteal`. ')] });
+					break;
+				default:
+					console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('emoji')}`);
+					return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+				}
 			}
 		}
 	},
