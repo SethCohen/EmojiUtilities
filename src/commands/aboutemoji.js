@@ -13,19 +13,19 @@ module.exports = {
 				.setRequired(true)),
 	async execute(interaction) {
 		const stringEmoji = interaction.options.getString('emoji');
-		const verifiedEmoji = verifyEmojiString(stringEmoji);
-		const emoji = await interaction.guild.emojis.fetch(verifiedEmoji[3]);
-
-
-		let author;
-		try {
-			author = await emoji.fetchAuthor();
-		}
-		catch (e) {
-			author = '`N/A` - Bot is missing `Manage Emojis` permission and can\'t access emoji author.';
-		}
 
 		try {
+			const verifiedEmoji = verifyEmojiString(stringEmoji);
+			const emoji = await interaction.guild.emojis.fetch(verifiedEmoji[3]);
+
+			let author;
+			try {
+				author = await emoji.fetchAuthor();
+			}
+			catch (e) {
+				author = '`N/A` - Bot is missing `Manage Emojis` permission and can\'t access emoji author.';
+			}
+
 			const count = getEmojiTotalCount(interaction.guild.id, emoji.id);
 
 			const embedSuccess = new MessageEmbed()
