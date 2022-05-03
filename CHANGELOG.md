@@ -1,4 +1,11 @@
 # Changelog
+## [1.17.3](https://github.com/SethCohen/EmojiUtilities/compare/v1.17.2...v1.17.3) (2022-05-03)
+
+
+### Bug Fixes
+
+* fixed `/aboutemoji` error on invalid input in `emoji` field. ([2406b7a](https://github.com/SethCohen/EmojiUtilities/commit/2406b7ae7deab64a3e2fdb7f58d962c8a276a21e))
+
 ## [1.17.2](https://github.com/SethCohen/EmojiUtilities/compare/v1.17.1...v1.17.2) (2022-04-23)
 
 
