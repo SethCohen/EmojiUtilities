@@ -1,7 +1,7 @@
 const { setSetting } = require('../helpers/dbModel');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { Permissions, MessageEmbed } = require('discord.js');
-const { mediaLinks } = require('../helpers/utilities');
+const { mediaLinks, sendErrorFeedback } = require('../helpers/utilities');
 
 const setCommandAvailability = async (guild, commandName, flag) => {
 	const applicationCommands = await guild.client.application.commands.fetch();
@@ -100,18 +100,31 @@ module.exports = {
 		const embedSuccess = new MessageEmbed()
 			.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 
-		if (setting === 'togglecommand') {
-			const commandName = interaction.options.getString('commandname');
-			await setCommandAvailability(interaction.guild, commandName, !!flag);
+		try {
+			if (setting === 'togglecommand') {
+				const commandName = interaction.options.getString('commandname');
+				await setCommandAvailability(interaction.guild, commandName, !!flag);
 
-			embedSuccess.setTitle(`\`/${commandName}\` ${flag ? 'enabled' : 'disabled'}.`);
-			return interaction.editReply({ embeds: [embedSuccess] });
+				embedSuccess.setTitle(`\`/${commandName}\` ${flag ? 'enabled' : 'disabled'}.`);
+				return interaction.editReply({ embeds: [embedSuccess] });
+			}
+			else {
+				embedSuccess.setTitle(`\`${setting}\` set to \`${Boolean(flag)}\`.`);
+				setSetting(interaction.guild.id, setting, flag);
+				return interaction.editReply({ embeds: [embedSuccess] });
+			}
 		}
-		else {
-			embedSuccess.setTitle(`\`${setting}\` set to \`${Boolean(flag)}\`.`);
-			setSetting(interaction.guild.id, setting, flag);
-			return interaction.editReply({ embeds: [embedSuccess] });
+		catch (error) {
+			switch (error.message) {
+			case 'Bots cannot use this endpoint':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Discord recently updated their API, breaking how this bot handles command toggling.\nThis will be fixed soon, but in the mean time, you can toggle commands yourself via:\nServer Settings -> Integrations -> Emoji Utilities -> Manage')] });
+				break;
+			default:
+				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('commandname')}\n${interaction.options.getBoolean('flag')} `);
+				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+			}
 		}
+
 
 	},
 };
