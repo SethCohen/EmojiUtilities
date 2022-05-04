@@ -1,4 +1,11 @@
 # Changelog
+## [1.17.4](https://github.com/SethCohen/EmojiUtilities/compare/v1.17.3...v1.17.4) (2022-05-04)
+
+
+### Bug Fixes
+
+* temp error catch fix on `/config togglecommand` not working. ([f9f4122](https://github.com/SethCohen/EmojiUtilities/commit/f9f4122337c5f18ff823fdc7f28e94c4355ad2d6))
+
 ## [1.17.3](https://github.com/SethCohen/EmojiUtilities/compare/v1.17.2...v1.17.3) (2022-05-03)
 
 
