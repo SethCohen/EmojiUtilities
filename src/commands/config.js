@@ -25,14 +25,14 @@ module.exports = {
 		.setDescription('Change various bot functionalities.')
 		.addSubcommand(subcommand =>
 			subcommand.setName('countmessages')
-				.setDescription('Allows bot to count reactions. Default: true')
+				.setDescription('Allows bot to count messages. Default: true')
 				.addBooleanOption(option =>
 					option.setName('flag')
 						.setDescription('Set flag')
 						.setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand.setName('countreacts')
-				.setDescription('Allows bot to count messages. Default: true')
+				.setDescription('Allows bot to count reactions. Default: true')
 				.addBooleanOption(option =>
 					option.setName('flag')
 						.setDescription('Set flag')
@@ -117,7 +117,7 @@ module.exports = {
 		catch (error) {
 			switch (error.message) {
 			case 'Bots cannot use this endpoint':
-				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Discord recently updated their API, breaking how this bot handles command toggling.\nThis will be fixed soon, but in the mean time, you can toggle commands yourself via:\nServer Settings -> Integrations -> Emoji Utilities -> Manage')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Discord recently updated their API, disabling the ability for bots to set command permissions.\nHopefully their new system is updated to re-allow this ability, but in the mean time, you can toggle commands yourself via:\nServer Settings -> Integrations -> Emoji Utilities -> Manage')] });
 				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('commandname')}\n${interaction.options.getBoolean('flag')} `);
