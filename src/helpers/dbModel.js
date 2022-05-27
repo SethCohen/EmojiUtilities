@@ -1,4 +1,5 @@
-const Database = require('better-sqlite3');
+const Database = require('better-sqlite3-multiple-ciphers');
+const { db_key } = require('../../config.json');
 
 /** createDatabase
  *      Generates unique sqlite file with tables and default config settings for a unique server.
@@ -9,6 +10,7 @@ function createDatabase(guildId) {
 	// console.log(`createDatabase(${guildId}) called.`)
 
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`rekey='${db_key}'`);
 
 	const createStatements = [
 		'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
@@ -52,6 +54,7 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin) {
 
 	if (guildId && emojiId && userId && dateTime) {
 		const db = new Database(`./databases/${guildId}.sqlite`);
+		db.pragma(`key='${db_key}'`);
 		let statement;
 
 		switch (table) {
@@ -131,6 +134,7 @@ function insertToDb(guildId, emojiId, userId, dateTime, table, origin) {
 
 	if (guildId && emojiId && userId && dateTime) {
 		const db = new Database(`./databases/${guildId}.sqlite`);
+		db.pragma(`key='${db_key}'`);
 		let statement;
 
 		switch (table) {
@@ -182,6 +186,7 @@ function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
 	// console.log(`getLeaderboard(${guildId}, ${emojiId}, ${clientId}, ${dateTime}) called.`)
 
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`key='${db_key}'`);
 	let cat;
 	let statement;
 	if (dateTime) { // Query for if a daterange was specified
@@ -304,6 +309,7 @@ function getGetCount(guildId, userId, dateTime) {
 	// console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`)
 
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`key='${db_key}'`);
 	let count = 0;
 
 	if (userId !== null) { // Query for server
@@ -341,6 +347,7 @@ function getDisplayStats(guildId, dateTime, userId = null) {
 	// console.log(`getDisplayStats(${guildId}, ${dateTime}, ${userId}) called.`)
 
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`key='${db_key}'`);
 	let cat;
 
 	if (userId) {
@@ -410,6 +417,7 @@ function getDisplayStats(guildId, dateTime, userId = null) {
  */
 function getSetting(guildId, setting) {
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`key='${db_key}'`);
 	const statement = db.prepare('SELECT flag FROM serverSettings WHERE setting = ?');
 	const flag = statement.get(setting).flag;
 	db.close();
@@ -425,6 +433,7 @@ function getSetting(guildId, setting) {
  */
 function setSetting(guildId, setting, flag) {
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`key='${db_key}'`);
 	const statement = db.prepare(`
         UPDATE serverSettings
         SET flag = @flag
@@ -444,6 +453,7 @@ function setSetting(guildId, setting, flag) {
  */
 function resetDb(guildId) {
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`key='${db_key}'`);
 
 	const deleteStatements = [
 		'DELETE FROM messageActivity',
@@ -466,6 +476,7 @@ function resetDb(guildId) {
  */
 function getEmojiTotalCount(guildId, emojiId) {
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`key='${db_key}'`);
 	let count = 0;
 
 	const statements = [
@@ -489,6 +500,7 @@ function getEmojiTotalCount(guildId, emojiId) {
  */
 function getOpt(guildId, userId) {
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`key='${db_key}'`);
 	const statement = db.prepare('SELECT flag FROM usersOpt WHERE user = ?');
 	try {
 		return statement.get(userId).flag;
@@ -509,6 +521,7 @@ function getOpt(guildId, userId) {
  */
 function setOpt(guildId, userId, flag) {
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`key='${db_key}'`);
 	const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
 	statement.run({
 		user: userId,
@@ -524,6 +537,7 @@ function setOpt(guildId, userId, flag) {
  */
 function clearUserFromDb(guildId, userId) {
 	const db = new Database(`./databases/${guildId}.sqlite`);
+	db.pragma(`key='${db_key}'`);
 
 	const statements = [
 		'DELETE FROM messageActivity WHERE user = @user',
