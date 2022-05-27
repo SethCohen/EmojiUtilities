@@ -50,41 +50,6 @@ module.exports = {
 				.addBooleanOption(option =>
 					option.setName('flag')
 						.setDescription('Set flag')
-						.setRequired(true)))
-		.addSubcommand(subcommand =>
-			subcommand.setName('togglecommand')
-				.setDescription('Disables/Enables a specified command')
-				.addStringOption(option =>
-					option.setName('commandname')
-						.setDescription('Set flag')
-						.setRequired(true)
-						.addChoices([
-							['backupemojis', 'backupemojis'],
-							['botinfo', 'botinfo'],
-							['clapify', 'clapify'],
-							['copysteal', 'copysteal'],
-							['dancify', 'dancify'],
-							['displaystats', 'displaystats'],
-							['emoji', 'emoji'],
-							['enlargeemoji', 'enlargeemoji'],
-							['getcount', 'getcount'],
-							['help', 'help'],
-							['leaderboard', 'leaderboard'],
-							['listemojis', 'listemojis'],
-							['lockemoji', 'lockemoji'],
-							['packsearch', 'packsearch'],
-							['random', 'random'],
-							['removeunused', 'removeunused'],
-							['renameemoji', 'renameemoji'],
-							['resetdb', 'resetdb'],
-							['search', 'search'],
-							['stickerfy', 'stickerfy'],
-							['unlockemoji', 'unlockemoji'],
-							['uploademoji', 'uploademoji'],
-						]))
-				.addBooleanOption(option =>
-					option.setName('flag')
-						.setDescription('Set flag')
 						.setRequired(true))),
 	async execute(interaction) {
 		if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
