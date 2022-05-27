@@ -1,4 +1,22 @@
 # Changelog
+## [1.18.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.17.5...v1.18.0) (2022-05-27)
+
+
+### Features
+
+* added database encryption ([fc79df5](https://github.com/SethCohen/EmojiUtilities/commit/fc79df5703f09b3bedd4daeebd09c7ccd6fe8165))
+* updated dependencies ([51ea26a](https://github.com/SethCohen/EmojiUtilities/commit/51ea26ac37a98dfa3ac726e2c4aa10e29cb7eb9d))
+
+
+### Removed
+
+* removed `/config togglecommand` due to discord api removing ability for bots to set slash command permissions. ([391ee92](https://github.com/SethCohen/EmojiUtilities/commit/391ee9225bd7d1aef98f0c3d271de2db67ff4e22))
+
+
+### Code Refactoring
+
+* `/displaystats` `/leaderboard` `/optself` `/search` fixed choices to new structure ([ac9c6bb](https://github.com/SethCohen/EmojiUtilities/commit/ac9c6bb975791929650c19285dfce2963f5e9b31))
+
 ## [1.17.5](https://github.com/SethCohen/EmojiUtilities/compare/v1.17.4...v1.17.5) (2022-05-04)
 
 
