@@ -86,10 +86,10 @@ module.exports = {
 			option.setName('type')
 				.setDescription('The type of leaderboard to display.')
 				.setRequired(true)
-				.addChoices([
-					['Sent', 'sent'],
-					['Received', 'received'],
-				]))
+				.addChoices(
+					{ name: 'Sent', value: 'sent' },
+					{ name: 'Received', value: 'received' },
+				))
 		.addStringOption(option =>
 			option.setName('emoji')
 				.setDescription('The emoji to get the leaderboard for.')
@@ -97,14 +97,14 @@ module.exports = {
 		.addIntegerOption(option =>
 			option.setName('daterange')
 				.setDescription('The date range to query for.')
-				.addChoices([
-					['All Time', 0],
-					['Yearly', 365],
-					['Monthly', 30],
-					['Weekly', 7],
-					['Daily', 1],
-					['Hourly', 60],
-				])),
+				.addChoices(
+					{ name: 'All Time', value: 0 },
+					{ name: 'Yearly', value: 365 },
+					{ name: 'Monthly', value: 30 },
+					{ name: 'Weekly', value: 7 },
+					{ name: 'Daily', value: 1 },
+					{ name: 'Hourly', value: 60 },
+				)),
 	async execute(interaction) {
 		const type = interaction.options.getString('type');
 		const stringEmoji = interaction.options.getString('emoji');

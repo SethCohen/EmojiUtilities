@@ -32,28 +32,28 @@ module.exports = {
 		.addIntegerOption(option =>
 			option.setName('category')
 				.setDescription('The category to search in for the emoji.')
-				.addChoices([
-					['Original Style', 1],
-					['TV / Movie', 2],
-					['Meme', 3],
-					['Anime', 4],
-					['Celebrity', 5],
-					['Blobs', 6],
-					['Thinking', 7],
-					['Animated', 8],
-					['NSFW', 9],
-					['Gaming', 10],
-					['Letters', 11],
-					['Other', 12],
-					['Pepe', 13],
-					['Logos', 14],
-					['Cute', 15],
-					['Utility', 16],
-					['Animals', 17],
-					['Recolors', 18],
-					['Flags', 19],
-					['Hearts', 20],
-				]))
+				.addChoices(
+					{ name: 'Original Style', value: 1 },
+					{ name: 'TV / Movie', value: 2 },
+					{ name: 'Meme', value: 3 },
+					{ name: 'Anime', value: 4 },
+					{ name: 'Celebrity', value: 5 },
+					{ name: 'Blobs', value: 6 },
+					{ name: 'Thinking', value: 7 },
+					{ name: 'Animated', value: 8 },
+					{ name: 'NSFW', value: 9 },
+					{ name: 'Gaming', value: 10 },
+					{ name: 'Letters', value: 11 },
+					{ name: 'Other', value: 12 },
+					{ name: 'Pepe', value: 13 },
+					{ name: 'Logos', value: 14 },
+					{ name: 'Cute', value: 15 },
+					{ name: 'Utility', value: 16 },
+					{ name: 'Animals', value: 17 },
+					{ name: 'Recolors', value: 18 },
+					{ name: 'Flags', value: 19 },
+					{ name: 'Hearts', value: 20 },
+				))
 		.addBooleanOption(option =>
 			option.setName('includensfw')
 				.setDescription('Includes NSFW results. Default: False')),

@@ -25,10 +25,9 @@ module.exports = {
 		.addStringOption(option =>
 			option.setName('flag')
 				.setDescription('Whether to opt-in or opt-out')
-				.addChoices([
-					['Opt-in', 'true'],
-					['Opt-out', 'false'],
-				])
+				.addChoices(
+					{ name: 'Opt-in', value: 'true' },
+					{ name: 'Opt-out', value: 'false' })
 				.setRequired(true)),
 	async execute(interactionCommand) {
 		await interactionCommand.deferReply({ ephemeral: true });

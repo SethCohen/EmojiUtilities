@@ -125,14 +125,14 @@ module.exports = {
 			option.setName('daterange')
 				.setDescription('The date range to query for.')
 				.setRequired(true)
-				.addChoices([
-					['All Time', 0],
-					['Yearly', 365],
-					['Monthly', 30],
-					['Weekly', 7],
-					['Daily', 1],
-					['Hourly', 60],
-				]))
+				.addChoices(
+					{ name: 'All Time', value: 0 },
+					{ name: 'Yearly', value: 365 },
+					{ name: 'Monthly', value: 30 },
+					{ name: 'Weekly', value: 7 },
+					{ name: 'Daily', value: 1 },
+					{ name: 'Hourly', value: 60 },
+				))
 		.addUserOption(option =>
 			option.setName('user')
 				.setDescription('The user to query for. Not specifying grabs entire server\'s statistics.')),
