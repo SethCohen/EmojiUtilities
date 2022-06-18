@@ -16,7 +16,7 @@ const uploadEmoji = (interaction, input, name, tag) => {
 			});
 		})
 		.catch(async error => {
-			console.error(`uploadEmoji error\n${error}`);
+			// console.error(`uploadEmoji error\n${error}`);
 			switch (error.message) {
 			case 'Maximum number of stickers reached (0)':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
@@ -26,6 +26,9 @@ const uploadEmoji = (interaction, input, name, tag) => {
 				break;
 			case 'Asset exceeds maximum size: 33554432':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker to server. Output image is too large to upload to server. Try again with a more optimized gif.')] });
+				break;
+			case 'Invalid Form Body\nname: Must be between 2 and 30 in length.':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker.\n`name` too long. Must be between 2 and 30 characters in length.')] });
 				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
