@@ -153,6 +153,9 @@ module.exports = {
 			case 'connect ECONNREFUSED ::1:80':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid url in `url`.')] });
 				break;
+			case 'Cannot read properties of null (reading \'ext\')':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid url in `url`.\nCan\'t detect image type. Try again with a direct link to the image.')] });
+				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
