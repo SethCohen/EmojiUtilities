@@ -30,6 +30,9 @@ const uploadEmoji = (interaction, input, name, tag) => {
 			case 'Invalid Form Body\nname: Must be between 2 and 30 in length.':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker.\n`name` too long. Must be between 2 and 30 characters in length.')] });
 				break;
+			case 'Sticker animation duration exceeds maximum of 5 seconds':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker.\nLength of gif exceeds maximum duration of 5 seconds.')] });
+				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
