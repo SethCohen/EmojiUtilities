@@ -166,15 +166,17 @@ module.exports = {
 			if (interactionButton.member === interactionCommand.member) {
 				if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
 					++currentPageIndex;
-					await interactionButton.update({ embeds: [pages[currentPageIndex]] });
 				}
 				else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
 					--currentPageIndex;
-					await interactionButton.update({ embeds: [pages[currentPageIndex]] });
 				}
-				else {
-					await interactionButton.reply({ content: 'No valid page to go to.', ephemeral: true });
+				else if (currentPageIndex === 0) {
+					currentPageIndex = pages.length - 1;
 				}
+				else if (currentPageIndex === pages.length - 1) {
+					currentPageIndex = 0;
+				}
+				await interactionButton.update({ embeds: [pages[currentPageIndex]] });
 			}
 			else {
 				await interactionButton.reply({
