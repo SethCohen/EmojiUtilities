@@ -1,4 +1,26 @@
 # Changelog
+## [1.19.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.18.0...v1.19.0) (2022-06-18)
+
+
+### Features
+
+* `/displaystats` added page looping ([50b7ba4](https://github.com/SethCohen/EmojiUtilities/commit/50b7ba442a8557c9a9628f7ac7b6454b0510f557))
+* `/listemojis` added page looping. ([395fe98](https://github.com/SethCohen/EmojiUtilities/commit/395fe980d0da77791f1b925caaa85510a0c4430c))
+* added top.gg support ([9e71b0d](https://github.com/SethCohen/EmojiUtilities/commit/9e71b0d6690e9e5d9b41fece796307d94474eb20))
+
+
+### Bug Fixes
+
+* `/stickerfy` added error catch for invalid `name` length. ([4aa327e](https://github.com/SethCohen/EmojiUtilities/commit/4aa327ebc84103b5f5c90c457295c4dbc58819ad))
+* `/stickerfy` added error catch for invalid image urls ([e638e84](https://github.com/SethCohen/EmojiUtilities/commit/e638e847e6fa79bff16ef734ddad60ef06853f6f))
+* `/stickerfy` added error catch for maximum duration exceed. ([3c6a803](https://github.com/SethCohen/EmojiUtilities/commit/3c6a803d84a6815a222f3213c9c6e7c31f88b2e2))
+
+
+### Styles
+
+* '/config togglecommand' changed error message styling ([dabdd6b](https://github.com/SethCohen/EmojiUtilities/commit/dabdd6bd0fa7036b780fefbd92e7fa1d24f06c4c))
+* added more descriptive error logging. ([74c6833](https://github.com/SethCohen/EmojiUtilities/commit/74c6833f32208489524fc0b4d86d540c174e01d5))
+
 ## [1.18.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.17.5...v1.18.0) (2022-05-27)
 
 
