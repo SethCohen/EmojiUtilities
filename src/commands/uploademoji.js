@@ -153,7 +153,7 @@ module.exports = {
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid url in `url`.')] });
 				break;
 			default:
-				console.error(error.message);
+				console.error(`uploadEmoji error\n${error.message}`);
 				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 

@@ -70,7 +70,7 @@ const createOutput = async (interaction, emoji, date, array) => {
 			embed.addField(`${leaderboardPos}. ${user.displayName}`, `${count}`);
 		}
 		catch (e) {
-			console.error(e);
+			console.error(`createOutput error\n${e}`);
 		}
 		leaderboardPos++;
 	}

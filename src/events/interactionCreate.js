@@ -18,7 +18,7 @@ module.exports = {
 				interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
 				break;
 			default:
-				console.error(error);
+				console.error(`interactionCreate error\n${interaction.commandName}\n${error}`);
 				return interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}

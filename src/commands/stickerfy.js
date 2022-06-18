@@ -16,7 +16,7 @@ const uploadEmoji = (interaction, input, name, tag) => {
 			});
 		})
 		.catch(async error => {
-			console.error(error);
+			console.error(`uploadEmoji error\n${error}`);
 			switch (error.message) {
 			case 'Maximum number of stickers reached (0)':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
@@ -119,7 +119,7 @@ module.exports = {
 				exec(`gif2apng ${path}.gif`,
 					async (execError, stdout, stderr) => {
 						if (execError) throw execError;
-						if (stderr) console.error(stderr);
+						if (stderr) console.error(`gif2apng stderr ${stderr}`);
 
 						uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
 							fs.unlink(`${path}.gif`, (err) => {
