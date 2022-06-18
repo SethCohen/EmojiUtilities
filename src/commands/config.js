@@ -82,7 +82,7 @@ module.exports = {
 		catch (error) {
 			switch (error.message) {
 			case 'Bots cannot use this endpoint':
-				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Discord recently updated their API, disabling the ability for bots to set command permissions.\nHopefully their new system is updated to re-allow this ability, but in the mean time, you can toggle commands yourself via:\nServer Settings -> Integrations -> Emoji Utilities -> Manage')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Discord recently updated their API, disabling the ability for bots to set command permissions.\nHopefully their new system is updated to re-allow this ability, but in the mean time, you can toggle commands yourself via:\n`Server Settings -> Integrations -> Emoji Utilities -> Manage`')] });
 				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('commandname')}\n${interaction.options.getBoolean('flag')} `);
