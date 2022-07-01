@@ -15,7 +15,7 @@ const getEmojiUrl = (emoji) => {
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('copysteal')
+		.setName('emojisteal')
 		.setDescription('Steals a custom emoji and uploads it to your server.')
 		.addStringOption(option =>
 			option.setName('emoji')
