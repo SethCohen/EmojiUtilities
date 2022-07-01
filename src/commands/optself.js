@@ -34,7 +34,7 @@ module.exports = {
 			i.deferUpdate();
 			return i.user.id === interactionCommand.user.id;
 		};
-		message.awaitMessageComponent({ filter, time: 60000 })
+		message.awaitMessageComponent({ filter, time: 30000 })
 			.then(async interactionButton => {
 				if (interactionButton.customId === 'confirm') {
 					await interactionCommand.editReply({ components: [confirmationButtons(false)] });
