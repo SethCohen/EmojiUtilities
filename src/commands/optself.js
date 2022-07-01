@@ -1,22 +1,7 @@
-const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { setOpt, clearUserFromDb } = require('../helpers/dbModel');
-
-const actionButtons = (state) => {
-	return new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('confirm')
-				.setLabel('✔ Yes')
-				.setStyle('SUCCESS')
-				.setDisabled(state),
-			new MessageButton()
-				.setCustomId('cancel')
-				.setLabel('❌ No')
-				.setStyle('DANGER')
-				.setDisabled(state),
-		);
-};
+const { confirmationButtons } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -40,50 +25,37 @@ module.exports = {
 
 		await interactionCommand.editReply({
 			embeds: [embed],
-			components: [actionButtons(false)],
+			components: [confirmationButtons(true)],
 		});
 
 		// Create button listeners
 		const message = await interactionCommand.fetchReply();
-		const collector = message.createMessageComponentCollector({ time: 30000 });
-		collector.on('collect', async interactionButton => {
-			if (interactionButton.customId === 'confirm') {
-				await interactionButton.update({ components: [actionButtons(true)] });
-				await interactionButton.followUp({
-					content: `You have opted-${flag === 'true' ? 'in' : 'out'}. Take care!`,
-					ephemeral: true,
-				});
-				setOpt(interactionCommand.guildId, interactionCommand.member.id, flag === 'true');
+		const filter = i => {
+			i.deferUpdate();
+			return i.user.id === interactionCommand.user.id;
+		};
+		message.awaitMessageComponent({ filter, time: 60000 })
+			.then(async interactionButton => {
+				if (interactionButton.customId === 'confirm') {
+					await interactionCommand.editReply({ components: [confirmationButtons(false)] });
+					await interactionButton.followUp({
+						content: `You have opted-${flag === 'true' ? 'in' : 'out'}. Take care!`,
+						ephemeral: true,
+					});
 
-				// if opted-out delete user from databases
-				if (flag !== 'true') {
-					clearUserFromDb(interactionCommand.guildId, interactionCommand.member.id);
-				}
-			}
-			else if (interactionButton.customId === 'cancel') {
-				await interactionButton.update({ components: [actionButtons(true)] });
-				await interactionButton.followUp({
-					content: `Canceled opt-${flag === 'true' ? 'in' : 'out'}.`,
-					ephemeral: true,
-				});
-			}
-		});
-		// eslint-disable-next-line no-unused-vars
-		collector.on('end', async collected => {
-			try {
-				await interactionCommand.editReply({ components: [actionButtons(true)] });
-			}
-			catch (error) {
-				switch (error.message) {
-				case 'Unknown Message':
-					// Ignore unknown interactions (Often caused from deleted interactions).
-					break;
-				default:
-					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
-				}
-			}
+					setOpt(interactionCommand.guildId, interactionCommand.member.id, flag === 'true');
 
-			// console.log(`Collected ${collected.size} interactions.`);
-		});
+					// if opted-out delete user from databases
+					if (flag !== 'true') clearUserFromDb(interactionCommand.guildId, interactionCommand.member.id);
+				}
+				else if (interactionButton.customId === 'cancel') {
+					await interactionCommand.editReply({ components: [confirmationButtons(false)] });
+					await interactionButton.followUp({
+						content: `Canceled opt-${flag === 'true' ? 'in' : 'out'}.`,
+						ephemeral: true,
+					});
+				}
+			})
+			.catch(console.error);
 	},
 };

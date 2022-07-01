@@ -58,6 +58,23 @@ const navigationButtons = isEnabled => {
 		);
 };
 
+
+const confirmationButtons = isEnabled => {
+	return new MessageActionRow()
+		.addComponents(
+			new MessageButton()
+				.setCustomId('confirm')
+				.setLabel('✔ Confirm')
+				.setStyle('SUCCESS')
+				.setDisabled(!isEnabled),
+			new MessageButton()
+				.setCustomId('cancel')
+				.setLabel('❌ Cancel')
+				.setStyle('DANGER')
+				.setDisabled(!isEnabled),
+		);
+};
+
 module.exports = {
-	sendErrorFeedback, mediaLinks, verifyEmojiString, navigationButtons,
+	sendErrorFeedback, mediaLinks, verifyEmojiString, navigationButtons, confirmationButtons,
 };
