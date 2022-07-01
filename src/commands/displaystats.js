@@ -185,6 +185,5 @@ module.exports = {
 			}
 			// console.log(`Collected ${collected.size} interactions.`);
 		});
-
 	},
 };

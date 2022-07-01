@@ -90,8 +90,22 @@ module.exports = {
 			}
 		});
 		// eslint-disable-next-line no-unused-vars
-		collector.on('end', collected => {
-			interaction.editReply({ content: `Emojis to remove: ${emojis}.\nCommand timed out.`, components: [] });
+		collector.on('end', async collected => {
+			try {
+				await interaction.editReply({
+					content: `Emojis to remove: ${emojis}.\nCommand timed out.`,
+					components: [],
+				});
+			}
+			catch (error) {
+				switch (error.message) {
+				case 'Unknown Message':
+					// Ignore unknown interactions (Often caused from deleted interactions).
+					break;
+				default:
+					console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}`);
+				}
+			}
 			// console.log(`Collected ${collected.size} interactions.`);
 		});
 	},

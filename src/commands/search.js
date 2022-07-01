@@ -158,11 +158,20 @@ module.exports = {
 			}
 		});
 		// eslint-disable-next-line no-unused-vars
-		collector.on('end', collected => {
-			interaction.editReply({ content: 'Command timed out.', components: [actionButtons(true)] });
+		collector.on('end', async collected => {
+			try {
+				await interaction.editReply({ content: 'Command timed out.', components: [actionButtons(true)] });
+			}
+			catch (error) {
+				switch (error.message) {
+				case 'Unknown Message':
+					// Ignore unknown interactions (Often caused from deleted interactions).
+					break;
+				default:
+					console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}`);
+				}
+			}
 			// console.log(`Collected ${collected.size} interactions.`);
 		});
-	}
-	,
-}
-;
+	},
+};
