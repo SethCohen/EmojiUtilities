@@ -1,40 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
 const { findBestMatch } = require('string-similarity');
-const { MessageActionRow, MessageButton, MessageEmbed, Permissions } = require('discord.js');
-const { mediaLinks, sendErrorFeedback } = require('../helpers/utilities');
-
-const navigationButtons = (state) => {
-	return new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('prev')
-				.setLabel('👈 Prev')
-				.setStyle('SECONDARY')
-				.setDisabled(state),
-			new MessageButton()
-				.setCustomId('next')
-				.setLabel('👉 Next')
-				.setStyle('SECONDARY')
-				.setDisabled(state),
-		);
-};
-
-const actionButtons = (state) => {
-	return new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('upload')
-				.setLabel('Upload To Server')
-				.setStyle('SUCCESS')
-				.setDisabled(state),
-			new MessageButton()
-				.setCustomId('cancel')
-				.setLabel('Cancel')
-				.setStyle('DANGER')
-				.setDisabled(state),
-		);
-};
+const { MessageEmbed, Permissions } = require('discord.js');
+const { mediaLinks, sendErrorFeedback, navigationButtons, confirmationButtons } = require('../helpers/utilities');
 
 const createPages = (packResponse) => {
 	const pages = [];
@@ -78,7 +46,7 @@ module.exports = {
 		await interactionCommand.editReply({
 			content: `This pack had the highest percent likeness to your search parameters at ${(match.bestMatch.rating * 100).toFixed(2)}%`,
 			embeds: [pages[currentPageIndex]],
-			components: [navigationButtons(false), actionButtons(false)],
+			components: [navigationButtons(true), confirmationButtons(true)],
 		});
 
 		// Create button listeners
@@ -86,10 +54,10 @@ module.exports = {
 		const collector = message.createMessageComponentCollector({ time: 120000 });
 		collector.on('collect', async interactionButton => {
 			if (interactionButton.member === interactionCommand.member) {
-				if (interactionButton.customId === 'upload') {
+				if (interactionButton.customId === 'confirm') {
 					await interactionButton.update({
 						embeds: [pages[currentPageIndex]],
-						components: [navigationButtons(false), actionButtons(true)],
+						components: [navigationButtons(true), confirmationButtons(false)],
 					});
 
 					if (!interactionButton.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
@@ -122,7 +90,7 @@ module.exports = {
 				else if (interactionButton.customId === 'cancel') {
 					await interactionButton.update({
 						embeds: [pages[currentPageIndex]],
-						components: [navigationButtons(true), actionButtons(true)],
+						components: [navigationButtons(false), confirmationButtons(false)],
 					});
 					return interactionCommand.editReply({ content: 'Canceled.' });
 				}
@@ -130,14 +98,14 @@ module.exports = {
 					--currentPageIndex;
 					await interactionButton.update({
 						embeds: [pages[currentPageIndex]],
-						components: [navigationButtons(false), actionButtons(false)],
+						components: [navigationButtons(true), confirmationButtons(true)],
 					});
 				}
 				else if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
 					++currentPageIndex;
 					await interactionButton.update({
 						embeds: [pages[currentPageIndex]],
-						components: [navigationButtons(false), actionButtons(false)],
+						components: [navigationButtons(true), confirmationButtons(true)],
 					});
 				}
 				else {
@@ -156,7 +124,7 @@ module.exports = {
 			try {
 				await interactionCommand.editReply({
 					content: 'Command timed out.',
-					components: [navigationButtons(true), actionButtons(true)],
+					components: [navigationButtons(false), confirmationButtons(false)],
 				});
 			}
 			catch (error) {
