@@ -1,21 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton } = require('discord.js');
-
-const navigationButtons = (state) => {
-	return new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('prev')
-				.setLabel('👈 Prev')
-				.setStyle('SECONDARY')
-				.setDisabled(state),
-			new MessageButton()
-				.setCustomId('next')
-				.setLabel('👉 Next')
-				.setStyle('SECONDARY')
-				.setDisabled(state),
-		);
-};
+const { navigationButtons } = require('../helpers/utilities');
 
 const createEmojisList = (interaction) => {
 	const unpaginatedEmojsList = [...interaction.guild.emojis.cache.map(emoji => emoji.toString()).values()];
@@ -42,7 +26,7 @@ module.exports = {
 
 		await interactionCommand.editReply({
 			content: pages[currentPageIndex],
-			components: [navigationButtons(false)],
+			components: [navigationButtons(true)],
 		});
 
 		// Create button listeners
@@ -72,8 +56,19 @@ module.exports = {
 			}
 		});
 		// eslint-disable-next-line no-unused-vars
-		collector.on('end', collected => {
-			interactionCommand.editReply({ components: [navigationButtons(true)] });
+		collector.on('end', async collected => {
+			try {
+				await interactionCommand.editReply({ components: [navigationButtons(false)] });
+			}
+			catch (error) {
+				switch (error.message) {
+				case 'Unknown Message':
+					// Ignore unknown interactions (Often caused from deleted interactions).
+					break;
+				default:
+					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
+				}
+			}
 			// console.log(`Collected ${collected.size} interactions.`);
 		});
 	},
