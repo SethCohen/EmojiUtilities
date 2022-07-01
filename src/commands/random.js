@@ -1,24 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
-const { MessageEmbed, MessageActionRow, MessageButton, Permissions } = require('discord.js');
+const { MessageEmbed, Permissions } = require('discord.js');
 const { getSetting } = require('../helpers/dbModel');
-const { sendErrorFeedback } = require('../helpers/utilities');
-
-const actionButtons = (state) => {
-	return new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('upload')
-				.setLabel('Upload To Server')
-				.setStyle('SUCCESS')
-				.setDisabled(state),
-			new MessageButton()
-				.setCustomId('cancel')
-				.setLabel('Cancel')
-				.setStyle('DANGER')
-				.setDisabled(state),
-		);
-};
+const { sendErrorFeedback, confirmationButtons } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -54,20 +38,34 @@ module.exports = {
 		const item = data[Math.floor(Math.random() * data.length)];
 		const embed = new MessageEmbed()
 			.setTitle(item.title)
+			.setDescription('Found a random emoji. Would you like to upload it to the server?')
 			.setImage(item.image);
 
-		await interactionCommand.editReply({ embeds: [embed], components: [actionButtons(false)] });
+		await interactionCommand.editReply({
+			embeds: [embed],
+			components: [confirmationButtons(true)],
+		});
 
 		// Create button listeners
 		const message = await interactionCommand.fetchReply();
-		const collector = message.createMessageComponentCollector({ time: 30000 });
-		collector.on('collect', async interactionButton => {
-			if (interactionButton.member === interactionCommand.member) {
-				if (interactionButton.customId === 'upload') {
-					await interactionButton.update({ embeds: [embed], components: [actionButtons(true)] });
+		const filter = async i => {
+			await i.deferUpdate();
+			if (i.user.id !== interactionCommand.user.id) {
+				await i.followUp({
+					content: 'You can\'t interact with this button. You are not the command author.',
+					ephemeral: true,
+				});
+			}
+			return i.user.id === interactionCommand.user.id;
+		};
+		message.awaitMessageComponent({ filter, time: 30000 })
+			.then(async interactionButton => {
+				if (interactionButton.customId === 'confirm') {
+					await interactionCommand.editReply({ embeds: [embed] });
 
 					if (!interactionButton.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
-						return interactionCommand.editReply({
+						interactionCommand.editReply({ content: 'Cancelling emoji adding. Interaction author lacks permissions.' });
+						return await interactionButton.followUp({
 							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 							ephemeral: true,
 						});
@@ -96,36 +94,32 @@ module.exports = {
 
 						});
 				}
-				else if (interactionButton.customId === 'cancel' && interactionButton.user === interactionCommand.user) {
-					await interactionButton.update({ embeds: [embed], components: [actionButtons(true)] });
-					return interactionCommand.editReply({ content: 'Canceled.' });
+				else if (interactionButton.customId === 'cancel') {
+					return await interactionCommand.editReply({
+						content: 'Canceled.',
+						embeds: [embed],
+					});
 				}
-			}
-			else {
-				await interactionButton.reply({
-					content: 'You can\'t interact with this button. You are not the command author.',
-					ephemeral: true,
-				});
-			}
-		});
-		// eslint-disable-next-line no-unused-vars
-		collector.on('end', async collected => {
-			try {
-				await interactionCommand.editReply({
-					content: 'Command timed out.',
-					components: [actionButtons(true)],
-				});
-			}
-			catch (error) {
+			})
+			.catch(async error => {
 				switch (error.message) {
 				case 'Unknown Message':
 					// Ignore unknown interactions (Often caused from deleted interactions).
 					break;
+				case 'Collector received no interactions before ending with reason: time':
+					await interactionCommand.editReply({
+						content: 'User took too long. Interaction timed out.',
+						embeds: [embed],
+					});
+					break;
 				default:
 					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
 				}
-			}
-			// console.log(`Collected ${collected.size} interactions.`);
-		});
+			})
+			.finally(async () => {
+				await interactionCommand.editReply({
+					components: [confirmationButtons(false)],
+				});
+			});
 	},
 };

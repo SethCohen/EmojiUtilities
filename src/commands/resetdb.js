@@ -1,22 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Permissions, MessageActionRow, MessageButton } = require('discord.js');
+const { Permissions } = require('discord.js');
 const { resetDb } = require('../helpers/dbModel');
-
-const actionButtons = (state) => {
-	return new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('confirm')
-				.setLabel('✔ Yes')
-				.setStyle('SUCCESS')
-				.setDisabled(state),
-			new MessageButton()
-				.setCustomId('cancel')
-				.setLabel('❌ No')
-				.setStyle('DANGER')
-				.setDisabled(state),
-		);
-};
+const { confirmationButtons } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -34,38 +19,49 @@ module.exports = {
 
 		await interactionCommand.editReply({
 			content: 'Are you sure you want to reset your server\'s database?\nThis is a permanent decision. There is no undoing this action.',
-			components: [actionButtons(false)],
+			components: [confirmationButtons(true)],
 		});
 
 		// Create button listeners
 		const message = await interactionCommand.fetchReply();
-		const collector = message.createMessageComponentCollector({ time: 30000 });
-		collector.on('collect', async interactionButton => {
-			if (interactionButton.customId === 'confirm') {
-				await interactionButton.update({ components: [actionButtons(true)] });
-				await interactionButton.followUp({ content: 'Database reset!', ephemeral: true });
-				resetDb(interactionCommand.guild.id);
+		const filter = async i => {
+			await i.deferUpdate();
+			if (i.user.id !== interactionCommand.user.id) {
+				await i.followUp({
+					content: 'You can\'t interact with this button. You are not the command author.',
+					ephemeral: true,
+				});
 			}
-			else if (interactionButton.customId === 'cancel') {
-				await interactionButton.update({ components: [actionButtons(true)] });
-				await interactionButton.followUp({ content: 'Canceled reset.', ephemeral: true });
-			}
-		});
-		// eslint-disable-next-line no-unused-vars
-		collector.on('end', async collected => {
-			try {
-				await interactionCommand.editReply({ components: [actionButtons(true)] });
-			}
-			catch (error) {
+			return i.user.id === interactionCommand.user.id;
+		};
+		message.awaitMessageComponent({ filter, time: 30000 })
+			.then(async interactionButton => {
+				if (interactionButton.customId === 'confirm') {
+					await interactionButton.followUp({ content: 'Database reset!', ephemeral: true });
+					resetDb(interactionCommand.guild.id);
+				}
+				else if (interactionButton.customId === 'cancel') {
+					await interactionButton.followUp({ content: 'Canceled reset.', ephemeral: true });
+				}
+			})
+			.catch(async error => {
 				switch (error.message) {
 				case 'Unknown Message':
 					// Ignore unknown interactions (Often caused from deleted interactions).
 					break;
+				case 'Collector received no interactions before ending with reason: time':
+					await interactionCommand.editReply({
+						content: 'User took too long. Interaction timed out.',
+					});
+					break;
 				default:
 					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
 				}
-			}
-			// console.log(`Collected ${collected.size} interactions.`);
-		});
+			})
+			.finally(async () => {
+				await interactionCommand.editReply({
+					components: [confirmationButtons(false)],
+				});
+			});
 	},
 };

@@ -1,25 +1,9 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
 const { findBestMatch } = require('string-similarity');
-const { MessageActionRow, MessageButton, MessageEmbed, Permissions } = require('discord.js');
+const { MessageEmbed, Permissions } = require('discord.js');
 const { getSetting } = require('../helpers/dbModel');
-const { sendErrorFeedback } = require('../helpers/utilities');
-
-const actionButtons = (state) => {
-	return new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('upload')
-				.setLabel('Upload To Server')
-				.setStyle('SUCCESS')
-				.setDisabled(state),
-			new MessageButton()
-				.setCustomId('cancel')
-				.setLabel('Cancel')
-				.setStyle('DANGER')
-				.setDisabled(state),
-		);
-};
+const { sendErrorFeedback, confirmationButtons } = require('../helpers/utilities');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -57,22 +41,22 @@ module.exports = {
 		.addBooleanOption(option =>
 			option.setName('includensfw')
 				.setDescription('Includes NSFW results. Default: False')),
-	async execute(interaction) {
-		await interaction.deferReply();
+	async execute(interactionCommand) {
+		await interactionCommand.deferReply();
 
 		const response = await axios.get('https://emoji.gg/api');
 
-		const name = interaction.options.getString('name');
-		const nsfw = interaction.options.getBoolean('includensfw') ? interaction.options.getBoolean('includensfw') : false;
-		const category = interaction.options.getInteger('category');
+		const name = interactionCommand.options.getString('name');
+		const nsfw = interactionCommand.options.getBoolean('includensfw') ? interactionCommand.options.getBoolean('includensfw') : false;
+		const category = interactionCommand.options.getInteger('category');
 
 		let data;
 		if (nsfw) {	// Checks if user is searching for nsfw emojis
-			if (!interaction.channel.nsfw) {
-				return interaction.editReply({ content: 'Sorry, but NSFW content is only allowed NSFW channels.' });
+			if (!interactionCommand.channel.nsfw) {
+				return interactionCommand.editReply({ content: 'Sorry, but NSFW content is only allowed NSFW channels.' });
 			}
-			else if (getSetting(interaction.guildId, 'allownsfw')) {	// Checks server flag for if searching for nsfw emojis are allowed
-				await interaction.editReply({
+			else if (getSetting(interactionCommand.guildId, 'allownsfw')) {	// Checks server flag for if searching for nsfw emojis are allowed
+				await interactionCommand.editReply({
 					content: 'Including NSFW results, eh? Kinky.',
 				});
 
@@ -81,12 +65,12 @@ module.exports = {
 				}) : response.data;
 			}
 			else {
-				return await interaction.editReply({ content: 'Sorry, but searching for NSFW is disabled in this server.' });
+				return await interactionCommand.editReply({ content: 'Sorry, but searching for NSFW is disabled in this server.' });
 			}
 		}
 		else {
 			if (category === 9) {	// Checks if user tried searching for NSFW category without setting the `includensfw` flag
-				return await interaction.editReply({
+				return await interactionCommand.editReply({
 					content: 'Sorry, but searching through the NSFW category requires **includensfw: True**.',
 				});
 			}
@@ -105,73 +89,76 @@ module.exports = {
 
 		const embed = new MessageEmbed()
 			.setTitle(data[match.bestMatchIndex].title)
-			.setDescription(`This emoji had the highest percent likeness to your search parameters at ${(match.bestMatch.rating * 100).toFixed(2)}%`)
+			.setDescription(`This emoji had the highest percent likeness to your search parameters at ${(match.bestMatch.rating * 100).toFixed(2)}%\nWould you like to upload it to the server?`)
 			.setImage(data[match.bestMatchIndex].image);
 
-		await interaction.editReply({ embeds: [embed], components: [actionButtons(false)] });
+		await interactionCommand.editReply({ embeds: [embed], components: [confirmationButtons(true)] });
 
 		// Create button listeners
-		const message = await interaction.fetchReply();
-		const collector = message.createMessageComponentCollector({ time: 30000 });
-		collector.on('collect', async i => {
-			if (i.member === interaction.member) { 	// Checks if buttton interaction user is same as command interaction user
-				if (i.customId === 'upload' && i.user === interaction.user) {
-					await i.update({ embeds: [embed], components: [actionButtons(true)] });
-
-					if (!i.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
-						return interaction.editReply({
+		const message = await interactionCommand.fetchReply();
+		const filter = async i => {
+			await i.deferUpdate();
+			if (i.user.id !== interactionCommand.user.id) {
+				await i.followUp({
+					content: 'You can\'t interact with this button. You are not the command author.',
+					ephemeral: true,
+				});
+			}
+			return i.user.id === interactionCommand.user.id;
+		};
+		message.awaitMessageComponent({ filter, time: 30000 })
+			.then(async interactionButton => {
+				if (interactionButton.customId === 'confirm') {
+					if (!interactionButton.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+						interactionCommand.editReply({ content: 'Cancelling emoji adding. Interaction author lacks permissions.' });
+						return await interactionButton.followUp({
 							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 							ephemeral: true,
 						});
 					}
 
-					interaction.guild.emojis
+					interactionCommand.guild.emojis
 						.create(data[match.bestMatchIndex].image, data[match.bestMatchIndex].title)
-						.then(emoji => {
-							return interaction.editReply({ content: `Added ${emoji} to server!` });
+						.then(async emoji => {
+							return await interactionCommand.editReply({ content: `Added ${emoji} to server!` });
 						})
 						.catch(error => {
 							switch (error.message) {
 							case 'Maximum number of emojis reached (50)':
-								interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
+								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'No emoji slots available in server.')] });
 								break;
 							case 'Invalid Form Body\nimage: File cannot be larger than 256.0 kb.':
-								interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName, 'Image filesize is too big. Cannot add to server, sorry.')] });
+								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'Image filesize is too big. Cannot add to server, sorry.')] });
 								break;
 							default:
-								console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('name')}\n${interaction.options.getInteger('category')}\n${interaction.options.getBoolean('includensfw')}`);
-								return interaction.followUp({ embeds: [sendErrorFeedback(interaction.commandName)] });
+								console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand.options.getString('name')}\n${interactionCommand.options.getInteger('category')}\n${interactionCommand.options.getBoolean('includensfw')}`);
+								return interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
 							}
 
 						});
 				}
-				else if (i.customId === 'cancel' && i.user === interaction.user) {
-					await i.update({ embeds: [embed], components: [actionButtons(true)] });
-					return interaction.editReply({ content: 'Canceled.' });
+				else if (interactionButton.customId === 'cancel') {
+					return await interactionCommand.editReply({ content: 'Canceled.' });
 				}
-			}
-			else {
-				await i.reply({
-					content: 'You can\'t interact with this button. You are not the command author.',
-					ephemeral: true,
-				});
-			}
-		});
-		// eslint-disable-next-line no-unused-vars
-		collector.on('end', async collected => {
-			try {
-				await interaction.editReply({ content: 'Command timed out.', components: [actionButtons(true)] });
-			}
-			catch (error) {
+			})
+			.catch(async error => {
 				switch (error.message) {
 				case 'Unknown Message':
 					// Ignore unknown interactions (Often caused from deleted interactions).
 					break;
+				case 'Collector received no interactions before ending with reason: time':
+					await interactionCommand.editReply({
+						content: 'User took too long. Interaction timed out.',
+					});
+					break;
 				default:
-					console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}`);
+					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
 				}
-			}
-			// console.log(`Collected ${collected.size} interactions.`);
-		});
+			})
+			.finally(async () => {
+				return await interactionCommand.editReply({
+					components: [confirmationButtons(false)],
+				});
+			});
 	},
 };
