@@ -1,24 +1,7 @@
-const { MessageButton } = require('discord.js');
-const { MessageActionRow } = require('discord.js');
 const { getDisplayStats } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-
-const actionButtons = isEnabled => {
-	return new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('prev')
-				.setLabel('👈 Prev')
-				.setStyle('SECONDARY')
-				.setDisabled(!isEnabled),
-			new MessageButton()
-				.setCustomId('next')
-				.setLabel('👉 Next')
-				.setStyle('SECONDARY')
-				.setDisabled(!isEnabled),
-		);
-};
+const { navigationButtons } = require('../helpers/utilities');
 
 const validateDateRange = (dateRange) => {
 	let dateString;
@@ -153,7 +136,7 @@ module.exports = {
 		if (pages.length) {
 			await interactionCommand.editReply({
 				embeds: [pages[currentPageIndex]],
-				components: [actionButtons(true)],
+				components: [navigationButtons(true)],
 			});
 		}
 		else {
@@ -189,7 +172,7 @@ module.exports = {
 		// eslint-disable-next-line no-unused-vars
 		collector.on('end', async collected => {
 			try {
-				await interactionCommand.editReply({ components: [actionButtons(false)] });
+				await interactionCommand.editReply({ components: [navigationButtons(false)] });
 			}
 			catch (error) {
 				switch (error.message) {

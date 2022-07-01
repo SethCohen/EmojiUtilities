@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const mediaLinks = '[Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities) | [Vote](https://top.gg/bot/757326308547100712/vote)';
 
 /** verifyEmojiString
@@ -37,6 +37,27 @@ function sendErrorFeedback(title, error = null) {
 		.setDescription(`**${error ? error : unknownError}**\n\nThink this error wasn't supposed to happen?\nTry joining our [support server](https://discord.gg/XaeERFAVfb) for help!`);
 }
 
+/**	navigationButtons
+ *		Controls pagination buttons state and whether they are enabled or disabled.
+ * @param isEnabled
+ * @returns {MessageActionRow}
+ */
+const navigationButtons = isEnabled => {
+	return new MessageActionRow()
+		.addComponents(
+			new MessageButton()
+				.setCustomId('prev')
+				.setLabel('👈 Prev')
+				.setStyle('SECONDARY')
+				.setDisabled(!isEnabled),
+			new MessageButton()
+				.setCustomId('next')
+				.setLabel('👉 Next')
+				.setStyle('SECONDARY')
+				.setDisabled(!isEnabled),
+		);
+};
+
 module.exports = {
-	sendErrorFeedback, mediaLinks, verifyEmojiString,
+	sendErrorFeedback, mediaLinks, verifyEmojiString, navigationButtons,
 };
