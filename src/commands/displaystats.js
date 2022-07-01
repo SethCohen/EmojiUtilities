@@ -4,19 +4,19 @@ const { getDisplayStats } = require('../helpers/dbModel');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-const actionButtons = (state) => {
+const actionButtons = isEnabled => {
 	return new MessageActionRow()
 		.addComponents(
 			new MessageButton()
 				.setCustomId('prev')
 				.setLabel('👈 Prev')
 				.setStyle('SECONDARY')
-				.setDisabled(state),
+				.setDisabled(!isEnabled),
 			new MessageButton()
 				.setCustomId('next')
 				.setLabel('👉 Next')
 				.setStyle('SECONDARY')
-				.setDisabled(state),
+				.setDisabled(!isEnabled),
 		);
 };
 
@@ -147,19 +147,20 @@ module.exports = {
 			getDisplayStats(interactionCommand.guild.id, date.dateRange));
 		const occurrences = getSortedOccurrences(interactionCommand, data);
 
-		// Output
+		// Display output
 		const pages = await getPages(user, date, interactionCommand, occurrences);
 		let currentPageIndex = 0;
 		if (pages.length) {
 			await interactionCommand.editReply({
 				embeds: [pages[currentPageIndex]],
-				components: [actionButtons(false)],
+				components: [actionButtons(true)],
 			});
 		}
 		else {
 			await interactionCommand.editReply({ content: 'Sorry, there\'s no info to display!' });
 		}
 
+		// Get page button pressing
 		const message = await interactionCommand.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 30000 });
 		collector.on('collect', async interactionButton => {
@@ -188,7 +189,7 @@ module.exports = {
 		// eslint-disable-next-line no-unused-vars
 		collector.on('end', async collected => {
 			try {
-				await interactionCommand.editReply({ components: [actionButtons(true)] });
+				await interactionCommand.editReply({ components: [actionButtons(false)] });
 			}
 			catch (error) {
 				switch (error.message) {
