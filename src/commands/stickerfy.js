@@ -7,6 +7,7 @@ const { sendErrorFeedback } = require('../helpers/utilities');
 const converter = require('discord-emoji-converter');
 const imageType = require('image-type');
 const sharp = require('sharp');
+const isAnimated = require('is-animated');
 
 const uploadEmoji = (interaction, input, name, tag) => {
 	return interaction.guild.stickers.create(input, name, tag)
@@ -87,7 +88,7 @@ module.exports = {
 			switch (imageType(buffer).ext) {
 			case 'png': {
 				await sharp(buffer)
-					.resize(320, 320, { fit: 'contain' })
+					.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
 					.toFile(`${path}.png`);
 
 				uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
@@ -144,6 +145,44 @@ module.exports = {
 				break;
 			}
 			case 'webp': {
+				if (isAnimated(buffer)) {
+					await sharp(buffer, { animated: true })
+						.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+						.gif({ colours: 32, dither: 0.0 })
+						.toFile(`${path}.gif`);
+
+					exec(`gif2apng ${path}.gif`,
+						async (execError, stdout, stderr) => {
+							if (execError) throw execError;
+							if (stderr) console.error(`gif2apng stderr ${stderr}`);
+
+							uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
+								fs.unlink(`${path}.gif`, (err) => {
+									if (err) {
+										console.error(`Unable to delete image: ${err}`);
+									}
+								});
+								fs.unlink(`${path}.png`, (err) => {
+									if (err) {
+										console.error(`Unable to delete image: ${err}`);
+									}
+								});
+							});
+						});
+				}
+				else {
+					await sharp(buffer)
+						.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+						.toFile(`${path}.png`);
+
+					uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
+						fs.unlink(`${path}.png`, (err) => {
+							if (err) {
+								console.error(`Unable to delete image: ${err}`);
+							}
+						});
+					});
+				}
 				break;
 			}
 			default: {
