@@ -44,10 +44,10 @@ const uploadEmoji = (interaction, input, name, tag) => {
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stickerfy')
-		.setDescription('Turns a given gif url into a sticker and adds it to server.')
+		.setDescription('Convert a given image url into a sticker and adds it to server (Supports jpg, png, gif, webp).')
 		.addStringOption(option =>
 			option.setName('url')
-				.setDescription('The url of the gif to turn into a sticker.')
+				.setDescription('The url of the image to turn into a sticker.')
 				.setRequired(true),
 		)
 		.addStringOption(option =>
