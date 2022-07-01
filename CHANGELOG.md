@@ -1,4 +1,34 @@
 # Changelog
+## [1.20.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.19.0...v1.20.0) (2022-07-01)
+
+
+### Features
+
+* `/stickerfy` added webp support and removed black background padding from resized pngs ([547be07](https://github.com/SethCohen/EmojiUtilities/commit/547be07a819481ac2972459a41231951e1384ea6))
+* added `/stickersteal` ([0383755](https://github.com/SethCohen/EmojiUtilities/commit/03837558c4cf1e37cdcb8fbcec5e238b79a26013))
+* renamed `/copysteal` into `/emojisteal` ([49a9391](https://github.com/SethCohen/EmojiUtilities/commit/49a93912ed20e289ce9c41622092489745ea66c9))
+
+
+### Bug Fixes
+
+* `/displaystats` Fixed uncaught Unknown Message error on deleted interaction. ([b1538fc](https://github.com/SethCohen/EmojiUtilities/commit/b1538fca1ed96e5b0b07903fac05d2f9f13b36c3))
+* `/listemojis` Fixed uncaught Unknown Message error on deleted interaction. ([5606081](https://github.com/SethCohen/EmojiUtilities/commit/5606081be1c40e8948c60fd76ef2c3a5941f9d35))
+* Fixed uncaught Unknown Message errors on collected deleted interactions. ([00e9413](https://github.com/SethCohen/EmojiUtilities/commit/00e9413d6c6d59afc511c8380c05070ce62b0a4f))
+
+
+### Styles
+
+* `/stickerfy` Changed descriptions ([91c9b42](https://github.com/SethCohen/EmojiUtilities/commit/91c9b42a2010932dacf3364eb8bed1bbeab92bbd))
+
+
+### Code Refactoring
+
+* `/displaystats` `/utilities` Moved pagination buttons to reusable function in `utilities.js` ([894718e](https://github.com/SethCohen/EmojiUtilities/commit/894718ee7c05dbcf5f40ba71e20e819afb78fb34))
+* `/displaystats` Refactored variable names for better readability. ([99f68e3](https://github.com/SethCohen/EmojiUtilities/commit/99f68e3dce02d783b9636f5b2c4d826ba6610208))
+* `/optself` `utilities.js` Moved confirmation buttons to utilities.js and refactored collectors. ([7ff32ac](https://github.com/SethCohen/EmojiUtilities/commit/7ff32ac2e56f1d771001157d3228e1f271d442ee))
+* `/packsearch` Refactored for readability ([c4479d4](https://github.com/SethCohen/EmojiUtilities/commit/c4479d4b6ca07fe8455ceee12980846ababc6811))
+* `/random` `/optself` /resetdb` `/search` Readability refactor. ([5ebe6cf](https://github.com/SethCohen/EmojiUtilities/commit/5ebe6cfc3500fa3fb39a825475d4af2c92e46577))
+
 ## [1.19.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.18.0...v1.19.0) (2022-06-18)
 
 
