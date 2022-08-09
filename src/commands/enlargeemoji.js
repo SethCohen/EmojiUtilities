@@ -20,22 +20,24 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(interaction) {
+		await interaction.deferReply();
+
 		const stringEmoji = interaction.options.getString('emoji');
 		const verifiedEmoji = verifyEmojiString(stringEmoji);
 
 		try {
 			const url = getEmojiUrl(verifiedEmoji);
 
-			return interaction.reply({ content: `${url}` });
+			return interaction.editReply({ content: `${url}` });
 		}
 		catch (error) {
 			switch (error.message) {
 			case 'Cannot read properties of null (reading \'1\')':
-				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
 				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('emoji')}`);
-				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}
 

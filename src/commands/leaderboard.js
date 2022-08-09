@@ -106,6 +106,8 @@ module.exports = {
 					{ name: 'Hourly', value: 60 },
 				)),
 	async execute(interaction) {
+		await interaction.deferReply();
+
 		const type = interaction.options.getString('type');
 		const stringEmoji = interaction.options.getString('emoji');
 		const dateRange = interaction.options.getInteger('daterange');
@@ -120,24 +122,24 @@ module.exports = {
 				getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type, date.dateRange) :
 				getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type));
 			if (!data.length) {
-				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Sorry, there\'s no info to display!\nThe leaderboard is empty!')] });
+				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Sorry, there\'s no info to display!\nThe leaderboard is empty!')] });
 			}
 
 			const embedSuccess = await createOutput(interaction, emoji, date, data);
 
-			return interaction.reply({ embeds: [embedSuccess] });
+			return interaction.editReply({ embeds: [embedSuccess] });
 		}
 		catch (error) {
 			switch (error.message) {
 			case 'Cannot read properties of null (reading \'3\')':
-				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
 				break;
 			case 'Unknown Emoji':
-				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji found in `emoji` is not from this server.')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji found in `emoji` is not from this server.')] });
 				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('type')}\n${interaction.options.getString('emoji')}\n${interaction.options.getInteger('daterange')}`);
-				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}
 	},

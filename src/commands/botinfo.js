@@ -16,7 +16,9 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('botinfo')
 		.setDescription('Displays info about the bot.'),
-	execute(interaction) {
+	async execute(interaction) {
+		await interaction.deferReply();
+
 		const guildsCount = interaction.client.guilds.cache.size;
 		const uptime = interaction.client.uptime;
 		const botCreatedDate = interaction.client.user.createdAt.toDateString();
@@ -32,7 +34,7 @@ module.exports = {
 				{ name: 'Emoji Usages Recorded:', value: getAllGuildsEmojiCount(interaction).toString(), inline: true },
 			);
 
-		return interaction.reply({ embeds: [embedSuccess] });
+		return await interaction.editReply({ embeds: [embedSuccess] });
 
 	},
 };

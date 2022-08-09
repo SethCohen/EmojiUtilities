@@ -10,6 +10,8 @@ module.exports = {
 		.addUserOption(option =>
 			option.setName('user').setDescription('The user to get total emote usage stats for.')),
 	async execute(interaction) {
+		await interaction.deferReply();
+
 		const user = interaction.options.getUser('user');
 
 		const yearly = new Date();
@@ -42,6 +44,6 @@ module.exports = {
 				{ name: 'Hourly', value: hourlyCount, inline: true },
 			)
 			.setThumbnail(`${user ? user.displayAvatarURL() : interaction.guild.iconURL()}`);
-		return interaction.reply({ embeds: [embedSuccess] });
+		return interaction.editReply({ embeds: [embedSuccess] });
 	},
 };

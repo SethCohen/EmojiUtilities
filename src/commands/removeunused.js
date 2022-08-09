@@ -11,6 +11,8 @@ module.exports = {
 			option.setName('number')
 				.setDescription('How many emojis to remove. Default: 1')),
 	async execute(interactionCommand) {
+		await interactionCommand.deferReply();
+
 		if (!interactionCommand.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
 			return interactionCommand.reply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
@@ -18,7 +20,6 @@ module.exports = {
 			});
 		}
 
-		await interactionCommand.deferReply();
 
 		const number = interactionCommand.options.getInteger('number') ? interactionCommand.options.getInteger('number') : 1;
 		const occurrences = getDisplayStats(interactionCommand.guild.id, '0');

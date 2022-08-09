@@ -32,24 +32,26 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(interaction) {
+		await interaction.deferReply();
+
 		const text = interaction.options.getString('text')
 			.replace(/[^a-zA-Z0-9 ]/g, '') // Removes any non-alphanumerical characters.
 			.replace(/  +/g, ' '); 			// Removes trailing spaces
 
 		try {
-			return await interaction.reply({ content: await dancifyText(text, interaction) });
+			return await interaction.editReply({ content: await dancifyText(text, interaction) });
 		}
 		catch (error) {
 			switch (error.message) {
 			case 'Invalid Form Body\ndata.content: Must be 2000 or fewer in length.':
-				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must be less than 80 characters.\nIf you\'re wondering why so low, visit the support server and check the FAQ section in #important-info')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must be less than 80 characters.\nIf you\'re wondering why so low, visit the support server and check the FAQ section in #important-info')] });
 				break;
 			case 'Message content must be a non-empty string.':
-				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must contain at least one or more alphanumerical character.\nSpecial characters and unicodes inputs are ignored.')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must contain at least one or more alphanumerical character.\nSpecial characters and unicodes inputs are ignored.')] });
 				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('text')}`);
-				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 
 		}

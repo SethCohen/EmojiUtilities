@@ -20,8 +20,10 @@ module.exports = {
 			option.setName('name')
 				.setDescription('The name for the sticker.')),
 	async execute(interaction) {
+		await interaction.deferReply();
+
 		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
-			return interaction.reply({
+			return interaction.editReply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
 			});
@@ -37,13 +39,13 @@ module.exports = {
 
 		interaction.guild.stickers.create(fetchedSticker.url, stickerName ? stickerName : fetchedSticker.name, stickerTag)
 			.then(createdSticker => {
-				return interaction.reply({
+				return interaction.editReply({
 					content: `Created new sticker with name **${createdSticker.name}**!`,
 				});
 			})
 			.catch(error => {
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
-				return interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			});
 
 

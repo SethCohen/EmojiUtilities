@@ -8,6 +8,8 @@ module.exports = {
 		.setName('resetdb')
 		.setDescription('Clears your server\'s databases.'),
 	async execute(interactionCommand) {
+		await interactionCommand.deferReply();
+
 		if (!interactionCommand.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
 			return interactionCommand.reply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',

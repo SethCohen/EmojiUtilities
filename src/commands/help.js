@@ -7,10 +7,12 @@ module.exports = {
 		.setName('help')
 		.setDescription('Prints a list of useful bot-related resources to chat.'),
 	async execute(interaction) {
+		await interaction.deferReply();
+
 		const embed = new MessageEmbed()
 			.setTitle('Help')
 			.setDescription(mediaLinks + ' | [FAQ](https://github.com/SethCohen/EmojiUtilities/wiki#frequently-asked-questions) | [List of Supported Commands](https://github.com/SethCohen/EmojiUtilities/wiki)');
 
-		return interaction.reply({ embeds: [embed] });
+		return interaction.editReply({ embeds: [embed] });
 	},
 };

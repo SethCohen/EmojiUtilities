@@ -12,6 +12,8 @@ module.exports = {
 				.setDescription('The emoji to get info for.')
 				.setRequired(true)),
 	async execute(interaction) {
+		await interaction.deferReply();
+
 		const stringEmoji = interaction.options.getString('emoji');
 
 		try {
@@ -38,22 +40,20 @@ module.exports = {
 					{ name: 'Total Times Used:', value: count.toString() },
 				);
 
-			return interaction.reply({ embeds: [embedSuccess] });
+			return interaction.editReply({ embeds: [embedSuccess] });
 		}
 		catch (error) {
 			switch (error.message) {
 			case 'Cannot read properties of null (reading \'3\')':
-				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
 				break;
 			case 'Unknown Emoji':
-				await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `emoji` is from another server.\nI can\'t get info on emojis from other servers, sorry!\n\nIf you were trying to get an emoji from another server though, try `/copysteal`. ')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `emoji` is from another server.\nI can\'t get info on emojis from other servers, sorry!\n\nIf you were trying to get an emoji from another server though, try `/copysteal`. ')] });
 				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('emoji')}`);
-				return await interaction.reply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}
-
-
 	},
 };
