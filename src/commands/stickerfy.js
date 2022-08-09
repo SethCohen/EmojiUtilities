@@ -9,7 +9,7 @@ const imageType = require('image-type');
 const sharp = require('sharp');
 const isAnimated = require('is-animated');
 
-const uploadEmoji = (interaction, input, name, tag) => {
+const uploadSticker = (interaction, input, name, tag) => {
 	return interaction.guild.stickers.create(input, name, tag)
 		.then(async sticker => {
 			await interaction.editReply({
@@ -20,6 +20,9 @@ const uploadEmoji = (interaction, input, name, tag) => {
 			// console.error(`uploadEmoji error\n${error}`);
 			switch (error.message) {
 			case 'Maximum number of stickers reached (0)':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+				break;
+			case 'Maximum number of stickers reached (5)':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
 				break;
 			case 'Missing Permissions':
@@ -35,7 +38,7 @@ const uploadEmoji = (interaction, input, name, tag) => {
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker.\nLength of gif exceeds maximum duration of 5 seconds.')] });
 				break;
 			default:
-				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
+				console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		});
@@ -85,39 +88,11 @@ module.exports = {
 			const filename = Math.random().toString(36).substring(2, 10);
 			const path = `${dir}/${filename}`;
 
-			switch (imageType(buffer).ext) {
-			case 'png': {
-				await sharp(buffer)
-					.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-					.toFile(`${path}.png`);
+			// Checks if url is an image and sets temp file path if image needs processing
+			if (!imageType(buffer)) return interaction.editReply({ content: 'Invalid image type. Command only supports .gif, .png, or .jpg' });
 
-				uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
-					fs.unlink(`${path}.png`, (err) => {
-						if (err) {
-							console.error(`Unable to delete image: ${err}`);
-						}
-					});
-				});
-
-				break;
-			}
-			case 'jpg': {
-				await sharp(buffer)
-					.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-					.png()
-					.toFile(`${path}.png`);
-
-				uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
-					fs.unlink(`${path}.png`, (err) => {
-						if (err) {
-							console.error(`Unable to delete image: ${err}`);
-						}
-					});
-				});
-
-				break;
-			}
-			case 'gif': {
+			// Checks if url is animated or not; if animated treat as gif, if not treat as png
+			if (isAnimated(buffer)) {
 				await sharp(buffer, { animated: true })
 					.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
 					.gif({ colours: 32, dither: 0.0 })
@@ -128,72 +103,43 @@ module.exports = {
 						if (execError) throw execError;
 						if (stderr) console.error(`gif2apng stderr ${stderr}`);
 
-						uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
+						uploadSticker(interaction, `${path}.png`, name, tag).finally(() => {
 							fs.unlink(`${path}.gif`, (err) => {
-								if (err) {
-									console.error(`Unable to delete image: ${err}`);
-								}
+								if (err) console.error(`Unable to delete image: ${err}`);
+
 							});
 							fs.unlink(`${path}.png`, (err) => {
-								if (err) {
-									console.error(`Unable to delete image: ${err}`);
-								}
+								if (err) console.error(`Unable to delete image: ${err}`);
 							});
 						});
 					});
-
-				break;
 			}
-			case 'webp': {
-				if (isAnimated(buffer)) {
-					await sharp(buffer, { animated: true })
-						.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-						.gif({ colours: 32, dither: 0.0 })
-						.toFile(`${path}.gif`);
+			else {
+				await sharp(buffer)
+					.resize(320, 320, {
+						fit: 'contain',
+						background: { r: 0, g: 0, b: 0, alpha: 0 },
+					})
+					.png()
+					.toFile(`${path}.png`);
 
-					exec(`gif2apng ${path}.gif`,
-						async (execError, stdout, stderr) => {
-							if (execError) throw execError;
-							if (stderr) console.error(`gif2apng stderr ${stderr}`);
-
-							uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
-								fs.unlink(`${path}.gif`, (err) => {
-									if (err) {
-										console.error(`Unable to delete image: ${err}`);
-									}
-								});
-								fs.unlink(`${path}.png`, (err) => {
-									if (err) {
-										console.error(`Unable to delete image: ${err}`);
-									}
-								});
-							});
-						});
-				}
-				else {
-					await sharp(buffer)
-						.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-						.toFile(`${path}.png`);
-
-					uploadEmoji(interaction, `${path}.png`, name, tag).finally(() => {
-						fs.unlink(`${path}.png`, (err) => {
-							if (err) {
-								console.error(`Unable to delete image: ${err}`);
-							}
-						});
+				uploadSticker(interaction, `${path}.png`, name, tag).finally(() => {
+					fs.unlink(`${path}.png`, (err) => {
+						if (err) {
+							console.error(`Unable to delete image: ${err}`);
+						}
 					});
-				}
-				break;
-			}
-			default: {
-				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid image in `url`. Image must be either a gif, png, jpg, or webp.')] });
-			}
+				});
+
 			}
 		}
 		catch (error) {
 			switch (error.message) {
 			case 'Emoji doesn\'t exist':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `tag`.\nExpected default discord emoji, e.g. 🍌')] });
+				break;
+			case 'connect ECONNREFUSED 127.0.0.1:80':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid url in `url`.')] });
 				break;
 			case 'connect ECONNREFUSED ::1:80':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid url in `url`.')] });
@@ -202,7 +148,7 @@ module.exports = {
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid url in `url`.\nCan\'t detect image type. Try again with a direct link to the image.')] });
 				break;
 			default:
-				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
+				console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}
