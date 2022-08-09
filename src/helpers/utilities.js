@@ -58,7 +58,11 @@ const navigationButtons = isEnabled => {
 		);
 };
 
-
+/**	confirmationButtons
+ *		Controls confirmation buttons state and whether they are enabled or disabled.
+ * @param isEnabled
+ * @returns {MessageActionRow}
+ */
 const confirmationButtons = isEnabled => {
 	return new MessageActionRow()
 		.addComponents(
