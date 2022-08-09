@@ -2,9 +2,9 @@ const { Permissions, MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
 const fs = require('fs');
-const { exec } = require('child_process');
 const { sendErrorFeedback, mediaLinks } = require('../helpers/utilities');
 const imageType = require('image-type');
+const sharp = require('sharp');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -40,7 +40,6 @@ module.exports = {
 
 			const response = await axios.get(url, { responseType: 'arraybuffer' });
 			const buffer = Buffer.from(response.data, 'utf-8');
-			const bytes = response.headers['content-length'];
 			const filename = Math.random().toString(36).substring(2, 10);
 			let path = `${dir}/${filename}`;
 
@@ -52,100 +51,51 @@ module.exports = {
 				return interaction.editReply({ content: 'Invalid image type. Command only supports .gif, .png, or .jpg' });
 			}
 
-			if (bytes > 256000) {
+			await sharp(buffer)
+				.resize(128, 128, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+				.toFile(path);
 
-				fs.writeFile(`${path}`, buffer, function(err) {
-					if (err) throw err;
+			interaction.guild.emojis
+				.create(path, name)
+				.then(emoji => {
+					const embed = new MessageEmbed()
+						.setTitle(`Added ${emoji} to server!`)
+						.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
+					return interaction.editReply({ embeds: [embed] });
+				})
+				.catch(createEmojiError => {
+					switch (createEmojiError.message) {
+					case 'Invalid Form Body\nname: Must be between 2 and 32 in length.':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length.')] });
+						break;
+					case 'Invalid Form Body\nname: Must be between 2 and 32 in length. String value did not match validation regex.':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length and can only contain alphanumeric characters and underscores.')] });
+						break;
+					case 'Invalid Form Body\nname: String value did not match validation regex.':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust only contain alphanumeric characters and underscores.')] });
+						break;
+					case 'Maximum number of emojis reached (50)':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
+						break;
+					case 'Missing Permissions':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
+						break;
+					case 'Invalid Form Body\nimage: Invalid image data':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid image type. Discord only supports .jpg, .jpeg, .png, and .gif images.')] });
+						break;
+					case 'Failed to resize asset below the maximum size: 262144':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Couldn\'t resize image below 256KB size limit.')] });
+						break;
+					default:
+						console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${createEmojiError.message}\n**Raw Input:**\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}`);
+						return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+					}
+				})
+				.finally(() => {
+					fs.unlink(path, (err) => {
+						if (err) console.error(`Unable to delete image: ${err}`);
+					});
 				});
-
-				// Uses ImageMagick CLI to process image
-				exec(`convert -resize "128x128>" ${path} ${path}`,
-					(execError, stdout, stderr) => {
-						if (execError) {
-							console.error(`error: ${execError.message}`);
-							return;
-						}
-						if (stderr) {
-							console.error(`stderr: ${stderr}`);
-							return;
-						}
-
-						interaction.guild.emojis
-							.create(path, name)
-							.then(emoji => {
-								const embed = new MessageEmbed()
-									.setTitle(`Added ${emoji} to server!`)
-									.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
-								return interaction.editReply({ embeds: [embed] });
-							})
-							.catch(createEmojiError => {
-								switch (createEmojiError.message) {
-								case 'Invalid Form Body\nname: Must be between 2 and 32 in length.':
-									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length.')] });
-									break;
-								case 'Invalid Form Body\nname: Must be between 2 and 32 in length. String value did not match validation regex.':
-									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length and can only contain alphanumeric characters and underscores.')] });
-									break;
-								case 'Invalid Form Body\nname: String value did not match validation regex.':
-									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust only contain alphanumeric characters and underscores.')] });
-									break;
-								case 'Maximum number of emojis reached (50)':
-									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
-									break;
-								case 'Missing Permissions':
-									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
-									break;
-								case 'Invalid Form Body\nimage: Invalid image data':
-									interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid image type. Discord only supports .jpg, .jpeg, .png, and .gif images.')] });
-									break;
-								default:
-									console.error(`Command:\n${interaction.commandName}\nError Message:\n${createEmojiError.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}`);
-									return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
-								}
-							})
-							.finally(() => {
-								fs.unlink(path, (err) => {
-									if (err) throw err;
-									console.log(`${path} was deleted.`);
-								});
-							});
-					});
-			}
-			else {
-				interaction.guild.emojis
-					.create(buffer, name)
-					.then(emoji => {
-						const embed = new MessageEmbed()
-							.setTitle(`Added ${emoji} to server!`)
-							.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
-						return interaction.editReply({ embeds: [embed] });
-					})
-					.catch(createEmojiError => {
-						switch (createEmojiError.message) {
-						case 'Invalid Form Body\nname: Must be between 2 and 32 in length.':
-							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length.')] });
-							break;
-						case 'Invalid Form Body\nname: Must be between 2 and 32 in length. String value did not match validation regex.':
-							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust be between 2 to 32 characters in length and can only contain alphanumeric characters and underscores.')] });
-							break;
-						case 'Invalid Form Body\nname: String value did not match validation regex.':
-							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust only contain alphanumeric characters and underscores.')] });
-							break;
-						case 'Maximum number of emojis reached (50)':
-							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
-							break;
-						case 'Missing Permissions':
-							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
-							break;
-						case 'Invalid Form Body\nimage: Invalid image data':
-							interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid image type. Discord only supports .jpg, .jpeg, .png, and .gif images.')] });
-							break;
-						default:
-							console.error(`Command:\n${interaction.commandName}\nError Message:\n${createEmojiError.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}`);
-							return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
-						}
-					});
-			}
 		}
 		catch (error) {
 			switch (error.message) {
