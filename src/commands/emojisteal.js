@@ -50,6 +50,9 @@ module.exports = {
 			})
 			.catch(async error => {
 				switch (error.message) {
+				case 'Failed to resize asset below the maximum size: 262144':
+					await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Couldn\'t resize image below 256KB size limit.')] });
+					break;
 				case 'Maximum number of emojis reached (50)':
 					await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
 					break;
@@ -57,7 +60,7 @@ module.exports = {
 					await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
 					break;
 				default:
-					console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getString('name')}`);
+					console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interaction.options.getString('emoji')}\n${interaction.options.getString('name')}`);
 					return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 				}
 			});
