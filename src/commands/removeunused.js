@@ -85,13 +85,14 @@ module.exports = {
 				case 'Unknown Message':
 					// Ignore unknown interactions (Often caused from deleted interactions).
 					break;
+				case 'Unknown Emoji':
+					await interactionCommand.editReply({ content: 'Can\'t delete emoji. Emoji not found.' });
+					break;
 				case 'Collector received no interactions before ending with reason: time':
-					await interactionCommand.editReply({
-						content: 'User took too long. Interaction timed out.',
-					});
+					await interactionCommand.editReply({ content: 'User took too long. Interaction timed out.' });
 					break;
 				default:
-					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
+					console.error(`**Command:**\n${interactionCommand.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interactionCommand.options.getInteger('number')}`);
 				}
 			})
 			.finally(async () => {
