@@ -44,8 +44,17 @@ module.exports = {
 				});
 			})
 			.catch(error => {
-				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
-				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+				switch (error.message) {
+				case 'Maximum number of stickers reached (5)':
+					interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+					break;
+				case 'Maximum number of stickers reached (15)':
+					interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+					break;
+				default:
+					console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
+					return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+				}
 			});
 
 
