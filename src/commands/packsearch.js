@@ -80,8 +80,11 @@ module.exports = {
 							case 'Invalid Form Body\nimage: File cannot be larger than 256.0 kb.':
 								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'For some reason, even though this image is on emoji.gg, it\'s over 256kb and thus cannot be uploaded to the server.')] });
 								break;
+							case 'Failed to resize asset below the maximum size: 262144':
+								interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'For some reason, even though this image is on emoji.gg, it\'s over 256kb and thus cannot be uploaded to the server.')] });
+								break;
 							default:
-								console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand.options.getString('name')}`);
+								console.error(`**Command:**\n${interactionCommand.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interactionCommand.options.getString('name')}`);
 								return interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
 							}
 
@@ -133,7 +136,7 @@ module.exports = {
 					// Ignore unknown interactions (Often caused from deleted interactions).
 					break;
 				default:
-					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
+					console.error(`**Command:**\n${interactionCommand.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interactionCommand.options.getString('name')}`);
 				}
 			}
 			// console.log(`Collected ${collected.size} interactions.`);
