@@ -1,4 +1,20 @@
 # Changelog
+## [1.21.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.20.0...v1.21.0) (2022-08-10)
+
+
+### Features
+
+* deferred all commands to prevent command timeouts ([84d6ca9](https://github.com/SethCohen/EmojiUtilities/commit/84d6ca9465da5ac43ac2cd07936f879199a1b306))
+
+
+### Bug Fixes
+
+* `/emojisteal` fixed error on attempting to upload emoji over max filesize limit ([b5ada00](https://github.com/SethCohen/EmojiUtilities/commit/b5ada0017dc6acc00399c0c8d6fcf6896e516046))
+* `/removeunused` added error catch on unknown emoji deletion attempt ([f397bbb](https://github.com/SethCohen/EmojiUtilities/commit/f397bbb6e03b01614acd648fc8d6b36fbb9a5d65))
+* `/stickerfy` fixed error on invalid url ([591c808](https://github.com/SethCohen/EmojiUtilities/commit/591c80864e7879fe70a8421e53be7e58ed9d4472))
+* `/stickersteal` fixed error on attempting to upload a sticker after max sticker slots reached ([c9759c7](https://github.com/SethCohen/EmojiUtilities/commit/c9759c79e1ea99e8698b7ca42aa5b58aa1ac5c0f))
+* `/uploademoji` fixed error on over max filesize ([465d600](https://github.com/SethCohen/EmojiUtilities/commit/465d600ccd622fda20e3282c48292a4e8f48e5f3))
+
 ## [1.20.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.19.0...v1.20.0) (2022-07-01)
 
 
