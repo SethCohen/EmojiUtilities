@@ -32,7 +32,14 @@ module.exports = {
 		const messageId = interaction.options.getString('messageid');
 		const stickerName = interaction.options.getString('name');
 		let stickerTag = interaction.options.getString('tag');
-		const message = await interaction.channel.messages.fetch(messageId);
+		let message;
+		try {
+			message = await interaction.channel.messages.fetch(messageId);
+		}
+		catch (e) {
+			if (e.message === 'Unknown Message') return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
+			console.error(e);
+		}
 		const fetchedSticker = message.stickers.first();
 
 		stickerTag = converter.getShortcode(stickerTag, false);		// Convert unicode emoji to discord string name
