@@ -3,22 +3,6 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { Permissions, MessageEmbed } = require('discord.js');
 const { mediaLinks, sendErrorFeedback } = require('../helpers/utilities');
 
-const setCommandAvailability = async (guild, commandName, flag) => {
-	const applicationCommands = await guild.client.application.commands.fetch();
-	const foundCommand = await applicationCommands.filter(command => command.name === commandName);
-
-	const permission = {
-		guild: guild.id,
-		permissions: [{
-			id: guild.id,
-			type: 'ROLE',
-			permission: flag,
-		}],
-	};
-
-	return foundCommand.first().permissions.add(permission);
-};
-
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('config')
@@ -52,7 +36,7 @@ module.exports = {
 						.setDescription('Set flag')
 						.setRequired(true))),
 	async execute(interaction) {
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 
 		if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
 			return interaction.editReply({
@@ -61,25 +45,15 @@ module.exports = {
 			});
 		}
 
-		await interaction.deferReply({ ephemeral: true });
 		const setting = interaction.options.getSubcommand();
 		const flag = interaction.options.getBoolean('flag') ? 1 : 0;
 		const embedSuccess = new MessageEmbed()
 			.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 
 		try {
-			if (setting === 'togglecommand') {
-				const commandName = interaction.options.getString('commandname');
-				await setCommandAvailability(interaction.guild, commandName, !!flag);
-
-				embedSuccess.setTitle(`\`/${commandName}\` ${flag ? 'enabled' : 'disabled'}.`);
-				return interaction.editReply({ embeds: [embedSuccess] });
-			}
-			else {
-				embedSuccess.setTitle(`\`${setting}\` set to \`${Boolean(flag)}\`.`);
-				setSetting(interaction.guild.id, setting, flag);
-				return interaction.editReply({ embeds: [embedSuccess] });
-			}
+			embedSuccess.setTitle(`\`${setting}\` set to \`${Boolean(flag)}\`.`);
+			setSetting(interaction.guild.id, setting, flag);
+			return interaction.editReply({ embeds: [embedSuccess] });
 		}
 		catch (error) {
 			switch (error.message) {
