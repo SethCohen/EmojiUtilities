@@ -1,4 +1,14 @@
 # Changelog
+## [1.21.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.21.0...v1.21.1) (2022-08-14)
+
+
+### Bug Fixes
+
+* `/config` fixed command failure error due to double deferral and fully deprecated `/config togglecommand` due to discord api changes ([1eed9cb](https://github.com/SethCohen/EmojiUtilities/commit/1eed9cb6201a04c9e72d87322a1ff987a1bf83fd))
+* `/emojisteal` Fixed error on invalid `name` using special characters or original emoji string. ([ffd8d59](https://github.com/SethCohen/EmojiUtilities/commit/ffd8d59860e2d3bded56efde76b61b692de68cb8))
+* `/stickersteal` fixed error on unknown default emoji in `tag` field ([68127b1](https://github.com/SethCohen/EmojiUtilities/commit/68127b1cd8601cb2a7c3a72a1531ccf663e005a0))
+* `/stickersteal` fixed error on unknown message ([f97ccc1](https://github.com/SethCohen/EmojiUtilities/commit/f97ccc17fcf4ecbfae115c024c92f0824db41e2c))
+
 ## [1.21.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.20.0...v1.21.0) (2022-08-10)
 
 
