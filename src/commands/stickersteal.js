@@ -42,7 +42,19 @@ module.exports = {
 		}
 		const fetchedSticker = message.stickers.first();
 
-		stickerTag = converter.getShortcode(stickerTag, false);		// Convert unicode emoji to discord string name
+		try {
+			stickerTag = converter.getShortcode(stickerTag, false); // Convert unicode emoji to discord string name
+		}
+		catch (e) {
+			switch (e.message) {
+			case 'Emoji doesn\'t exist':
+				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `tag` not found. Please use a default emoji, such as 🍌')] });
+				break;
+			default:
+				console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${e.message}\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
+				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+			}
+		}
 
 		interaction.guild.stickers.create(fetchedSticker.url, stickerName ? stickerName : fetchedSticker.name, stickerTag)
 			.then(createdSticker => {
