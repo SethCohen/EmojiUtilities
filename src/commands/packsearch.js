@@ -48,7 +48,6 @@ module.exports = {
 			components: [navigationButtons(true), confirmationButtons(true)],
 		});
 
-		// TODO add looping pagination
 		// Create button listeners
 		const message = await interactionCommand.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 120000 });
@@ -100,13 +99,6 @@ module.exports = {
 					});
 					return interactionCommand.editReply({ content: 'Canceled.' });
 				}
-				else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
-					--currentPageIndex;
-					await interactionButton.update({
-						embeds: [pages[currentPageIndex]],
-						components: [navigationButtons(true), confirmationButtons(true)],
-					});
-				}
 				else if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
 					++currentPageIndex;
 					await interactionButton.update({
@@ -114,8 +106,26 @@ module.exports = {
 						components: [navigationButtons(true), confirmationButtons(true)],
 					});
 				}
-				else {
-					await interactionButton.reply({ content: 'No valid page to go to.', ephemeral: true });
+				else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
+					--currentPageIndex;
+					await interactionButton.update({
+						embeds: [pages[currentPageIndex]],
+						components: [navigationButtons(true), confirmationButtons(true)],
+					});
+				}
+				else if (currentPageIndex === 0) {
+					currentPageIndex = pages.length - 1;
+					await interactionButton.update({
+						embeds: [pages[currentPageIndex]],
+						components: [navigationButtons(true), confirmationButtons(true)],
+					});
+				}
+				else if (currentPageIndex === pages.length - 1) {
+					currentPageIndex = 0;
+					await interactionButton.update({
+						embeds: [pages[currentPageIndex]],
+						components: [navigationButtons(true), confirmationButtons(true)],
+					});
 				}
 			}
 			else {
