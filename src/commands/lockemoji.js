@@ -24,8 +24,6 @@ module.exports = {
 			});
 		}
 
-		await interaction.deferReply();
-
 		const role = interaction.options.getRole('role');
 
 		const stringEmoji = interaction.options.getString('emoji');
