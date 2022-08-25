@@ -9,8 +9,18 @@ const { db_key } = require('../../config.json');
 function createDatabase(guildId) {
 	// console.log(`createDatabase(${guildId}) called.`)
 
+	// TODO SqliteError: file is not a database
+
 	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`rekey='${db_key}'`);
+
+	try {
+		db.pragma(`rekey='${db_key}'`);
+	}
+	catch (e) {
+		console.error(e);
+		console.log(guildId);
+		console.log(db);
+	}
 
 	const createStatements = [
 		'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
@@ -114,7 +124,7 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin) {
 		db.close();
 	}
 	else {
-		console.log(`deleteFromDb: Cancel delete. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`);
+		// console.log(`deleteFromDb: Cancel delete. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`);
 	}
 
 }
@@ -177,7 +187,7 @@ function insertToDb(guildId, emojiId, userId, dateTime, table, origin) {
  *
  *  @param guildId   The server the records are associated with.
  *  @param emojiId   The emoji to query records for.
- *  @param clientId  The bot; to ignore so it only queries for other users records.
+ *  @param clientId  The bot; to ignore, so it only queries for other users records.
  *  @param type      The type of leaderboard to display. Either 'Sent' or 'Received' emojis leaderboard.
  *  @param dateTime  The date range to query records for.
  *  @returns {*}     Returns a collection of records of {user, count}
@@ -298,7 +308,7 @@ function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
 }
 
 /** getGetCount
- *      Returns total emojis usage within a specified date range for either an entire server or a specified user.
+ *      Returns total emojis' usage within a specified date range for either an entire server or a specified user.
  *
  * @param guildId       The server the records are associated with.
  * @param userId        The user to query for.
