@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const { sendErrorFeedback } = require('../helpers/utilities');
+const { SlashCommandBuilder } = require('discord.js');
 
 const clapifyText = (text) => {
 	return `${text.replace(/ /g, ' 👏 ')} 👏`;

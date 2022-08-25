@@ -1,6 +1,5 @@
 const { getEmojiTotalCount } = require('../helpers/dbModel');
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const { mediaLinks, sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
 
 module.exports = {
@@ -30,7 +29,7 @@ module.exports = {
 
 			const count = getEmojiTotalCount(interaction.guild.id, emoji.id);
 
-			const embedSuccess = new MessageEmbed()
+			const embedSuccess = new EmbedBuilder()
 				.setTitle(`${emoji.name}`)
 				.setDescription(mediaLinks)
 				.setThumbnail(`${emoji.url}`)

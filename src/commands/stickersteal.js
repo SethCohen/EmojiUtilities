@@ -1,5 +1,4 @@
-const { Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const { sendErrorFeedback } = require('../helpers/utilities');
 const converter = require('discord-emoji-converter');
 
@@ -22,7 +21,7 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
 			return interaction.editReply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
@@ -39,7 +38,11 @@ module.exports = {
 
 			stickerTag = converter.getShortcode(stickerTag, false); // Convert unicode emoji to discord string name
 
-			interaction.guild.stickers.create(fetchedSticker.url, stickerName ? stickerName : fetchedSticker.name, stickerTag)
+			interaction.guild.stickers.create({
+				file: fetchedSticker.url,
+				name: stickerName ? stickerName : fetchedSticker.name,
+				tags: stickerTag,
+			})
 				.then(createdSticker => {
 					return interaction.editReply({
 						content: `Created new sticker with name **${createdSticker.name}**!`,

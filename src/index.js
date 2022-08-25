@@ -1,10 +1,10 @@
 const fs = require('fs');
-const { Client, Collection, Intents } = require('discord.js');
+const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js');
 const { token } = require('../config.json');
 
 const client = new Client({
-	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS],
-	partials: ['MESSAGE', 'USER', 'CHANNEL', 'REACTION'],
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildEmojisAndStickers],
+	partials: [Partials.Message, Partials.User, Partials.Channel, Partials.Reaction],
 });
 
 // Commands
@@ -27,4 +27,4 @@ for (const file of eventFiles) {
 	}
 }
 
-client.login(token);
+client.login(token).then(console.log);

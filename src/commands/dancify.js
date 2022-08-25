@@ -1,6 +1,6 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const { guildId } = require('../../config.json');
 const { sendErrorFeedback } = require('../helpers/utilities');
+const { SlashCommandBuilder } = require('discord.js');
 
 const dancifyText = async (text, interaction) => {
 	const guild = await interaction.client.guilds.fetch(guildId);

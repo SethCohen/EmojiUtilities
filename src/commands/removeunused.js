@@ -1,6 +1,5 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const { getDisplayStats } = require('../helpers/dbModel');
-const { Permissions } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const { confirmationButtons } = require('../helpers/utilities');
 
 module.exports = {
@@ -13,7 +12,7 @@ module.exports = {
 	async execute(interactionCommand) {
 		await interactionCommand.deferReply();
 
-		if (!interactionCommand.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+		if (!interactionCommand.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
 			return interactionCommand.reply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
@@ -25,7 +24,7 @@ module.exports = {
 		const occurrences = getDisplayStats(interactionCommand.guild.id, '0');
 
 		// Gets all emojis:count in guild by descending count and splices array to just bottom n rows.
-		// Essentially returns the n amount least used emojis in the server.
+		// Essentially returns the n least-used emojis in the server.
 		const toRemove = interactionCommand.guild.emojis.cache.map(emoji => {
 			const item = occurrences.find(row => row.emoji === emoji.id);
 			return item ? { emoji: emoji.id, count: item['COUNT(emoji)'] } : { emoji: emoji.id, count: 0 };
@@ -59,7 +58,7 @@ module.exports = {
 		message.awaitMessageComponent({ filter, time: 30000 })
 			.then(async interactionButton => {
 				if (interactionButton.customId === 'confirm') {
-					if (!interactionButton.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+					if (!interactionButton.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
 						interactionCommand.editReply({ content: 'Cancelling emoji adding. Interaction author lacks permissions.' });
 						return await interactionButton.followUp({
 							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',

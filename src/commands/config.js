@@ -1,6 +1,5 @@
 const { setSetting } = require('../helpers/dbModel');
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Permissions, MessageEmbed } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const { mediaLinks, sendErrorFeedback } = require('../helpers/utilities');
 
 module.exports = {
@@ -38,7 +37,7 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply({ ephemeral: true });
 
-		if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+		if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
 			return interaction.editReply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
 				ephemeral: true,
@@ -47,7 +46,7 @@ module.exports = {
 
 		const setting = interaction.options.getSubcommand();
 		const flag = interaction.options.getBoolean('flag') ? 1 : 0;
-		const embedSuccess = new MessageEmbed()
+		const embedSuccess = new EmbedBuilder()
 			.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 
 		try {
@@ -61,7 +60,7 @@ module.exports = {
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Discord recently updated their API, disabling the ability for bots to set command permissions.\nHopefully their new system is updated to re-allow this ability, but in the mean time, you can toggle commands yourself via:\n`Server Settings -> Integrations -> Emoji Utilities -> Manage`')] });
 				break;
 			default:
-				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('commandname')}\n${interaction.options.getBoolean('flag')} `);
+				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${setting}\n${flag} `);
 				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}

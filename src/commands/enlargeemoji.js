@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const { sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
+const { SlashCommandBuilder } = require('discord.js');
 
 const getEmojiUrl = (emoji) => {
 	if (emoji[1]) {

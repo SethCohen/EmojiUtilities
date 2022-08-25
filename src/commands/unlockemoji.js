@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Permissions, MessageEmbed } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const { verifyEmojiString, sendErrorFeedback, mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
@@ -14,7 +13,7 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+		if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
 			return interaction.editReply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
 				ephemeral: true,
@@ -30,7 +29,7 @@ module.exports = {
 
 			foundEmoji.edit({ roles: [`${interaction.guild.id}`] })
 				.then(editedEmoji => {
-					const embed = new MessageEmbed()
+					const embed = new EmbedBuilder()
 						.setTitle(`Unlocked ${editedEmoji} for role everyone.`)
 						.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 					return interaction.editReply({ embeds: [embed] });

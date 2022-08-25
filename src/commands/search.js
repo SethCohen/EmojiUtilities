@@ -1,7 +1,6 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
 const { findBestMatch } = require('string-similarity');
-const { MessageEmbed, Permissions } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const { getSetting } = require('../helpers/dbModel');
 const { sendErrorFeedback, confirmationButtons } = require('../helpers/utilities');
 
@@ -87,7 +86,7 @@ module.exports = {
 			return json.title;
 		}));
 
-		const embed = new MessageEmbed()
+		const embed = new EmbedBuilder()
 			.setTitle(data[match.bestMatchIndex].title)
 			.setDescription(`This emoji had the highest percent likeness to your search parameters at ${(match.bestMatch.rating * 100).toFixed(2)}%\nWould you like to upload it to the server?`)
 			.setImage(data[match.bestMatchIndex].image);
@@ -109,7 +108,7 @@ module.exports = {
 		message.awaitMessageComponent({ filter, time: 30000 })
 			.then(async interactionButton => {
 				if (interactionButton.customId === 'confirm') {
-					if (!interactionButton.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+					if (!interactionButton.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
 						interactionCommand.editReply({ content: 'Cancelling emoji adding. Interaction author lacks permissions.' });
 						return await interactionButton.followUp({
 							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
@@ -118,7 +117,10 @@ module.exports = {
 					}
 
 					interactionCommand.guild.emojis
-						.create(data[match.bestMatchIndex].image, data[match.bestMatchIndex].title)
+						.create({
+							attachment: data[match.bestMatchIndex].image,
+							name: data[match.bestMatchIndex].title,
+						})
 						.then(async emoji => {
 							return await interactionCommand.editReply({ content: `Added ${emoji} to server!` });
 						})

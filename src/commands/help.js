@@ -1,5 +1,4 @@
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const { mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
@@ -9,7 +8,7 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		const embed = new MessageEmbed()
+		const embed = new EmbedBuilder()
 			.setTitle('Help')
 			.setDescription(mediaLinks + ' | [FAQ](https://github.com/SethCohen/EmojiUtilities/wiki#frequently-asked-questions) | [List of Supported Commands](https://github.com/SethCohen/EmojiUtilities/wiki)');
 

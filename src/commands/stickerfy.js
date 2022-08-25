@@ -1,5 +1,4 @@
-const { Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 const axios = require('axios');
 const { exec } = require('child_process');
@@ -9,15 +8,15 @@ const imageType = require('image-type');
 const sharp = require('sharp');
 const isAnimated = require('is-animated');
 
-const uploadSticker = (interaction, input, name, tag) => {
-	return interaction.guild.stickers.create(input, name, tag)
+const uploadSticker = async (interaction, input, name, tag) => {
+	return interaction.guild.stickers.create({ file: input, name: name, tags: tag })
 		.then(async sticker => {
 			await interaction.editReply({
 				content: `Created new sticker with name **${sticker.name}**!`,
 			});
 		})
 		.catch(async error => {
-			// console.error(`uploadEmoji error\n${error}`);
+			console.log(error);
 			switch (error.message) {
 			case 'Maximum number of stickers reached (0)':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
@@ -67,7 +66,7 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
 			return interaction.editReply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
@@ -106,7 +105,7 @@ module.exports = {
 						if (execError) throw execError;
 						if (stderr) console.error(`gif2apng stderr ${stderr}`);
 
-						uploadSticker(interaction, `${path}.png`, name, tag).finally(() => {
+						await uploadSticker(interaction, `${path}.png`, name, tag).finally(() => {
 							fs.unlink(`${path}.gif`, (err) => {
 								if (err) console.error(`Unable to delete image: ${err}`);
 
@@ -126,7 +125,7 @@ module.exports = {
 					.png()
 					.toFile(`${path}.png`);
 
-				uploadSticker(interaction, `${path}.png`, name, tag).finally(() => {
+				await uploadSticker(interaction, `${path}.png`, name, tag).finally(() => {
 					fs.unlink(`${path}.png`, (err) => {
 						if (err) {
 							console.error(`Unable to delete image: ${err}`);

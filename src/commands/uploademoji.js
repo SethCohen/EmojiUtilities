@@ -1,5 +1,4 @@
-const { Permissions, MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const axios = require('axios');
 const fs = require('fs');
 const { sendErrorFeedback, mediaLinks } = require('../helpers/utilities');
@@ -21,7 +20,7 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
 			return interaction.editReply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 				ephemeral: true,
@@ -56,9 +55,9 @@ module.exports = {
 				.toFile(path);
 
 			interaction.guild.emojis
-				.create(path, name)
+				.create({ attachment: path, name: name })
 				.then(emoji => {
-					const embed = new MessageEmbed()
+					const embed = new EmbedBuilder()
 						.setTitle(`Added ${emoji} to server!`)
 						.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 					return interaction.editReply({ embeds: [embed] });

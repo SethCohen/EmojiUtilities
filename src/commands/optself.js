@@ -1,5 +1,4 @@
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const { setOpt, clearUserFromDb } = require('../helpers/dbModel');
 const { confirmationButtons } = require('../helpers/utilities');
 
@@ -19,7 +18,7 @@ module.exports = {
 
 		const flag = interactionCommand.options.getString('flag');
 
-		const embed = new MessageEmbed()
+		const embed = new EmbedBuilder()
 			.setTitle(`Are you sure you want to opt-${flag === 'true' ? 'in' : 'out'} of your server's database?`)
 			.setDescription(`${flag === 'true' ? 'Opting in will allow the bot to record your emoji usage again.' : 'Opting out will both disallow that AND **clear all previous records of your emoji usage from your server\'s database immediately.**\nThis is a permanent decision. There is no undoing this action.'}`);
 

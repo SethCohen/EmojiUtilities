@@ -1,5 +1,4 @@
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const ms = require('ms');
 const { getGetCount } = require('../helpers/dbModel');
 const { mediaLinks } = require('../helpers/utilities');
@@ -23,7 +22,7 @@ module.exports = {
 		const uptime = interaction.client.uptime;
 		const botCreatedDate = interaction.client.user.createdAt.toDateString();
 
-		const embedSuccess = new MessageEmbed()
+		const embedSuccess = new EmbedBuilder()
 			.setTitle(`${interaction.client.user.username}`)
 			.setDescription(mediaLinks)
 			.setThumbnail(`${interaction.client.user.avatarURL()}`)

@@ -1,8 +1,7 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const fs = require('fs');
 const axios = require('axios');
 const archiver = require('archiver');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const { mediaLinks } = require('../helpers/utilities');
 
 const createZip = async (interaction) => {
@@ -55,7 +54,7 @@ module.exports = {
 		await interaction.editReply({ content: 'Backing up emojis...' });
 		const zipPath = await createZip(interaction);
 
-		const embedSuccess = new MessageEmbed()
+		const embedSuccess = new EmbedBuilder()
 			.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 
 		await interaction.editReply({

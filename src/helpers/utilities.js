@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const mediaLinks = '[Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities) | [Vote](https://top.gg/bot/757326308547100712/vote)';
 
 /** verifyEmojiString
@@ -27,12 +27,12 @@ function capitalizeFirstLetter(string) {
  *
  * @param title				Where the error was thrown.
  * @param error				An error message to display to the user - if any.
- * @returns {MessageEmbed}	The resultant formatted error response.
+ * @returns {EmbedBuilder}	The resultant formatted error response.
  */
 function sendErrorFeedback(title, error = null) {
 	const unknownError = 'Unknown Error Found! Don\'t worry, the error was logged to the bot owner. A fix should be released soon. Thank you! 🙂';
 
-	return new MessageEmbed()
+	return new EmbedBuilder()
 		.setTitle(`${capitalizeFirstLetter(title)} Error!`)
 		.setDescription(`**${error ? error : unknownError}**\n\nThink this error wasn't supposed to happen?\nTry joining our [support server](https://discord.gg/XaeERFAVfb) for help!`);
 }
@@ -40,20 +40,20 @@ function sendErrorFeedback(title, error = null) {
 /**	navigationButtons
  *		Controls pagination buttons state and whether they are enabled or disabled.
  * @param isEnabled
- * @returns {MessageActionRow}
+ * @returns {ActionRowBuilder}
  */
 const navigationButtons = isEnabled => {
-	return new MessageActionRow()
+	return new ActionRowBuilder()
 		.addComponents(
-			new MessageButton()
+			new ButtonBuilder()
 				.setCustomId('prev')
 				.setLabel('👈 Prev')
-				.setStyle('SECONDARY')
+				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(!isEnabled),
-			new MessageButton()
+			new ButtonBuilder()
 				.setCustomId('next')
 				.setLabel('👉 Next')
-				.setStyle('SECONDARY')
+				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(!isEnabled),
 		);
 };
@@ -61,20 +61,20 @@ const navigationButtons = isEnabled => {
 /**	confirmationButtons
  *		Controls confirmation buttons state and whether they are enabled or disabled.
  * @param isEnabled
- * @returns {MessageActionRow}
+ * @returns {ActionRowBuilder}
  */
 const confirmationButtons = isEnabled => {
-	return new MessageActionRow()
+	return new ActionRowBuilder()
 		.addComponents(
-			new MessageButton()
+			new ButtonBuilder()
 				.setCustomId('confirm')
 				.setLabel('✔ Confirm')
-				.setStyle('SUCCESS')
+				.setStyle(ButtonStyle.Success)
 				.setDisabled(!isEnabled),
-			new MessageButton()
+			new ButtonBuilder()
 				.setCustomId('cancel')
 				.setLabel('❌ Cancel')
-				.setStyle('DANGER')
+				.setStyle(ButtonStyle.Danger)
 				.setDisabled(!isEnabled),
 		);
 };

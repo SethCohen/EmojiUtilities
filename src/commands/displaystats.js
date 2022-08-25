@@ -1,6 +1,5 @@
 const { getDisplayStats } = require('../helpers/dbModel');
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const { navigationButtons } = require('../helpers/utilities');
 
 const validateDateRange = (dateRange) => {
@@ -77,7 +76,7 @@ const getPages = async (user, date, interaction, occurrences) => {
 	const embedPages = [];
 	let pageNumber = 1;
 	for (const chunk of chunks) {
-		const embed = new MessageEmbed()
+		const embed = new EmbedBuilder()
 			.setTitle(`---------- ${user ? user.username : 'Server'}'s Statistics ----------`)
 			.setDescription(date.dateString)
 			.setFooter({
@@ -88,7 +87,7 @@ const getPages = async (user, date, interaction, occurrences) => {
 			const emojiId = row.emoji;
 			try {
 				const emoji = await interaction.guild.emojis.fetch(emojiId);
-				embed.addField(`${emoji}`, `${count}`, true);
+				embed.addFields([{ name: `${emoji}`, value: `${count}`, inline: true }]);
 			}
 			catch (ignoreError) {
 				// Ignore empty rows

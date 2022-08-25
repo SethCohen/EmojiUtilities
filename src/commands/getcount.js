@@ -1,6 +1,5 @@
 const { getGetCount } = require('../helpers/dbModel');
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const { mediaLinks } = require('../helpers/utilities');
 
 module.exports = {
@@ -32,7 +31,7 @@ module.exports = {
 		const dailyCount = getGetCount(interaction.guild.id, user ? user.id : user, daily.toISOString()).toString();
 		const hourlyCount = getGetCount(interaction.guild.id, user ? user.id : user, daily.toISOString()).toString();
 
-		const embedSuccess = new MessageEmbed()
+		const embedSuccess = new EmbedBuilder()
 			.setDescription(mediaLinks)
 			.setTitle(`${user ? user.username : 'Server'}'s Total Count Statistics`)
 			.addFields(

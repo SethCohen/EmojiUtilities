@@ -1,14 +1,13 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
 const { findBestMatch } = require('string-similarity');
-const { MessageEmbed, Permissions } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const { mediaLinks, sendErrorFeedback, navigationButtons, confirmationButtons } = require('../helpers/utilities');
 
 const createPages = (packResponse) => {
 	const pages = [];
 	let pageNumber = 1;
 	for (const emoji of packResponse.data.emotes) {
-		const embed = new MessageEmbed()
+		const embed = new EmbedBuilder()
 			.setTitle(`${packResponse.data.name} Pack`)
 			.setDescription(mediaLinks)
 			.setImage(emoji.url)
@@ -49,6 +48,7 @@ module.exports = {
 			components: [navigationButtons(true), confirmationButtons(true)],
 		});
 
+		// TODO add looping pagination
 		// Create button listeners
 		const message = await interactionCommand.fetchReply();
 		const collector = message.createMessageComponentCollector({ time: 120000 });
@@ -60,7 +60,7 @@ module.exports = {
 						components: [navigationButtons(true), confirmationButtons(false)],
 					});
 
-					if (!interactionButton.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+					if (!interactionButton.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
 						return interactionCommand.editReply({
 							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 							ephemeral: true,
@@ -68,7 +68,10 @@ module.exports = {
 					}
 
 					interactionCommand.guild.emojis
-						.create(packResponse.data.emotes[currentPageIndex].url, packResponse.data.emotes[currentPageIndex].name.replace(/-/g, ''))
+						.create({
+							attachment: packResponse.data.emotes[currentPageIndex].url,
+							name: packResponse.data.emotes[currentPageIndex].name.replace(/-/g, ''),
+						})
 						.then(emoji => {
 							return interactionCommand.editReply({ content: `Added ${emoji} to server!` });
 						})

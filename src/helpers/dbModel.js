@@ -59,6 +59,7 @@ function createDatabase(guildId) {
  *  @param table        The table to delete from.
  *  @param origin       The event from where deleteFromDb was called.
  */
+// eslint-disable-next-line no-unused-vars
 function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin) {
 	// console.log(`deleteFromDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}) called from ${origin}.`);
 
@@ -533,6 +534,9 @@ function setOpt(guildId, userId, flag) {
 	const db = new Database(`./databases/${guildId}.sqlite`);
 	db.pragma(`key='${db_key}'`);
 	const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
+
+	console.log(`setOpt(${guildId}, ${userId}, ${Number(flag)}) called.`);
+
 	statement.run({
 		user: userId,
 		flag: Number(flag),

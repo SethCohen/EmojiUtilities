@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Permissions } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const { resetDb } = require('../helpers/dbModel');
 const { confirmationButtons } = require('../helpers/utilities');
 
@@ -10,7 +9,7 @@ module.exports = {
 	async execute(interactionCommand) {
 		await interactionCommand.deferReply();
 
-		if (!interactionCommand.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+		if (!interactionCommand.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
 			return interactionCommand.reply({
 				content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
 				ephemeral: true,

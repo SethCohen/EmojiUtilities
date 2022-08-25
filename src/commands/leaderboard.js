@@ -1,6 +1,5 @@
 const { getLeaderboard } = require('../helpers/dbModel');
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const { sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
 
 const validateDateRange = (dateRange) => {
@@ -57,7 +56,7 @@ const validateDateRange = (dateRange) => {
 };
 
 const createOutput = async (interaction, emoji, date, array) => {
-	const embed = new MessageEmbed()
+	const embed = new EmbedBuilder()
 		.setTitle(`${emoji.name} Leaderboard`)
 		.setDescription(date.dateString)
 		.setThumbnail(`${emoji.url}`);
@@ -67,7 +66,7 @@ const createOutput = async (interaction, emoji, date, array) => {
 		const userId = Object.values(row)[0];
 		try {
 			const user = await interaction.guild.members.fetch(userId);
-			embed.addField(`${leaderboardPos}. ${user.displayName}`, `${count}`);
+			embed.addFields([{ name: `${leaderboardPos}. ${user.displayName}`, value: `${count}` }]);
 		}
 		catch (e) {
 			console.error(`createOutput error\n${e}`);

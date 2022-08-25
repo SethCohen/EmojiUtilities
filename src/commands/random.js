@@ -1,6 +1,5 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
-const { MessageEmbed, Permissions } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const { getSetting } = require('../helpers/dbModel');
 const { sendErrorFeedback, confirmationButtons } = require('../helpers/utilities');
 
@@ -36,7 +35,7 @@ module.exports = {
 		}
 
 		const item = data[Math.floor(Math.random() * data.length)];
-		const embed = new MessageEmbed()
+		const embed = new EmbedBuilder()
 			.setTitle(item.title)
 			.setDescription('Found a random emoji. Would you like to upload it to the server?')
 			.setImage(item.image);
@@ -63,7 +62,7 @@ module.exports = {
 				if (interactionButton.customId === 'confirm') {
 					await interactionCommand.editReply({ embeds: [embed] });
 
-					if (!interactionButton.memberPermissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+					if (!interactionButton.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
 						interactionCommand.editReply({ content: 'Cancelling emoji adding. Interaction author lacks permissions.' });
 						return await interactionButton.followUp({
 							content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
@@ -72,7 +71,7 @@ module.exports = {
 					}
 
 					interactionCommand.guild.emojis
-						.create(item.image, item.title)
+						.create({ attachment: item.image, name: item.title })
 						.then(emoji => {
 							return interactionCommand.editReply({ content: `Added ${emoji} to server!` });
 						})

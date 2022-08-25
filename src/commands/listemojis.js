@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const { navigationButtons } = require('../helpers/utilities');
+const { SlashCommandBuilder } = require('discord.js');
 
 const createEmojisList = (interaction) => {
 	const unpaginatedEmojsList = [...interaction.guild.emojis.cache.map(emoji => emoji.toString()).values()];

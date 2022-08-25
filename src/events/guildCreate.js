@@ -1,5 +1,5 @@
 const { createDatabase } = require('../helpers/dbModel');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { mediaLinks } = require('../helpers/utilities');
 
 const postToAnyChannel = async (guild, embed) => {
@@ -26,7 +26,7 @@ module.exports = {
 		createDatabase(guild.id);
 
 		// Send greeting
-		const embed = new MessageEmbed()
+		const embed = new EmbedBuilder()
 			.setTitle('Hello! Nice to meet you!')
 			.setDescription(mediaLinks + '\n\nThanks For Adding Me To Your Server!\nDon\'t worry, everything has been setup for you.\nJust make sure I have **View** access to all the channels otherwise I won\'t be able to track emoji usage.\nDo `/help` for a list of commands and if you have any issues or questions, feel free to join our support server.\n\nThanks again and have a nice day! 🙂');
 
