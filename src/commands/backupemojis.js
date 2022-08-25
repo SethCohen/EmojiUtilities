@@ -11,7 +11,9 @@ const createZip = async (interaction) => {
 	}
 	const dirPath = `${dir}/${interaction.guildId}_emojis`;
 	const output = fs.createWriteStream(dirPath + '.zip');
-	const archive = archiver('zip');
+	const archive = archiver('zip', {
+		zlib: { level: 9 }, // Sets the compression level.
+	});
 
 	output.on('close', function() {
 		// console.log(archive.pointer() + ' total bytes');
