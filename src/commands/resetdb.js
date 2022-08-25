@@ -7,7 +7,7 @@ module.exports = {
 		.setName('resetdb')
 		.setDescription('Clears your server\'s databases.'),
 	async execute(interactionCommand) {
-		await interactionCommand.deferReply();
+		await interactionCommand.deferReply({ ephemeral: true });
 
 		if (!interactionCommand.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
 			return interactionCommand.reply({
@@ -15,8 +15,6 @@ module.exports = {
 				ephemeral: true,
 			});
 		}
-
-		await interactionCommand.deferReply({ ephemeral: true });
 
 		await interactionCommand.editReply({
 			content: 'Are you sure you want to reset your server\'s database?\nThis is a permanent decision. There is no undoing this action.',
