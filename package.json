@@ -23,21 +23,13 @@
     "image-type": "^4.1.0",
     "is-animated": "^2.0.2",
     "ms": "^2.1.3",
-    "npm-check-updates": "^15.0.1",
-    "pm2": "^5.2.0",
-    "replace": "^1.2.1",
-    "request": "^2.88.2",
     "sharp": "^0.30.7",
-    "standard-version": "^9.5.0",
     "string-similarity": "^4.0.4"
   },
   "devDependencies": {
-    "eslint": "^8.18.0"
-  },
-  "standard-version": {
-    "scripts": {
-      "postchangelog": "replace '### \\[' '## [' CHANGELOG.md"
-    }
+    "eslint": "^8.18.0",
+    "npm-check-updates": "^16.0.5",
+    "pm2": "^5.2.0"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
