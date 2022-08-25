@@ -2,14 +2,14 @@ const { navigationButtons } = require('../helpers/utilities');
 const { SlashCommandBuilder } = require('discord.js');
 
 const createEmojisList = (interaction) => {
-	const unpaginatedEmojsList = [...interaction.guild.emojis.cache.map(emoji => emoji.toString()).values()];
+	const emojisList = [...interaction.guild.emojis.cache.map(emoji => emoji.toString()).values()];
 	const emojisPerPage = 27;
 	const pages = [];
-	for (let pageIndex = 0, emojisListIndex = unpaginatedEmojsList.length; pageIndex < emojisListIndex; pageIndex += emojisPerPage) {
-		const page = unpaginatedEmojsList.slice(pageIndex, pageIndex + emojisPerPage).join(' ');
+	for (let pageIndex = 0, emojisListIndex = emojisList.length; pageIndex < emojisListIndex; pageIndex += emojisPerPage) {
+		const page = emojisList.slice(pageIndex, pageIndex + emojisPerPage).join(' ');
 		pages.push(page);
 	}
-	pages.push(`This server has a total of ${unpaginatedEmojsList.length} emojis.`);
+	pages.push(`This server has a total of ${emojisList.length} emojis.`);
 
 	return pages;
 };
