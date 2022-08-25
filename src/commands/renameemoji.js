@@ -78,8 +78,6 @@ module.exports = {
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getString('name')}`);
 				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
-
 		}
-
 	},
 };

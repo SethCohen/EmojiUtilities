@@ -62,9 +62,6 @@ module.exports = {
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${e.message}\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getRole('role')}`);
 				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
-
 		}
-
-	}
-	,
+	},
 };

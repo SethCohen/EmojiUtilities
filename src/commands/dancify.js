@@ -53,7 +53,6 @@ module.exports = {
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('text')}`);
 				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
-
 		}
 	},
 };

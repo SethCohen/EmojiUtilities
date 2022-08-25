@@ -105,8 +105,6 @@ module.exports = {
 				console.error(`uploadEmoji error\n${error.message}`);
 				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
-
 		}
-
 	},
 };

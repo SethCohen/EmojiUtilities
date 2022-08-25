@@ -154,6 +154,5 @@ module.exports = {
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}
-
 	},
 };

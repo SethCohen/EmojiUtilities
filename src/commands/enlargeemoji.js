@@ -40,6 +40,5 @@ module.exports = {
 				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}
-
 	},
 };
