@@ -29,53 +29,55 @@ module.exports = {
 			});
 		}
 
-		const messageId = interaction.options.getString('messageid');
-		const stickerName = interaction.options.getString('name');
-		let stickerTag = interaction.options.getString('tag');
-		let message;
 		try {
-			message = await interaction.channel.messages.fetch(messageId);
-		}
-		catch (e) {
-			if (e.message === 'Unknown Message') return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
-			console.error(e);
-		}
-		const fetchedSticker = message.stickers.first();
+			const messageId = interaction.options.getString('messageid');
+			const stickerName = interaction.options.getString('name');
+			let stickerTag = interaction.options.getString('tag');
 
-		try {
+			const message = await interaction.channel.messages.fetch(messageId);
+			const fetchedSticker = message.stickers.first();
+
 			stickerTag = converter.getShortcode(stickerTag, false); // Convert unicode emoji to discord string name
+
+			interaction.guild.stickers.create(fetchedSticker.url, stickerName ? stickerName : fetchedSticker.name, stickerTag)
+				.then(createdSticker => {
+					return interaction.editReply({
+						content: `Created new sticker with name **${createdSticker.name}**!`,
+					});
+				})
+				.catch(error => {
+					switch (error.message) {
+					case 'Maximum number of stickers reached (5)':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+						break;
+					case 'Maximum number of stickers reached (15)':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+						break;
+					default:
+						console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
+						return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+					}
+				});
+
 		}
 		catch (e) {
 			switch (e.message) {
 			case 'Emoji doesn\'t exist':
 				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `tag` not found. Please use a default emoji, such as 🍌')] });
 				break;
+			case 'Unknown Message':
+				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
+				break;
+			case 'Cannot read properties of undefined (reading \'url\')':
+				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker found in message. Please try again.')] });
+				break;
+			case '404: Not Found':
+				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
+				break;
 			default:
 				console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${e.message}\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
 				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}
-
-		interaction.guild.stickers.create(fetchedSticker.url, stickerName ? stickerName : fetchedSticker.name, stickerTag)
-			.then(createdSticker => {
-				return interaction.editReply({
-					content: `Created new sticker with name **${createdSticker.name}**!`,
-				});
-			})
-			.catch(error => {
-				switch (error.message) {
-				case 'Maximum number of stickers reached (5)':
-					interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
-					break;
-				case 'Maximum number of stickers reached (15)':
-					interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
-					break;
-				default:
-					console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
-					return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
-				}
-			});
-
-
 	},
 };
