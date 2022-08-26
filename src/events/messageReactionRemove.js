@@ -21,14 +21,10 @@ module.exports = {
 		}
 
 		// Ignore invalid messages
-		if (messageReaction.message.author === null) {
-			return false;
-		}
+		if (messageReaction.message.author === null) return false;
 
 		// Ignore client
-		if (messageReaction.me || messageReaction.message.author.id === messageReaction.client.user.id) {
-			return false;
-		}
+		if (messageReaction.me || messageReaction.message.author.id === messageReaction.client.user.id) return false;
 
 		try {
 			if (getSetting(messageReaction.message.guildId, 'countreacts')) { // Check server flag for if counting reacts for emoji usage is allowed

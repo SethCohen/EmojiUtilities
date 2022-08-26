@@ -12,14 +12,10 @@ module.exports = {
 		}
 
 		// Ignore invalid messages
-		if (message.author === null) {
-			return false;
-		}
+		if (message.author === null) return false;
 
 		// Ignore client
-		if (message.author.id === message.client.user.id) {
-			return false;
-		}
+		if (message.author.id === message.client.user.id) return false;
 
 		try {
 			if (getSetting(message.guildId, 'countmessages')) { // Check server flag for if counting messages for emoji usage is allowed
