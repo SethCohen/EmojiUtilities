@@ -64,6 +64,8 @@ module.exports = {
 
 		}
 		catch (e) {
+			if (e.message.includes('Invalid Form Body\nmessage_id[NUMBER_TYPE_COERCE]')) return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
+
 			switch (e.message) {
 			case 'Emoji doesn\'t exist':
 				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `tag` not found. Please use a default emoji, such as 🍌')] });
