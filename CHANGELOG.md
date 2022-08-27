@@ -1,4 +1,11 @@
 # Changelog
+## [1.22.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.0...v1.22.1) (2022-08-27)
+
+
+### Bug Fixes
+
+* **guildCreate:** fixed error bot crashing on joining guild ([7d2e59e](https://github.com/SethCohen/EmojiUtilities/commit/7d2e59e3b8aefcd7e2ff50c9f032138e04daa962))
+
 ## [1.22.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.21.1...v1.22.0) (2022-08-27)
 
 
