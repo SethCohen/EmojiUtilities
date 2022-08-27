@@ -1,4 +1,48 @@
 # Changelog
+## [1.22.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.21.1...v1.22.0) (2022-08-27)
+
+
+### Features
+
+* **backupemojis:** added compression level to archiver ([418cfe0](https://github.com/SethCohen/EmojiUtilities/commit/418cfe08dec1044f7157a0dbe19c822547295067))
+* **index:** added privileged intent for emoji message reading functionality ([7cf0bc3](https://github.com/SethCohen/EmojiUtilities/commit/7cf0bc33b8f2985e1a33d0e2bcd1d29e1f384106))
+* **packsearch:** added page looping ([05e7d9c](https://github.com/SethCohen/EmojiUtilities/commit/05e7d9cb7ff7095a3ad092963dcebe70b6f79c2b))
+
+
+### Bug Fixes
+
+* added error catch on if Discord API is down ([a9a28ef](https://github.com/SethCohen/EmojiUtilities/commit/a9a28ef87e8e9aebd4714ede3c0af344117a1e69))
+* **guildCreate:** fixed channel type check due to deprecation ([bac3bf3](https://github.com/SethCohen/EmojiUtilities/commit/bac3bf387fb9ddea830ccf897b6fe6eac9c828fc))
+* **lockemoji:** fixed error on command being double deferred. ([4af67f7](https://github.com/SethCohen/EmojiUtilities/commit/4af67f723469217df2fa54661c18f599c81b25cb))
+* **lockemoji:** fixed error on invalid emoji in command input ([6b708ff](https://github.com/SethCohen/EmojiUtilities/commit/6b708ff5e8c81266ccb863ef430ec6b000c76eba))
+* **resetdb:** fixed error on command being double deferred. ([be9702a](https://github.com/SethCohen/EmojiUtilities/commit/be9702a212964d84bd32fda9215527a2b8de972e))
+* **stickerfy:** added error catch on max numbers of stickers reached (15) ([9ca06c2](https://github.com/SethCohen/EmojiUtilities/commit/9ca06c2cb3b388c5fe48ddee87b54fc7c48232f4))
+* **stickerfy:** added temp error catch "fix" for broken apng support ([bff02c6](https://github.com/SethCohen/EmojiUtilities/commit/bff02c6f24b805654a40b84ea846de6154594da7))
+* **stickersteal:** added error catches on invalid `messageId` and no sticker found in message ([2f0356d](https://github.com/SethCohen/EmojiUtilities/commit/2f0356dab70bcbf3801075fb780f3f4837ae163b))
+
+
+### Documentation
+
+* **dbmodel:** Refactored JSDocs ([27febb7](https://github.com/SethCohen/EmojiUtilities/commit/27febb72482f2f0fc89f949dbdc431019ccd4f2a))
+
+
+### Miscellaneous
+
+* replaced `standard-version` with `release-please` and `github-releases-to-discord` ([d3d6108](https://github.com/SethCohen/EmojiUtilities/commit/d3d6108ba7cfae0e59e025fb85a8530f854259fd))
+* updated project to discord.js v14 ([72cc35d](https://github.com/SethCohen/EmojiUtilities/commit/72cc35db04e9cfbb573316cdce13f11b2271a9d5))
+* updated REST version from v9 to v10 ([1d15618](https://github.com/SethCohen/EmojiUtilities/commit/1d156185af07f136ae79c69f9dadc09872170335))
+
+
+### Code Refactoring
+
+* **listemojis:** renamed variable ([bfb5979](https://github.com/SethCohen/EmojiUtilities/commit/bfb5979baf3a28d98dd3b77d879583eff20b1b15))
+
+
+### Styles
+
+* closing bracket style changes and reduced whitespace ([7efecb9](https://github.com/SethCohen/EmojiUtilities/commit/7efecb9e7cd4b91a03f8d149349ab953b8b527ef))
+* restyled closing brackets in several events ([83e4293](https://github.com/SethCohen/EmojiUtilities/commit/83e42931b621221f021f45e6da71cf9234ac1186))
+
 ## [1.21.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.21.0...v1.21.1) (2022-08-14)
 
 
