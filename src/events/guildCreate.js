@@ -1,12 +1,12 @@
 const { createDatabase } = require('../helpers/dbModel');
-const { EmbedBuilder, ChannelType } = require('discord.js');
+const { EmbedBuilder, ChannelType, PermissionsBitField } = require('discord.js');
 const { mediaLinks } = require('../helpers/utilities');
 
 const postToAnyChannel = async (guild, embed) => {
 	const channels = await guild.channels.cache;
 	const foundChannel = await channels.find(channel => (channel.type === ChannelType.GuildText
-		&& channel.permissionsFor(guild.me).has('SEND_MESSAGES')
-		&& channel.permissionsFor(guild.me).has('VIEW_CHANNEL')));
+		&& channel.permissionsFor(guild.members.me).has(PermissionsBitField.Flags.SendMessages)
+		&& channel.permissionsFor(guild.members.me).has(PermissionsBitField.Flags.ViewChannel)));
 	if (foundChannel) {
 		foundChannel.send({ embeds: [embed] });
 	}
@@ -23,7 +23,7 @@ module.exports = {
 		const guildsCount = guild.client.guilds.cache.size;
 		console.log(`Guild Created. Current Count: ${guildsCount}`);
 
-		createDatabase(guild.id);
+		await createDatabase(guild.id);
 
 		// Send greeting
 		const embed = new EmbedBuilder()
