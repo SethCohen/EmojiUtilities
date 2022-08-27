@@ -1,4 +1,17 @@
 # Changelog
+## [1.22.2](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.1...v1.22.2) (2022-08-27)
+
+
+### Bug Fixes
+
+* **dbModel:** fixed error on trying to create an already existing database ([4f63358](https://github.com/SethCohen/EmojiUtilities/commit/4f633583c58867b69af580c99c15e09f908dd2e0))
+* **stickersteal:** added another error catch for invalid `messageid` ([1b35300](https://github.com/SethCohen/EmojiUtilities/commit/1b35300e971d047fc4b5594ffb55718ddf6fce47))
+
+
+### Code Refactoring
+
+* **commands:** future proofing for possible errors. ([1c4daf3](https://github.com/SethCohen/EmojiUtilities/commit/1c4daf358dd7503a4a13fb8d46c50b0eb500258d))
+
 ## [1.22.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.0...v1.22.1) (2022-08-27)
 
 
