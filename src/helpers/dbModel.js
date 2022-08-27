@@ -11,7 +11,7 @@ async function createDatabase(guildId) {
 
 	try {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`rekey='${db_key}'`);
+		db.pragma(`key='${db_key}'`);
 		const createStatements = [
 			'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
 			'CREATE TABLE IF NOT EXISTS reactsSentActivity(emoji TEXT, user TEXT, datetime TEXT)',
@@ -40,9 +40,6 @@ async function createDatabase(guildId) {
 	}
 	catch (e) {
 		switch (e.message) {
-		case 'file is not a database':
-			console.log(`createDatabase failed: ${e.message}`);
-			break;
 		default:
 			console.log(`createDatabase: ${e}`);
 		}
