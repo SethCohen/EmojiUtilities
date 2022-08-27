@@ -18,20 +18,20 @@ module.exports = {
 			option.setName('name')
 				.setDescription('Name for the emoji')),
 	async execute(interaction) {
-		await interaction.deferReply();
-
-		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
-			return interaction.editReply({
-				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
-				ephemeral: true,
-			});
-		}
-
-		const url = interaction.options.getString('url');
-		const randGenName = Math.random().toString(36).substring(2, 10);
-		const name = interaction.options.getString('name') ? interaction.options.getString('name') : randGenName;
-
 		try {
+			await interaction.deferReply();
+
+			if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+				return interaction.editReply({
+					content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+					ephemeral: true,
+				});
+			}
+
+			const url = interaction.options.getString('url');
+			const randGenName = Math.random().toString(36).substring(2, 10);
+			const name = interaction.options.getString('name') ? interaction.options.getString('name') : randGenName;
+
 			const dir = './temps';
 			if (!fs.existsSync(dir)) {
 				fs.mkdirSync(dir);

@@ -19,16 +19,16 @@ module.exports = {
 			option.setName('name')
 				.setDescription('The name for the sticker.')),
 	async execute(interaction) {
-		await interaction.deferReply();
-
-		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
-			return interaction.editReply({
-				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
-				ephemeral: true,
-			});
-		}
-
 		try {
+			await interaction.deferReply();
+
+			if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+				return interaction.editReply({
+					content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+					ephemeral: true,
+				});
+			}
+
 			const messageId = interaction.options.getString('messageid');
 			const stickerName = interaction.options.getString('name');
 			let stickerTag = interaction.options.getString('tag');

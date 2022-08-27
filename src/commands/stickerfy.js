@@ -66,20 +66,20 @@ module.exports = {
 				.setDescription('The Discord unicode emoji to represent the sticker.')
 				.setRequired(true)),
 	async execute(interaction) {
-		await interaction.deferReply();
-
-		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
-			return interaction.editReply({
-				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
-				ephemeral: true,
-			});
-		}
-
-		const url = interaction.options.getString('url');
-		const name = interaction.options.getString('name');
-		let tag = interaction.options.getString('tag');
-
 		try {
+			await interaction.deferReply();
+
+			if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+				return interaction.editReply({
+					content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+					ephemeral: true,
+				});
+			}
+
+			const url = interaction.options.getString('url');
+			const name = interaction.options.getString('name');
+			let tag = interaction.options.getString('tag');
+
 			const dir = './temps';
 			if (!fs.existsSync(dir)) {
 				fs.mkdirSync(dir);

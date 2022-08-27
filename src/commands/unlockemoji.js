@@ -11,19 +11,19 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(interaction) {
-		await interaction.deferReply();
-
-		if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-			return interaction.editReply({
-				content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
-				ephemeral: true,
-			});
-		}
-
-		const stringEmoji = interaction.options.getString('emoji');
-		const verifiedEmoji = verifyEmojiString(stringEmoji);
-
 		try {
+			await interaction.deferReply();
+
+			if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+				return interaction.editReply({
+					content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
+					ephemeral: true,
+				});
+			}
+
+			const stringEmoji = interaction.options.getString('emoji');
+			const verifiedEmoji = verifyEmojiString(stringEmoji);
+
 			const findEmoji = await interaction.guild.emojis.cache.find(emoji => emoji.name === stringEmoji || emoji.id === stringEmoji);
 			const foundEmoji = findEmoji ? findEmoji : await interaction.guild.emojis.fetch(verifiedEmoji[3]);
 

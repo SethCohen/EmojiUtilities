@@ -15,16 +15,16 @@ module.exports = {
 				.setDescription('The new name for the emoji.')
 				.setRequired(true)),
 	async execute(interaction) {
-		await interaction.deferReply();
-
-		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
-			return interaction.editReply({
-				content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
-				ephemeral: true,
-			});
-		}
-
 		try {
+			await interaction.deferReply();
+
+			if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+				return interaction.editReply({
+					content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+					ephemeral: true,
+				});
+			}
+
 			const stringEmoji = interaction.options.getString('emoji');
 			const verifiedEmoji = verifyEmojiString(stringEmoji);
 
