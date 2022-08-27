@@ -16,7 +16,6 @@ const uploadSticker = async (interaction, input, name, tag) => {
 			});
 		})
 		.catch(async error => {
-			console.log(error);
 			switch (error.message) {
 			case 'Maximum number of stickers reached (0)':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
@@ -38,6 +37,9 @@ const uploadSticker = async (interaction, input, name, tag) => {
 				break;
 			case 'Sticker animation duration exceeds maximum of 5 seconds':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker.\nLength of gif exceeds maximum duration of 5 seconds.')] });
+				break;
+			case 'Invalid Asset':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Currently gif-to-apng support is broken. This is a temporary error due to the latest version of Discord.JS. A proper fix that restores functionality will be released soon.')] });
 				break;
 			default:
 				console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);

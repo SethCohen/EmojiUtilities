@@ -535,7 +535,7 @@ function setOpt(guildId, userId, flag) {
 	db.pragma(`key='${db_key}'`);
 	const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
 
-	console.log(`setOpt(${guildId}, ${userId}, ${Number(flag)}) called.`);
+	// console.log(`setOpt(${guildId}, ${userId}, ${Number(flag)}) called.`);
 
 	statement.run({
 		user: userId,
