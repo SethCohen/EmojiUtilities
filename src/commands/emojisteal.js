@@ -55,6 +55,9 @@ module.exports = {
 				case 'Maximum number of emojis reached (50)':
 					await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
 					break;
+				case 'Maximum number of emojis reached (250)':
+					await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
+					break;
 				case 'Missing Permissions':
 					await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
 					break;
