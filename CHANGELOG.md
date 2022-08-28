@@ -1,4 +1,12 @@
 # Changelog
+## [1.22.3](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.2...v1.22.3) (2022-08-28)
+
+
+### Bug Fixes
+
+* **emojisteal:** added error catch fix on max numbers of emojis reached (250) ([89acbc5](https://github.com/SethCohen/EmojiUtilities/commit/89acbc5f326b61dc4c826e9592ed90cead45b6d2))
+* **stickerfy:** fixed stickerfying gifs and animated png uploads not being animated on sticker uploading ([41aeaa5](https://github.com/SethCohen/EmojiUtilities/commit/41aeaa53f325b2b6c594977c4a8e90602b0f95e2))
+
 ## [1.22.2](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.1...v1.22.2) (2022-08-27)
 
 
