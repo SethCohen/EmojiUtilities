@@ -1,7 +1,7 @@
 {
   "name": "emojiutilities",
   "description": "Discord.js Bot for tracking server-specific emoji usage",
-  "version": "1.22.3",
+  "version": "1.22.4",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
