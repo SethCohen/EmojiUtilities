@@ -1,4 +1,14 @@
 # Changelog
+## [1.22.4](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.3...v1.22.4) (2022-08-31)
+
+
+### Bug Fixes
+
+* **emojisteal:** fixed error on no emoji found/invalid value in `emoji` input. ([d67972b](https://github.com/SethCohen/EmojiUtilities/commit/d67972bd6df54d836d4c840215b3cd7be285f1b5))
+* **guildCreate:** added error catching for future proofing. ([9460972](https://github.com/SethCohen/EmojiUtilities/commit/9460972c0b77088b35fe64f5757f79dd33369e46))
+* **uploademoji:** fixed error of uploaded animated emojis not being animated. ([0a81e09](https://github.com/SethCohen/EmojiUtilities/commit/0a81e09397046efdd4b058e05a5f789d217afd4d))
+* **uploademoji:** fixed error on invalid value in `name` ([babd066](https://github.com/SethCohen/EmojiUtilities/commit/babd066555ac10c46057367ebe58f1c6ed847c37))
+
 ## [1.22.3](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.2...v1.22.3) (2022-08-28)
 
 
