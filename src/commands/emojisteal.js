@@ -37,6 +37,7 @@ module.exports = {
 		const name = interaction.options.getString('name');
 		const stringEmoji = interaction.options.getString('emoji');
 		const verifiedEmoji = verifyEmojiString(stringEmoji);
+		if (!verifiedEmoji) return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
 		const url = getEmojiUrl(verifiedEmoji);
 
 		interaction.guild.emojis
