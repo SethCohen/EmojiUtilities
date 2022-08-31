@@ -73,6 +73,9 @@ module.exports = {
 					case 'Invalid Form Body\nname: String value did not match validation regex.':
 						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nMust only contain alphanumeric characters and underscores.')] });
 						break;
+					case 'Invalid Form Body\nname[STRING_TYPE_REGEX]: String value did not match validation regex.':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid value in `name`.\nEmoji names must be at least 2 characters long and can only contain alphanumeric characters and underscores.')] });
+						break;
 					case 'Maximum number of emojis reached (50)':
 						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')] });
 						break;
