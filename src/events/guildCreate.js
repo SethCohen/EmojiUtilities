@@ -3,15 +3,20 @@ const { EmbedBuilder, ChannelType, PermissionsBitField } = require('discord.js')
 const { mediaLinks } = require('../helpers/utilities');
 
 const postToAnyChannel = async (guild, embed) => {
-	const channels = await guild.channels.cache;
-	const foundChannel = await channels.find(channel => (channel.type === ChannelType.GuildText
-		&& channel.permissionsFor(guild.members.me).has(PermissionsBitField.Flags.SendMessages)
-		&& channel.permissionsFor(guild.members.me).has(PermissionsBitField.Flags.ViewChannel)));
-	if (foundChannel) {
-		foundChannel.send({ embeds: [embed] });
+	try {
+		const channels = await guild.channels.cache;
+		const foundChannel = await channels.find(channel => (channel.type === ChannelType.GuildText
+			&& channel.permissionsFor(guild.members.me).has(PermissionsBitField.Flags.SendMessages)
+			&& channel.permissionsFor(guild.members.me).has(PermissionsBitField.Flags.ViewChannel)));
+		if (foundChannel) {
+			foundChannel.send({ embeds: [embed] });
+		}
+		else {
+			console.error('No channel access found. Welcome message not sent.');
+		}
 	}
-	else {
-		console.error('No channel access found. Welcome message not sent.');
+	catch (e) {
+		console.error(e);
 	}
 };
 
