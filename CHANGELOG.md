@@ -1,4 +1,13 @@
 # Changelog
+## [1.22.5](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.4...v1.22.5) (2022-09-05)
+
+
+### Bug Fixes
+
+* **dbModel:** fixed issue of no guild db being created if discord api is down ([1278ec2](https://github.com/SethCohen/EmojiUtilities/commit/1278ec21f2573958a15748795db7407611ed090e))
+* **stickersteal:** fixed issue on invalid `messageId` ([1e15f77](https://github.com/SethCohen/EmojiUtilities/commit/1e15f77ef90d425a9da3d948d8b9e6600a53a799))
+* **stickersteal:** fixed issue on maximum number of stickers reached (30) ([8a6976b](https://github.com/SethCohen/EmojiUtilities/commit/8a6976bbe25f314fd8406cac4710c6c0fa4bf392))
+
 ## [1.22.4](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.3...v1.22.4) (2022-08-31)
 
 
