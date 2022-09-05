@@ -21,7 +21,7 @@ module.exports = {
 
 
 		const number = interactionCommand.options.getInteger('number') ? interactionCommand.options.getInteger('number') : 1;
-		const occurrences = getDisplayStats(interactionCommand.guild.id, '0');
+		const occurrences = await getDisplayStats(interactionCommand.guild.id, '0');
 
 		// Gets all emojis:count in guild by descending count and splices array to just bottom n rows.
 		// Essentially returns the n least-used emojis in the server.

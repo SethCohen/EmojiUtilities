@@ -125,8 +125,8 @@ module.exports = {
 		const user = interactionCommand.options.getUser('user');
 		const date = validateDateRange(dateRange);
 		const data = (user ?
-			getDisplayStats(interactionCommand.guild.id, date.dateRange, user.id) :
-			getDisplayStats(interactionCommand.guild.id, date.dateRange));
+			await getDisplayStats(interactionCommand.guild.id, date.dateRange, user.id) :
+			await getDisplayStats(interactionCommand.guild.id, date.dateRange));
 		const occurrences = getSortedOccurrences(interactionCommand, data);
 
 		// Display output

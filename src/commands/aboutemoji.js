@@ -27,7 +27,7 @@ module.exports = {
 				author = '`N/A` - Bot is missing `Manage Emojis` permission and can\'t access emoji author.';
 			}
 
-			const count = getEmojiTotalCount(interaction.guild.id, emoji.id);
+			const count = await getEmojiTotalCount(interaction.guild.id, emoji.id);
 
 			const embedSuccess = new EmbedBuilder()
 				.setTitle(`${emoji.name}`)

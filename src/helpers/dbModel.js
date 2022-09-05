@@ -190,119 +190,129 @@ function insertToDb(guildId, emojiId, userId, dateTime, table, origin) {
  *  @param dateTime  The date range to query records for.
  *  @returns {*}     Returns a collection of records of {user, count}
  */
-function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
-	// console.log(`getLeaderboard(${guildId}, ${emojiId}, ${clientId}, ${dateTime}) called.`)
+async function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
+	try { // console.log(`getLeaderboard(${guildId}, ${emojiId}, ${clientId}, ${dateTime}) called.`)
 
-	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`key='${db_key}'`);
-	let cat;
-	let statement;
-	if (dateTime) { // Query for if a daterange was specified
-		if (type === 'sent') {
-			statement = db.prepare(`
-                SELECT 
-                    user,
-                    COUNT(emoji) 
-                FROM
-                    (
-                        SELECT 
-                            *
-                        FROM 
-                            messageActivity
-                        UNION ALL
-                        SELECT
-                            *
-                        FROM
-                            reactsSentActivity
-                    )
-                WHERE 
-                    emoji = @emojiId
-                    AND user IS NOT @clientId
-                    AND datetime > @dateTime
-                GROUP BY 
-                    user
-                ORDER BY 
-                    COUNT(emoji) DESC
-                LIMIT 10;
-            `);
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		db.pragma(`key='${db_key}'`);
+		let cat;
+		let statement;
+		if (dateTime) { // Query for if a daterange was specified
+			if (type === 'sent') {
+				statement = db.prepare(`
+					SELECT 
+						user,
+						COUNT(emoji) 
+					FROM
+						(
+							SELECT 
+								*
+							FROM 
+								messageActivity
+							UNION ALL
+							SELECT
+								*
+							FROM
+								reactsSentActivity
+						)
+					WHERE 
+						emoji = @emojiId
+						AND user IS NOT @clientId
+						AND datetime > @dateTime
+					GROUP BY 
+						user
+					ORDER BY 
+						COUNT(emoji) DESC
+					LIMIT 10;
+				`);
+			}
+			else if (type === 'received') {
+				statement = db.prepare(`
+					SELECT
+						user,
+						COUNT(emoji)
+					FROM
+						reactsReceivedActivity
+					WHERE 
+						emoji = @emojiId
+						AND user IS NOT @clientId
+						AND datetime > @dateTime
+					GROUP BY 
+						user
+					ORDER BY 
+						COUNT(emoji) DESC
+					LIMIT 10;
+				`);
+			}
+			cat = statement.all({
+				emojiId: emojiId,
+				clientId: clientId,
+				dateTime: dateTime,
+			});
 		}
-		else if (type === 'received') {
-			statement = db.prepare(`
-                SELECT
-                    user,
-                    COUNT(emoji)
-                FROM
-                    reactsReceivedActivity
-                WHERE 
-                    emoji = @emojiId
-                    AND user IS NOT @clientId
-                    AND datetime > @dateTime
-                GROUP BY 
-                    user
-                ORDER BY 
-                    COUNT(emoji) DESC
-                LIMIT 10;
-            `);
+		else { // Query for if a daterange was NOT specified
+			if (type === 'sent') {
+				statement = db.prepare(`
+					SELECT 
+						user,
+						COUNT(emoji)
+					FROM
+						(
+							SELECT 
+								*
+							FROM 
+								messageActivity
+							UNION ALL
+							SELECT
+								*
+							FROM
+								reactsSentActivity
+						)
+					WHERE 
+						emoji = @emojiId
+						AND user IS NOT @clientId
+					GROUP BY 
+						user
+					ORDER BY 
+						COUNT(emoji) DESC
+					LIMIT 10;
+				`);
+			}
+			else if (type === 'received') {
+				statement = db.prepare(`
+					SELECT 
+						user,
+						COUNT(emoji) 
+					FROM 
+						reactsReceivedActivity
+					WHERE 
+						emoji = @emojiId
+						AND user IS NOT @clientId
+					GROUP BY 
+						user
+					ORDER BY 
+						COUNT(emoji) DESC
+					LIMIT 10;
+				`);
+			}
+			cat = statement.all({
+				emojiId: emojiId,
+				clientId: clientId,
+			});
 		}
-		cat = statement.all({
-			emojiId: emojiId,
-			clientId: clientId,
-			dateTime: dateTime,
-		});
-	}
-	else { // Query for if a daterange was NOT specified
-		if (type === 'sent') {
-			statement = db.prepare(`
-                SELECT 
-                    user,
-                    COUNT(emoji)
-                FROM
-                    (
-                        SELECT 
-                            *
-                        FROM 
-                            messageActivity
-                        UNION ALL
-                        SELECT
-                            *
-                        FROM
-                            reactsSentActivity
-                    )
-                WHERE 
-                    emoji = @emojiId
-                    AND user IS NOT @clientId
-                GROUP BY 
-                    user
-                ORDER BY 
-                    COUNT(emoji) DESC
-                LIMIT 10;
-            `);
-		}
-		else if (type === 'received') {
-			statement = db.prepare(`
-                SELECT 
-                    user,
-                    COUNT(emoji) 
-                FROM 
-                    reactsReceivedActivity
-                WHERE 
-                    emoji = @emojiId
-                    AND user IS NOT @clientId
-                GROUP BY 
-                    user
-                ORDER BY 
-                    COUNT(emoji) DESC
-                LIMIT 10;
-            `);
-		}
-		cat = statement.all({
-			emojiId: emojiId,
-			clientId: clientId,
-		});
-	}
 
-	db.close();
-	return cat;
+		db.close();
+		return cat;
+	}
+	catch (e) {
+		if (e.message.includes('no such table')) {
+			await createDatabase(guildId);
+			return await getLeaderboard(guildId, emojiId, clientId, type, dateTime);
+		}
+		else {
+			console.error(e);
+		}
+	}
 }
 
 /** getGetCount
@@ -313,34 +323,45 @@ function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
  * @param dateTime      The date range to query for.
  * @returns {number}    Returns the usage number of the queried user/server.
  */
-function getGetCount(guildId, userId, dateTime) {
-	// console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`)
+async function getGetCount(guildId, userId, dateTime) {
+	try {
+		// console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`)
 
-	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`key='${db_key}'`);
-	let count = 0;
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		db.pragma(`key='${db_key}'`);
+		let count = 0;
 
-	if (userId !== null) { // Query for server
-		const statements = [
-			'SELECT COUNT(emoji) FROM messageActivity WHERE user = @user AND datetime > @datetime',
-			'SELECT COUNT(emoji) FROM reactsSentActivity WHERE user = @user AND datetime > @datetime',
-		].map(sql => db.prepare(sql));
-		for (const statement of statements) {
-			count += Object.values(statement.get({ user: userId, datetime: dateTime }))[0];
+		if (userId !== null) { // Query for server
+			const statements = [
+				'SELECT COUNT(emoji) FROM messageActivity WHERE user = @user AND datetime > @datetime',
+				'SELECT COUNT(emoji) FROM reactsSentActivity WHERE user = @user AND datetime > @datetime',
+			].map(sql => db.prepare(sql));
+			for (const statement of statements) {
+				count += Object.values(statement.get({ user: userId, datetime: dateTime }))[0];
+			}
+		}
+		else { // Query for a user
+			const statements = [
+				'SELECT COUNT(emoji) FROM messageActivity WHERE datetime > @datetime',
+				'SELECT COUNT(emoji) FROM reactsSentActivity WHERE datetime > @datetime',
+			].map(sql => db.prepare(sql));
+			for (const statement of statements) {
+				count += Object.values(statement.get({ datetime: dateTime }))[0];
+			}
+		}
+
+		db.close();
+		return count;
+	}
+	catch (e) {
+		if (e.message.includes('no such table')) {
+			await createDatabase(guildId);
+			return await getGetCount(guildId, userId, dateTime);
+		}
+		else {
+			console.error(e);
 		}
 	}
-	else { // Query for a user
-		const statements = [
-			'SELECT COUNT(emoji) FROM messageActivity WHERE datetime > @datetime',
-			'SELECT COUNT(emoji) FROM reactsSentActivity WHERE datetime > @datetime',
-		].map(sql => db.prepare(sql));
-		for (const statement of statements) {
-			count += Object.values(statement.get({ datetime: dateTime }))[0];
-		}
-	}
-
-	db.close();
-	return count;
 }
 
 /** getDisplayStats
@@ -351,69 +372,79 @@ function getGetCount(guildId, userId, dateTime) {
  * @param userId    The user to query for.
  * @returns {*}     Returns a collection of {emoji, count}
  */
-function getDisplayStats(guildId, dateTime, userId = null) {
-	// console.log(`getDisplayStats(${guildId}, ${dateTime}, ${userId}) called.`)
+async function getDisplayStats(guildId, dateTime, userId = null) {
+	try { // console.log(`getDisplayStats(${guildId}, ${dateTime}, ${userId}) called.`)
 
-	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`key='${db_key}'`);
-	let cat;
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		db.pragma(`key='${db_key}'`);
+		let cat;
 
-	if (userId) {
-		const statement = db.prepare(`
-            SELECT 
-                emoji,
-                COUNT(emoji) 
-            FROM 
-                (
-                    SELECT 
-                        *
-                    FROM 
-                        messageActivity
-                    UNION ALL
-                    SELECT
-                        *
-                    FROM
-                        reactsSentActivity
-                )
-            WHERE 
-                user = @user
-                AND datetime > @datetime
-            GROUP BY emoji
-            ORDER BY COUNT(emoji) DESC
-        `);
-		cat = statement.all({
-			user: userId,
-			datetime: dateTime,
-		});
+		if (userId) {
+			const statement = db.prepare(`
+				SELECT 
+					emoji,
+					COUNT(emoji) 
+				FROM 
+					(
+						SELECT 
+							*
+						FROM 
+							messageActivity
+						UNION ALL
+						SELECT
+							*
+						FROM
+							reactsSentActivity
+					)
+				WHERE 
+					user = @user
+					AND datetime > @datetime
+				GROUP BY emoji
+				ORDER BY COUNT(emoji) DESC
+			`);
+			cat = statement.all({
+				user: userId,
+				datetime: dateTime,
+			});
+		}
+		else {
+			const statement = db.prepare(`
+				SELECT 
+					emoji,
+					COUNT(emoji) 
+				FROM 
+					(
+						SELECT 
+							*
+						FROM 
+							messageActivity
+						UNION ALL
+						SELECT
+							*
+						FROM
+							reactsSentActivity
+					)
+				WHERE datetime > @datetime
+				GROUP BY emoji
+				ORDER BY COUNT(emoji) DESC
+			`);
+			cat = statement.all({
+				datetime: dateTime,
+			});
+		}
+
+		db.close();
+		return cat;
 	}
-	else {
-		const statement = db.prepare(`
-            SELECT 
-                emoji,
-                COUNT(emoji) 
-            FROM 
-                (
-                    SELECT 
-                        *
-                    FROM 
-                        messageActivity
-                    UNION ALL
-                    SELECT
-                        *
-                    FROM
-                        reactsSentActivity
-                )
-            WHERE datetime > @datetime
-            GROUP BY emoji
-            ORDER BY COUNT(emoji) DESC
-        `);
-		cat = statement.all({
-			datetime: dateTime,
-		});
+	catch (e) {
+		if (e.message.includes('no such table')) {
+			await createDatabase(guildId);
+			return await getDisplayStats(guildId, dateTime, userId);
+		}
+		else {
+			console.error(e);
+		}
 	}
-
-	db.close();
-	return cat;
 }
 
 /** getSetting
@@ -423,13 +454,24 @@ function getDisplayStats(guildId, dateTime, userId = null) {
  * @param setting                       The setting flag to get.
  * @returns {*|number|string|OpenMode}  The flag's state.
  */
-function getSetting(guildId, setting) {
-	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`key='${db_key}'`);
-	const statement = db.prepare('SELECT flag FROM serverSettings WHERE setting = ?');
-	const flag = statement.get(setting).flag;
-	db.close();
-	return flag;
+async function getSetting(guildId, setting) {
+	try {
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		db.pragma(`key='${db_key}'`);
+		const statement = db.prepare('SELECT flag FROM serverSettings WHERE setting = ?');
+		const flag = statement.get(setting).flag;
+		db.close();
+		return flag;
+	}
+	catch (e) {
+		if (e.message.includes('no such table')) {
+			await createDatabase(guildId);
+			return await getSetting(guildId, setting);
+		}
+		else {
+			console.error(e);
+		}
+	}
 }
 
 /** setSetting
@@ -439,19 +481,31 @@ function getSetting(guildId, setting) {
  * @param setting   The setting to modify.
  * @param flag      The flag state to set.
  */
-function setSetting(guildId, setting, flag) {
-	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`key='${db_key}'`);
-	const statement = db.prepare(`
-        UPDATE serverSettings
-        SET flag = @flag
-        WHERE setting = @setting
-    `);
-	statement.run({
-		setting: setting,
-		flag: flag,
-	});
-	db.close();
+async function setSetting(guildId, setting, flag) {
+	try {
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		db.pragma(`key='${db_key}'`);
+		const statement = db.prepare(`
+			UPDATE serverSettings
+			SET flag = @flag
+			WHERE setting = @setting
+		`);
+		statement.run({
+			setting: setting,
+			flag: flag,
+		});
+		db.close();
+	}
+	catch (e) {
+		if (e.message.includes('no such table')) {
+			await createDatabase(guildId);
+			return await setSetting(guildId, setting, flag);
+		}
+		else {
+			console.error(e);
+		}
+
+	}
 }
 
 /** resetDb
@@ -482,23 +536,34 @@ function resetDb(guildId) {
  * @param emojiId       The emoji to search for.
  * @returns {number}    The usage count of the emoji.
  */
-function getEmojiTotalCount(guildId, emojiId) {
-	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`key='${db_key}'`);
-	let count = 0;
+async function getEmojiTotalCount(guildId, emojiId) {
+	try {
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		db.pragma(`key='${db_key}'`);
+		let count = 0;
 
-	const statements = [
-		'SELECT COUNT(emoji) FROM messageActivity WHERE emoji == @emoji',
-		'SELECT COUNT(emoji) FROM reactsSentActivity WHERE emoji == @emoji',
-	].map(sql => db.prepare(sql));
-	for (const statement of statements) {
-		count += Object.values(statement.get({ emoji: emojiId }))[0];
+		const statements = [
+			'SELECT COUNT(emoji) FROM messageActivity WHERE emoji == @emoji',
+			'SELECT COUNT(emoji) FROM reactsSentActivity WHERE emoji == @emoji',
+		].map(sql => db.prepare(sql));
+		for (const statement of statements) {
+			count += Object.values(statement.get({ emoji: emojiId }))[0];
+		}
+
+		db.close();
+		return count;
 	}
-
-	db.close();
-	return count;
-
+	catch (e) {
+		if (e.message.includes('no such table')) {
+			await createDatabase(guildId);
+			return await getEmojiTotalCount(guildId, emojiId);
+		}
+		else {
+			console.error(e);
+		}
+	}
 }
+
 
 /**	getOpt
  * 		Returns whether user has opted-in (true) or opted-out (false) of emoji usage logging.
@@ -527,18 +592,29 @@ function getOpt(guildId, userId) {
  * @param userId    	The user to set flag for.
  * @param flag			The flag state to set.
  */
-function setOpt(guildId, userId, flag) {
-	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`key='${db_key}'`);
-	const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
+async function setOpt(guildId, userId, flag) {
+	try {
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		db.pragma(`key='${db_key}'`);
+		const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
 
-	// console.log(`setOpt(${guildId}, ${userId}, ${Number(flag)}) called.`);
+		// console.log(`setOpt(${guildId}, ${userId}, ${Number(flag)}) called.`);
 
-	statement.run({
-		user: userId,
-		flag: Number(flag),
-	});
-	db.close();
+		statement.run({
+			user: userId,
+			flag: Number(flag),
+		});
+		db.close();
+	}
+	catch (e) {
+		if (e.message.includes('no such table')) {
+			await createDatabase(guildId);
+			return await setOpt(guildId, userId, flag);
+		}
+		else {
+			console.error(e);
+		}
+	}
 }
 
 /**	clearUserFromDb

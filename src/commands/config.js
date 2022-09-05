@@ -51,7 +51,7 @@ module.exports = {
 
 		try {
 			embedSuccess.setTitle(`\`${setting}\` set to \`${Boolean(flag)}\`.`);
-			setSetting(interaction.guild.id, setting, flag);
+			await setSetting(interaction.guild.id, setting, flag);
 			return interaction.editReply({ embeds: [embedSuccess] });
 		}
 		catch (error) {
