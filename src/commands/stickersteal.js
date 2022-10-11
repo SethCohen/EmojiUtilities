@@ -59,6 +59,9 @@ module.exports = {
 					case 'Maximum number of stickers reached (30)':
 						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
 						break;
+					case 'Maximum number of stickers reached (60)':
+						interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+						break;
 					default:
 						console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message}\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
 						return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });

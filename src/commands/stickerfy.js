@@ -26,6 +26,9 @@ const uploadSticker = async (interaction, input, name, tag) => {
 			case 'Maximum number of stickers reached (15)':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
 				break;
+			case 'Maximum number of stickers reached (60)':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')] });
+				break;
 			case 'Missing Permissions':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.')] });
 				break;
