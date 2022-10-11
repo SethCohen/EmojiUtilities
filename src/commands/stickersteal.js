@@ -19,9 +19,9 @@ module.exports = {
 			option.setName('name')
 				.setDescription('The name for the sticker.')),
 	async execute(interaction) {
-		try {
-			await interaction.deferReply();
+		await interaction.deferReply();
 
+		try {
 			if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
 				return interaction.editReply({
 					content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
@@ -84,7 +84,7 @@ module.exports = {
 				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
 				break;
 			default:
-				console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${e.message}\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`);
+				console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${e.message}\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString('tag')}\n${interaction.options.getString('name')}`);
 				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}
