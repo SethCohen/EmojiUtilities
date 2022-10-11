@@ -33,7 +33,10 @@ const uploadSticker = async (interaction, input, name, tag) => {
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker to server. Output image is too large to upload to server. Try again with a more optimized gif.')] });
 				break;
 			case 'Invalid Form Body\nname: Must be between 2 and 30 in length.':
-				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker.\n`name` too long. Must be between 2 and 30 characters in length.')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker.\n`name` must be between 2 and 30 characters in length.')] });
+				break;
+			case 'Invalid Form Body\nname[BASE_TYPE_BAD_LENGTH]: Must be between 2 and 30 in length.':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker.\n`name` must be between 2 and 30 characters in length.')] });
 				break;
 			case 'Sticker animation duration exceeds maximum of 5 seconds':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Unable to upload sticker.\nLength of gif exceeds maximum duration of 5 seconds.')] });
