@@ -65,6 +65,9 @@ module.exports = {
 				case 'Invalid Form Body\nname: Must be between 2 and 32 in length. String value did not match validation regex.':
 					await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid emoji name specified in `name`. Name must be alphanumerical only and 2 to 32 characters in length. Please try again.')] });
 					break;
+				case 'Invalid Form Body\nname[STRING_TYPE_REGEX]: String value did not match validation regex.':
+					await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Invalid emoji name specified in `name`. Name must be alphanumerical only and 2 to 32 characters in length. Please try again.')] });
+					break;
 				case 'Invalid Webhook Token':
 					console.error('Discord API is down.');
 					break;
