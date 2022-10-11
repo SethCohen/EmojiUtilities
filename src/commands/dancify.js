@@ -46,6 +46,9 @@ module.exports = {
 			case 'Invalid Form Body\ndata.content: Must be 2000 or fewer in length.':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must be less than 80 characters.\nIf you\'re wondering why so low, visit the support server and check the FAQ section in #important-info')] });
 				break;
+			case 'Invalid Form Body\ncontent[BASE_TYPE_MAX_LENGTH]: Must be 2000 or fewer in length.':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must be less than 80 characters.\nIf you\'re wondering why so low, visit the support server and check the FAQ section in #important-info')] });
+				break;
 			case 'Message content must be a non-empty string.':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, '`text` must contain at least one or more alphanumerical character.\nSpecial characters and unicodes inputs are ignored.')] });
 				break;
