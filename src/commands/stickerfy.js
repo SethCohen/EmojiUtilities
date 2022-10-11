@@ -72,9 +72,9 @@ module.exports = {
 				.setDescription('The Discord unicode emoji to represent the sticker.')
 				.setRequired(true)),
 	async execute(interaction) {
-		try {
-			await interaction.deferReply();
+		await interaction.deferReply();
 
+		try {
 			if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
 				return interaction.editReply({
 					content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
