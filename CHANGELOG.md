@@ -1,4 +1,16 @@
 # Changelog
+## [1.22.6](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.5...v1.22.6) (2022-10-13)
+
+
+### Bug Fixes
+
+* **dancify:** added catch for `text` input max length. ([e5f3275](https://github.com/SethCohen/EmojiUtilities/commit/e5f32751085da0fddcbfd5f6019a1814a2f4420e))
+* **emojisteal:** added catch for invalid `name` input. ([8e42572](https://github.com/SethCohen/EmojiUtilities/commit/8e4257233550e11b92a4284dc603b96491c43ce3))
+* **stickerfy|stickersteal:** added catch for max number of stickers reached (60) ([251abe6](https://github.com/SethCohen/EmojiUtilities/commit/251abe6950adacb5ecfdab7dc2962e74c176d342))
+* **stickerfy:** added catch for invalid `name` input. ([fa271b1](https://github.com/SethCohen/EmojiUtilities/commit/fa271b1a91b9e87dfcb77e29d62bab3c7c3f3888))
+* **stickerfy:** fixed error on unknown interaction ([cc62b24](https://github.com/SethCohen/EmojiUtilities/commit/cc62b2431f20a72ce7f387b80ed5470f77615210))
+* **stickersteal:** fixed error on unknown interaction ([f11e2dc](https://github.com/SethCohen/EmojiUtilities/commit/f11e2dc5e5575ed134fea2d098c585d6ba9ccf9b))
+
 ## [1.22.5](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.4...v1.22.5) (2022-09-05)
 
 
