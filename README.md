@@ -35,4 +35,4 @@ use custom emotes, those get added to your server's database and you can query t
 
 ## Supported Commands:
 
-![](https://i.imgur.com/177V8Nu.png)
+![](https://i.imgur.com/1sv6wBi.png)
