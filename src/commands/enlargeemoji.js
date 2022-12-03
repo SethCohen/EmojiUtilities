@@ -1,5 +1,5 @@
-const { sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
-const { SlashCommandBuilder } = require('discord.js');
+import { sendErrorFeedback, verifyEmojiString } from '../helpers/utilities.js';
+import { SlashCommandBuilder } from 'discord.js';
 
 const getEmojiUrl = (emoji) => {
 	if (emoji[1]) {
@@ -10,7 +10,7 @@ const getEmojiUrl = (emoji) => {
 	}
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('enlargeemoji')
 		.setDescription('Pastes a custom emoji\'s url to chat.')

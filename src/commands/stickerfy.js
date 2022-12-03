@@ -1,12 +1,12 @@
-const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const fs = require('fs');
-const axios = require('axios');
-const { exec } = require('child_process');
-const { sendErrorFeedback } = require('../helpers/utilities');
-const converter = require('discord-emoji-converter');
-const imageType = require('image-type');
-const sharp = require('sharp');
-const isAnimated = require('is-animated');
+import { SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import fs from 'fs';
+import axios from 'axios';
+import { exec } from 'child_process';
+import { sendErrorFeedback } from '../helpers/utilities.js';
+import converter from 'discord-emoji-converter';
+import imageType from 'image-type';
+import sharp from 'sharp';
+import isAnimated from 'is-animated';
 
 const uploadSticker = async (interaction, input, name, tag) => {
 	return interaction.guild.stickers.create({ file: input, name: name, tags: tag })
@@ -54,7 +54,7 @@ const uploadSticker = async (interaction, input, name, tag) => {
 		});
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('stickerfy')
 		.setDescription('Convert a given image url into a sticker and adds it to server (Supports jpg, png, gif, webp).')

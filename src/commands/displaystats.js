@@ -1,6 +1,6 @@
-const { getDisplayStats } = require('../helpers/dbModel');
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
-const { navigationButtons } = require('../helpers/utilities');
+import { getDisplayStats } from '../helpers/dbModel.js';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { navigationButtons } from '../helpers/utilities.js';
 
 const validateDateRange = (dateRange) => {
 	let dateString;
@@ -99,7 +99,7 @@ const getPages = async (user, date, interaction, occurrences) => {
 	return embedPages;
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('displaystats')
 		.setDescription('Displays all emote usages to chat.')

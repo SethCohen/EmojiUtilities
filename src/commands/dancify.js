@@ -1,9 +1,9 @@
-const { guildId } = require('../../config.json');
-const { sendErrorFeedback } = require('../helpers/utilities');
-const { SlashCommandBuilder } = require('discord.js');
+import config from '../../config.json' assert { type: "json" };
+import { sendErrorFeedback } from '../helpers/utilities.js';
+import { SlashCommandBuilder } from 'discord.js';
 
 const dancifyText = async (text, interaction) => {
-	const guild = await interaction.client.guilds.fetch(guildId);
+	const guild = await interaction.client.guilds.fetch(config.guildId);
 
 	let result = '';
 	for (const char of text) {
@@ -22,7 +22,7 @@ const dancifyText = async (text, interaction) => {
 	return result;
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('dancify')
 		.setDescription('Turns an input into a dancing text.')

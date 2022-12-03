@@ -1,7 +1,7 @@
-const axios = require('axios');
-const { findBestMatch } = require('string-similarity');
-const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { mediaLinks, sendErrorFeedback, navigationButtons, confirmationButtons } = require('../helpers/utilities');
+import axios from 'axios';
+import { findBestMatch } from 'string-similarity';
+import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { mediaLinks, sendErrorFeedback, navigationButtons, confirmationButtons } from '../helpers/utilities.js';
 
 const createPages = (packResponse) => {
 	const pages = [];
@@ -19,7 +19,7 @@ const createPages = (packResponse) => {
 	return pages;
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('packsearch')
 		.setDescription('Searches for an emoji pack from emoji.gg')

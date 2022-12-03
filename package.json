@@ -2,7 +2,8 @@
   "name": "emojiutilities",
   "description": "Discord.js Bot for tracking server-specific emoji usage",
   "version": "1.22.6",
-  "main": "src/index.js",
+  "exports": "./src/index.js",
+  "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "deploy": "node src/helpers/deployCommands.js",
@@ -35,6 +36,7 @@
       "es6": true
     },
     "parserOptions": {
+      "sourceType": "module",
       "ecmaVersion": 2021
     },
     "rules": {

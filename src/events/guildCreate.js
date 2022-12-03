@@ -1,6 +1,6 @@
-const { createDatabase } = require('../helpers/dbModel');
-const { EmbedBuilder, ChannelType, PermissionsBitField } = require('discord.js');
-const { mediaLinks } = require('../helpers/utilities');
+import { createDatabase } from '../helpers/dbModel.js';
+import { EmbedBuilder, ChannelType, PermissionsBitField } from 'discord.js';
+import { mediaLinks } from '../helpers/utilities.js';
 
 const postToAnyChannel = async (guild, embed) => {
 	try {
@@ -20,7 +20,7 @@ const postToAnyChannel = async (guild, embed) => {
 	}
 };
 
-module.exports = {
+export default {
 	name: 'guildCreate',
 	async execute(guild) {
 		// console.log(`guildCreate: ${guild.name}, ${guild.id}.`);

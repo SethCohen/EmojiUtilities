@@ -1,9 +1,9 @@
-const axios = require('axios');
-const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { getSetting } = require('../helpers/dbModel');
-const { sendErrorFeedback, confirmationButtons } = require('../helpers/utilities');
+import axios from 'axios';
+import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { getSetting } from '../helpers/dbModel.js';
+import { sendErrorFeedback, confirmationButtons } from '../helpers/utilities.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('random')
 		.setDescription('Gets a random emoji as an image.')

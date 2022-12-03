@@ -1,6 +1,6 @@
-const fs = require('fs');
-const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js');
-const { token } = require('../config.json');
+import fs from 'fs';
+import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
+import config from '../config.json' assert { type: "json" };
 
 const client = new Client({
 	intents: [
@@ -22,14 +22,14 @@ const client = new Client({
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./src/commands').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
+	const { default: command } = await import(`./commands/${file}`);
 	client.commands.set(command.data.name, command);
 }
 
 // Events
 const eventFiles = fs.readdirSync('./src/events').filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
-	const event = require(`./events/${file}`);
+	const { default: event } = await import(`./events/${file}`);
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	}
@@ -38,4 +38,4 @@ for (const file of eventFiles) {
 	}
 }
 
-client.login(token);
+client.login(config.token);

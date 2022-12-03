@@ -1,6 +1,6 @@
-const { getLeaderboard } = require('../helpers/dbModel');
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
-const { sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
+import { getLeaderboard } from '../helpers/dbModel.js';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { sendErrorFeedback, verifyEmojiString } from '../helpers/utilities.js';
 
 const validateDateRange = (dateRange) => {
 	let dateString;
@@ -77,7 +77,7 @@ const createOutput = async (interaction, emoji, date, array) => {
 	return embed;
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('leaderboard')
 		.setDescription('Displays the top ten users for a specified emote\'s usage')

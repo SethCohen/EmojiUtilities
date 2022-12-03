@@ -1,7 +1,7 @@
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
-const { mediaLinks } = require('../helpers/utilities');
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { mediaLinks } from '../helpers/utilities.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('help')
 		.setDescription('Prints a list of useful bot-related resources to chat.'),

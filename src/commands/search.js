@@ -1,10 +1,10 @@
-const axios = require('axios');
-const { findBestMatch } = require('string-similarity');
-const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { getSetting } = require('../helpers/dbModel');
-const { sendErrorFeedback, confirmationButtons } = require('../helpers/utilities');
+import axios from 'axios';
+import { findBestMatch } from 'string-similarity';
+import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { getSetting } from '../helpers/dbModel.js';
+import { sendErrorFeedback, confirmationButtons } from '../helpers/utilities.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('search')
 		.setDescription('Searches for an emoji from emoji.gg')

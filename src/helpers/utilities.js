@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 const mediaLinks = '[Support Me](https://sethdev.ca/support-me) | [Server](https://discord.gg/XaeERFAVfb) | [Github](https://github.com/SethCohen/EmojiUtilities) | [Vote](https://top.gg/bot/757326308547100712/vote)';
 
 /** verifyEmojiString
@@ -79,6 +79,6 @@ const confirmationButtons = isEnabled => {
 		);
 };
 
-module.exports = {
+export {
 	sendErrorFeedback, mediaLinks, verifyEmojiString, navigationButtons, confirmationButtons,
 };

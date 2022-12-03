@@ -1,8 +1,8 @@
-const fs = require('fs');
-const axios = require('axios');
-const archiver = require('archiver');
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
-const { mediaLinks } = require('../helpers/utilities');
+import fs from 'fs';
+import axios from 'axios';
+import archiver from 'archiver';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { mediaLinks } from '../helpers/utilities.js';
 
 const createZip = async (interaction) => {
 	const dir = './temps';
@@ -46,7 +46,7 @@ const deleteZip = (zipPath) => {
 	});
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('backupemojis')
 		.setDescription('Returns a .zip of all the emojis in a server.'),

@@ -1,5 +1,5 @@
-const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { sendErrorFeedback, mediaLinks, verifyEmojiString } = require('../helpers/utilities');
+import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { sendErrorFeedback, mediaLinks, verifyEmojiString } from '../helpers/utilities.js';
 
 const getEmojiUrl = (emoji) => {
 	const isAnimated = emoji[1];
@@ -12,7 +12,7 @@ const getEmojiUrl = (emoji) => {
 	}
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('emojisteal')
 		.setDescription('Steals a custom emoji and uploads it to your server.')

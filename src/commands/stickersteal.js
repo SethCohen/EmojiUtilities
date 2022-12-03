@@ -1,8 +1,8 @@
-const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { sendErrorFeedback } = require('../helpers/utilities');
-const converter = require('discord-emoji-converter');
+import { SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { sendErrorFeedback } from '../helpers/utilities.js';
+import converter from 'discord-emoji-converter';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('stickersteal')
 		.setDescription('Steals a sticker by message id and uploads it to your server.')

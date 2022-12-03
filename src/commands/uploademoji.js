@@ -1,11 +1,11 @@
-const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const axios = require('axios');
-const fs = require('fs');
-const { sendErrorFeedback, mediaLinks } = require('../helpers/utilities');
-const imageType = require('image-type');
-const sharp = require('sharp');
+import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import axios from 'axios';
+import fs from 'fs';
+import { sendErrorFeedback, mediaLinks } from '../helpers/utilities.js';
+import imageType from 'image-type';
+import sharp from 'sharp';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('uploademoji')
 		.setDescription('Uploads a given url as an emoji.')

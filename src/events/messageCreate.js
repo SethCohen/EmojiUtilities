@@ -1,7 +1,7 @@
-const { insertToDb, getOpt } = require('../helpers/dbModel');
-const { getSetting } = require('../helpers/dbModel');
+import { insertToDb, getOpt } from '../helpers/dbModel.js';
+import { getSetting } from '../helpers/dbModel.js';
 
-module.exports = {
+export default {
 	name: 'messageCreate',
 	execute(message) {
 		// Ignore client

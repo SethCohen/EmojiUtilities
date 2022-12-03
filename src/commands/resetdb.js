@@ -1,8 +1,8 @@
-const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { resetDb } = require('../helpers/dbModel');
-const { confirmationButtons } = require('../helpers/utilities');
+import { SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { resetDb } from '../helpers/dbModel.js';
+import { confirmationButtons } from '../helpers/utilities.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('resetdb')
 		.setDescription('Clears your server\'s databases.'),

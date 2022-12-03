@@ -1,7 +1,7 @@
-const { deleteFromDb, getOpt } = require('../helpers/dbModel');
-const { getSetting } = require('../helpers/dbModel');
+import { deleteFromDb, getOpt } from '../helpers/dbModel.js';
+import { getSetting } from '../helpers/dbModel.js';
 
-module.exports = {
+export default {
 	name: 'messageDeleteBulk',
 	execute(messages) {
 		messages.every(message => {

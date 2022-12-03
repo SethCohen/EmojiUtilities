@@ -1,7 +1,7 @@
-const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { mediaLinks, sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
+import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { mediaLinks, sendErrorFeedback, verifyEmojiString } from '../helpers/utilities.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('renameemoji')
 		.setDescription('Renames a specified custom emoji.')

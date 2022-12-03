@@ -1,8 +1,8 @@
-const { getDisplayStats } = require('../helpers/dbModel');
-const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { confirmationButtons } = require('../helpers/utilities');
+import { getDisplayStats } from '../helpers/dbModel.js';
+import { SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { confirmationButtons } from '../helpers/utilities.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('removeunused')
 		.setDescription('Removes one or more of the least used emojis')

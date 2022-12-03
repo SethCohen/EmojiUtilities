@@ -1,5 +1,5 @@
-const { navigationButtons } = require('../helpers/utilities');
-const { SlashCommandBuilder } = require('discord.js');
+import { navigationButtons } from '../helpers/utilities.js';
+import { SlashCommandBuilder } from 'discord.js';
 
 const createEmojisList = (interaction) => {
 	const emojisList = [...interaction.guild.emojis.cache.map(emoji => emoji.toString()).values()];
@@ -14,7 +14,7 @@ const createEmojisList = (interaction) => {
 	return pages;
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('listemojis')
 		.setDescription('Displays all usable emotes to chat.'),

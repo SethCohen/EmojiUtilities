@@ -1,8 +1,8 @@
-const { getEmojiTotalCount } = require('../helpers/dbModel');
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
-const { mediaLinks, sendErrorFeedback, verifyEmojiString } = require('../helpers/utilities');
+import { getEmojiTotalCount } from '../helpers/dbModel.js';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { mediaLinks, sendErrorFeedback, verifyEmojiString } from '../helpers/utilities.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('aboutemoji')
 		.setDescription('Displays generic information about an emoji.')

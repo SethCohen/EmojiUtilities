@@ -1,7 +1,7 @@
-const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { verifyEmojiString, sendErrorFeedback, mediaLinks } = require('../helpers/utilities');
+import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { verifyEmojiString, sendErrorFeedback, mediaLinks } from '../helpers/utilities.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('lockemoji')
 		.setDescription('Restricts a specified server-emoji to a specific role.')

@@ -1,7 +1,7 @@
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
-const ms = require('ms');
-const { getGetCount } = require('../helpers/dbModel');
-const { mediaLinks } = require('../helpers/utilities');
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import ms from 'ms';
+import { getGetCount } from '../helpers/dbModel.js';
+import { mediaLinks } from '../helpers/utilities.js';
 
 const getAllGuildsEmojiCount = (interaction) => {
 	let totalEmojiCount = 0;
@@ -11,7 +11,7 @@ const getAllGuildsEmojiCount = (interaction) => {
 	return totalEmojiCount;
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('botinfo')
 		.setDescription('Displays info about the bot.'),

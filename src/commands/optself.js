@@ -1,8 +1,8 @@
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
-const { setOpt, clearUserFromDb } = require('../helpers/dbModel');
-const { confirmationButtons } = require('../helpers/utilities');
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { setOpt, clearUserFromDb } from '../helpers/dbModel.js';
+import { confirmationButtons } from '../helpers/utilities.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('optself')
 		.setDescription('Opts the command user in or out of emoji usage logging.')

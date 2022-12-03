@@ -1,8 +1,8 @@
-const { setSetting } = require('../helpers/dbModel');
-const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { mediaLinks, sendErrorFeedback } = require('../helpers/utilities');
+import { setSetting } from '../helpers/dbModel.js';
+import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { mediaLinks, sendErrorFeedback } from '../helpers/utilities.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('config')
 		.setDescription('Change various bot functionalities.')

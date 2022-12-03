@@ -1,5 +1,6 @@
-const { sendErrorFeedback } = require('../helpers/utilities');
-module.exports = {
+import { sendErrorFeedback } from '../helpers/utilities.js';
+
+export default {
 	name: 'interactionCreate',
 	execute(interaction) {
 		// console.log(`${interaction.user.tag} in #${interaction.channel.name} triggered an interaction.`);

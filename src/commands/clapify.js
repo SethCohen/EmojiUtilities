@@ -1,11 +1,11 @@
-const { sendErrorFeedback } = require('../helpers/utilities');
-const { SlashCommandBuilder } = require('discord.js');
+import { sendErrorFeedback } from '../helpers/utilities.js';
+import { SlashCommandBuilder } from 'discord.js';
 
 const clapifyText = (text) => {
 	return `${text.replace(/ /g, ' 👏 ')} 👏`;
 };
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('clapify')
 		.setDescription('Adds claps between words in a given text.')

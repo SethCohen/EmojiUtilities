@@ -1,8 +1,8 @@
-const { insertToDb, getOpt } = require('../helpers/dbModel');
-const { deleteFromDb } = require('../helpers/dbModel');
-const { getSetting } = require('../helpers/dbModel');
+import { insertToDb, getOpt } from '../helpers/dbModel.js';
+import { deleteFromDb } from '../helpers/dbModel.js';
+import { getSetting } from '../helpers/dbModel.js';
 
-module.exports = {
+export default {
 	name: 'messageUpdate',
 	async execute(oldMessage, newMessage) {
 		// console.log(`messageUpdate: ${oldMessage.content}, ${oldMessage.author} -> ${newMessage.content}, ${newMessage.author}.`);
