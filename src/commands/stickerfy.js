@@ -99,7 +99,7 @@ export default {
 			const path = `${dir}/${filename}`;
 
 			// Checks if url is an image and sets temp file path if image needs processing
-			if (!imageType(buffer)) return interaction.editReply({ content: 'Invalid image type. Command only supports .gif, .png, or .jpg' });
+			if (!await imageType(buffer)) return interaction.editReply({ content: 'Invalid image type. Command only supports .gif, .png, or .jpg' });
 
 			// Checks if url is animated or not; if animated treat as gif, if not treat as png
 			if (isAnimated(buffer)) {
@@ -111,7 +111,7 @@ export default {
 						.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
 						.gif({ colours: 32, dither: 0.0 })
 						.toFile(`${path}.gif`);
-					exec(`gif2apng ${path}.gif`,
+					exec(`./helpers/gif2apng ${path}.gif`,
 						async (execError, stdout, stderr) => {
 							if (execError) throw execError;
 							if (stderr) console.error(`gif2apng stderr ${stderr}`);
