@@ -3,11 +3,12 @@ import ms from 'ms';
 import { getGetCount } from '../helpers/dbModel.js';
 import { mediaLinks } from '../helpers/utilities.js';
 
-const getAllGuildsEmojiCount = (interaction) => {
+const getAllGuildsEmojiCount = async (interaction) => {
 	let totalEmojiCount = 0;
-	interaction.client.guilds.cache.each(async guild => {
-		totalEmojiCount += await getGetCount(guild.id, null, '0');
-	});
+	const guilds = await interaction.client.guilds.cache.values();
+	for await (const guild of guilds) {
+		totalEmojiCount += await getGetCount(guild.id, null, 0);
+	}
 	return totalEmojiCount;
 };
 
@@ -22,6 +23,8 @@ export default {
 		const uptime = interaction.client.uptime;
 		const botCreatedDate = interaction.client.user.createdAt.toDateString();
 
+		const results = await getAllGuildsEmojiCount(interaction);
+
 		const embedSuccess = new EmbedBuilder()
 			.setTitle(`${interaction.client.user.username}`)
 			.setDescription(mediaLinks)
@@ -32,7 +35,7 @@ export default {
 				{ name: 'Bot Created:', value: botCreatedDate, inline: true },
 				{
 					name: 'Emoji Usages Recorded:',
-					value: getAllGuildsEmojiCount(interaction).toString(),
+					value: results.toString(),
 					inline: true,
 				},
 			);

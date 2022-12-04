@@ -1,17 +1,17 @@
 import Database from 'better-sqlite3-multiple-ciphers';
-import config from '../../config.json' assert { type: "json" };
+import config from '../../config.json' assert { type: 'json' };
 
 /** createDatabase
  *      Generates unique sqlite file with tables and default config settings for a unique server.
  *
  *  @param guildId      The newly joined server/guild's id.
  */
-async function createDatabase(guildId) {
+const createDatabase = async (guildId) => {
 	// console.log(`createDatabase(${guildId}) called.`)
 
-	try {
+	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
+		// db.pragma(`key='${config.db_key}'`);
 		const createStatements = [
 			'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
 			'CREATE TABLE IF NOT EXISTS reactsSentActivity(emoji TEXT, user TEXT, datetime TEXT)',
@@ -37,14 +37,9 @@ async function createDatabase(guildId) {
 		]);
 
 		db.close();
-	}
-	catch (e) {
-		switch (e.message) {
-		default:
-			console.log(`createDatabase: ${e}`);
-		}
-	}
-}
+		resolve('Database created.');
+	});
+};
 
 /** deleteFromDb
  *      Deletes a record from a database. Uses emojiId, userId, and dateTime to find the correct record.
@@ -56,18 +51,18 @@ async function createDatabase(guildId) {
  *  @param table        The table to delete from.
  *  @param origin       The event from where deleteFromDb was called.
  */
-// eslint-disable-next-line no-unused-vars
-function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin) {
+const deleteFromDb = async (guildId, emojiId, userId, dateTime, table, origin) => {
 	// console.log(`deleteFromDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}) called from ${origin}.`);
 
-	if (guildId && emojiId && userId && dateTime) {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		let statement;
+	return new Promise((resolve, reject) => {
+		if (guildId && emojiId && userId && dateTime) {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			// db.pragma(`key='${config.db_key}'`);
+			let statement;
 
-		switch (table) {
-		case 'messageActivity':
-			statement = db.prepare(`
+			switch (table) {
+			case 'messageActivity':
+				statement = db.prepare(`
                     DELETE FROM messageActivity 
                     WHERE rowid = 
                     (
@@ -80,9 +75,9 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin) {
                         LIMIT 1
                     )
                 `);
-			break;
-		case 'reactsReceivedActivity':
-			statement = db.prepare(`
+				break;
+			case 'reactsReceivedActivity':
+				statement = db.prepare(`
                     DELETE FROM reactsReceivedActivity 
                     WHERE rowid = 
                     (
@@ -95,9 +90,9 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin) {
                         LIMIT 1
                     )
                 `);
-			break;
-		case 'reactsSentActivity':
-			statement = db.prepare(`
+				break;
+			case 'reactsSentActivity':
+				statement = db.prepare(`
                     DELETE FROM reactsSentActivity 
                     WHERE rowid = 
                     (
@@ -110,22 +105,24 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin) {
                         LIMIT 1
                     )
                 `);
-			break;
+				break;
+			}
+
+			statement.run({
+				emoji: emojiId,
+				user: userId,
+				datetime: dateTime,
+			});
+
+			db.close();
+			resolve('Record deleted.');
 		}
-
-		statement.run({
-			emoji: emojiId,
-			user: userId,
-			datetime: dateTime,
-		});
-
-		db.close();
-	}
-	else {
-		// console.log(`deleteFromDb: Cancel delete. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`);
-	}
-
-}
+		else {
+			// console.log(`deleteFromDb: Cancel delete. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`);
+			reject('deleteFromDb: Cancel delete.');
+		}
+	});
+};
 
 /** insertToDb
  *      Inserts a record to a database. Inserts a row of {emojiId, userId, dateTime}.
@@ -137,48 +134,50 @@ function deleteFromDb(guildId, emojiId, userId, dateTime, table, origin) {
  *  @param table        The table to insert to.
  *  @param origin       The event from where insertToDb was called.
  */
-function insertToDb(guildId, emojiId, userId, dateTime, table, origin) {
+const insertToDb = async (guildId, emojiId, userId, dateTime, table, origin) => {
 	// console.log(`insertToDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}) called from ${origin}.`);
+	return new Promise((resolve, reject) => {
+		if (guildId && emojiId && userId && dateTime) {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			// db.pragma(`key='${config.db_key}'`);
+			let statement;
 
-	if (guildId && emojiId && userId && dateTime) {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		let statement;
-
-		switch (table) {
-		case 'messageActivity':
-			statement = db.prepare(`
+			switch (table) {
+			case 'messageActivity':
+				statement = db.prepare(`
                     INSERT INTO messageActivity (emoji, user, datetime) 
                     VALUES (@emoji, @user, @datetime)
                 `);
-			break;
-		case 'reactsReceivedActivity':
-			statement = db.prepare(`
+				break;
+			case 'reactsReceivedActivity':
+				statement = db.prepare(`
                     INSERT INTO reactsReceivedActivity (emoji, user, datetime) 
                     VALUES (@emoji, @user, @datetime)
                 `);
-			break;
-		case 'reactsSentActivity':
-			statement = db.prepare(`
+				break;
+			case 'reactsSentActivity':
+				statement = db.prepare(`
                     INSERT INTO reactsSentActivity (emoji, user, datetime) 
                     VALUES (@emoji, @user, @datetime)
                 `);
-			break;
+				break;
+			}
+
+			statement.run({
+				emoji: emojiId,
+				user: userId,
+				datetime: dateTime,
+			});
+
+			db.close();
+			resolve('Record inserted.');
 		}
-
-		statement.run({
-			emoji: emojiId,
-			user: userId,
-			datetime: dateTime,
-		});
-
-		db.close();
-	}
-	else {
-		console.log(`insertToDb: Cancel insert. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`);
-	}
-
-}
+		else {
+			console.log(`insertToDb: Cancel insert. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`);
+			reject('insertToDb: Cancel insert.');
+		}
+	});
+};
 
 /** getLeaderboard
  *      Returns the top 10 users for a specific emoji's usage at a (un?)specified datetime range.
@@ -190,11 +189,10 @@ function insertToDb(guildId, emojiId, userId, dateTime, table, origin) {
  *  @param dateTime  The date range to query records for.
  *  @returns {*}     Returns a collection of records of {user, count}
  */
-async function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null) {
-	try { // console.log(`getLeaderboard(${guildId}, ${emojiId}, ${clientId}, ${dateTime}) called.`)
-
+const getLeaderboard = async (guildId, emojiId, clientId, type, dateTime = null) => {
+	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
+		// db.pragma(`key='${config.db_key}'`);
 		let cat;
 		let statement;
 		if (dateTime) { // Query for if a daterange was specified
@@ -302,18 +300,9 @@ async function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null)
 		}
 
 		db.close();
-		return cat;
-	}
-	catch (e) {
-		if (e.message.includes('no such table')) {
-			await createDatabase(guildId);
-			return await getLeaderboard(guildId, emojiId, clientId, type, dateTime);
-		}
-		else {
-			console.error(e);
-		}
-	}
-}
+		resolve(cat);
+	});
+};
 
 /** getGetCount
  *      Returns total emojis' usage within a specified date range for either an entire server or a specified user.
@@ -323,14 +312,12 @@ async function getLeaderboard(guildId, emojiId, clientId, type, dateTime = null)
  * @param dateTime      The date range to query for.
  * @returns {number}    Returns the usage number of the queried user/server.
  */
-async function getGetCount(guildId, userId, dateTime) {
-	try {
-		// console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`)
-
+const getGetCount = async (guildId, userId, dateTime) => {
+	return new Promise((resolve, reject) => {
+		// console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`);
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
+		// db.pragma(`key='${config.db_key}'`);
 		let count = 0;
-
 		if (userId !== null) { // Query for server
 			const statements = [
 				'SELECT COUNT(emoji) FROM messageActivity WHERE user = @user AND datetime > @datetime',
@@ -351,18 +338,9 @@ async function getGetCount(guildId, userId, dateTime) {
 		}
 
 		db.close();
-		return count;
-	}
-	catch (e) {
-		if (e.message.includes('no such table')) {
-			await createDatabase(guildId);
-			return await getGetCount(guildId, userId, dateTime);
-		}
-		else {
-			console.error(e);
-		}
-	}
-}
+		resolve(count);
+	});
+};
 
 /** getDisplayStats
  *      Returns the usage for each emoji in a server for either the server or a specified user.
@@ -372,11 +350,10 @@ async function getGetCount(guildId, userId, dateTime) {
  * @param userId    The user to query for.
  * @returns {*}     Returns a collection of {emoji, count}
  */
-async function getDisplayStats(guildId, dateTime, userId = null) {
-	try { // console.log(`getDisplayStats(${guildId}, ${dateTime}, ${userId}) called.`)
-
+const getDisplayStats = async (guildId, dateTime, userId = null) => {
+	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
+		// db.pragma(`key='${config.db_key}'`);
 		let cat;
 
 		if (userId) {
@@ -434,18 +411,9 @@ async function getDisplayStats(guildId, dateTime, userId = null) {
 		}
 
 		db.close();
-		return cat;
-	}
-	catch (e) {
-		if (e.message.includes('no such table')) {
-			await createDatabase(guildId);
-			return await getDisplayStats(guildId, dateTime, userId);
-		}
-		else {
-			console.error(e);
-		}
-	}
-}
+		resolve(cat);
+	});
+};
 
 /** getSetting
  *      Returns the flag state for a server's config setting.
@@ -454,25 +422,16 @@ async function getDisplayStats(guildId, dateTime, userId = null) {
  * @param setting                       The setting flag to get.
  * @returns {*|number|string|OpenMode}  The flag's state.
  */
-async function getSetting(guildId, setting) {
-	try {
+const getSetting = async (guildId, setting) => {
+	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
+		// db.pragma(`key='${config.db_key}'`);
 		const statement = db.prepare('SELECT flag FROM serverSettings WHERE setting = ?');
 		const flag = statement.get(setting).flag;
 		db.close();
-		return flag;
-	}
-	catch (e) {
-		if (e.message.includes('no such table')) {
-			await createDatabase(guildId);
-			return await getSetting(guildId, setting);
-		}
-		else {
-			console.error(e);
-		}
-	}
-}
+		resolve(flag);
+	});
+};
 
 /** setSetting
  *      Modifies a server's config setting.
@@ -481,10 +440,10 @@ async function getSetting(guildId, setting) {
  * @param setting   The setting to modify.
  * @param flag      The flag state to set.
  */
-async function setSetting(guildId, setting, flag) {
-	try {
+const setSetting = async (guildId, setting, flag) => {
+	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
+		// db.pragma(`key='${config.db_key}'`);
 		const statement = db.prepare(`
 			UPDATE serverSettings
 			SET flag = @flag
@@ -495,40 +454,34 @@ async function setSetting(guildId, setting, flag) {
 			flag: flag,
 		});
 		db.close();
-	}
-	catch (e) {
-		if (e.message.includes('no such table')) {
-			await createDatabase(guildId);
-			return await setSetting(guildId, setting, flag);
-		}
-		else {
-			console.error(e);
-		}
-
-	}
-}
+		resolve('Setting set.');
+	});
+};
 
 /** resetDb
  *      Truncates all tables, deleting all records.
  *
  * @param guildId   The guild to reset db's on.
  */
-function resetDb(guildId) {
-	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`key='${config.db_key}'`);
+const resetDb = async (guildId) => {
+	return new Promise((resolve, reject) => {
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		// db.pragma(`key='${config.db_key}'`);
 
-	const deleteStatements = [
-		'DELETE FROM messageActivity',
-		'DELETE FROM reactsSentActivity',
-		'DELETE FROM reactsReceivedActivity',
-	].map(sql => db.prepare(sql));
+		const deleteStatements = [
+			'DELETE FROM messageActivity',
+			'DELETE FROM reactsSentActivity',
+			'DELETE FROM reactsReceivedActivity',
+		].map(sql => db.prepare(sql));
 
-	for (const deleteStatement of deleteStatements) {
-		deleteStatement.run();
-	}
+		for (const deleteStatement of deleteStatements) {
+			deleteStatement.run();
+		}
 
-	db.close();
-}
+		db.close();
+		resolve('Database reset.');
+	});
+};
 
 /** getEmojiTotalCount
  *      Returns the amount of times a specific emoji has been used in total.
@@ -536,10 +489,10 @@ function resetDb(guildId) {
  * @param emojiId       The emoji to search for.
  * @returns {number}    The usage count of the emoji.
  */
-async function getEmojiTotalCount(guildId, emojiId) {
-	try {
+const getEmojiTotalCount = async (guildId, emojiId) => {
+	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
+		// db.pragma(`key='${config.db_key}'`);
 		let count = 0;
 
 		const statements = [
@@ -551,18 +504,9 @@ async function getEmojiTotalCount(guildId, emojiId) {
 		}
 
 		db.close();
-		return count;
-	}
-	catch (e) {
-		if (e.message.includes('no such table')) {
-			await createDatabase(guildId);
-			return await getEmojiTotalCount(guildId, emojiId);
-		}
-		else {
-			console.error(e);
-		}
-	}
-}
+		resolve(count);
+	});
+};
 
 
 /**	getOpt
@@ -571,20 +515,14 @@ async function getEmojiTotalCount(guildId, emojiId) {
  * @param userId    	The user to query for.
  * @returns {*|number|OpenMode|string|boolean}	A truthy value of user opt-in/out.
  */
-function getOpt(guildId, userId) {
-	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`key='${config.db_key}'`);
-	const statement = db.prepare('SELECT flag FROM usersOpt WHERE user = ?');
-	try {
-		return statement.get(userId).flag;
-	}
-	catch (e) {
-		return true;
-	}
-	finally {
-		db.close();
-	}
-}
+const getOpt = async (guildId, userId) => {
+	return new Promise((resolve, reject) => {
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		// db.pragma(`key='${config.db_key}'`);
+		const statement = db.prepare('SELECT flag FROM usersOpt WHERE user = ?');
+		resolve(statement.get(userId).flag);
+	});
+};
 
 /**	setOpt
  * 		Sets user opt-in/out from emoji usage logging.
@@ -592,10 +530,10 @@ function getOpt(guildId, userId) {
  * @param userId    	The user to set flag for.
  * @param flag			The flag state to set.
  */
-async function setOpt(guildId, userId, flag) {
-	try {
+const setOpt = async (guildId, userId, flag) => {
+	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
+		// db.pragma(`key='${config.db_key}'`);
 		const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
 
 		// console.log(`setOpt(${guildId}, ${userId}, ${Number(flag)}) called.`);
@@ -605,39 +543,34 @@ async function setOpt(guildId, userId, flag) {
 			flag: Number(flag),
 		});
 		db.close();
-	}
-	catch (e) {
-		if (e.message.includes('no such table')) {
-			await createDatabase(guildId);
-			return await setOpt(guildId, userId, flag);
-		}
-		else {
-			console.error(e);
-		}
-	}
-}
+		resolve('User opt set.');
+	});
+};
 
 /**	clearUserFromDb
  * 		Removes all records of a user from the emoji usage logging databases.
  * @param guildId	The guild to remove the user from.
  * @param userId	The user to remove records of.
  */
-function clearUserFromDb(guildId, userId) {
-	const db = new Database(`./databases/${guildId}.sqlite`);
-	db.pragma(`key='${config.db_key}'`);
+const clearUserFromDb = async (guildId, userId) => {
+	return new Promise((resolve, reject) => {
+		const db = new Database(`./databases/${guildId}.sqlite`);
+		// db.pragma(`key='${config.db_key}'`);
 
-	const statements = [
-		'DELETE FROM messageActivity WHERE user = @user',
-		'DELETE FROM reactsSentActivity WHERE user = @user',
-		'DELETE FROM reactsReceivedActivity WHERE user = @user',
-	].map(sql => db.prepare(sql));
+		const statements = [
+			'DELETE FROM messageActivity WHERE user = @user',
+			'DELETE FROM reactsSentActivity WHERE user = @user',
+			'DELETE FROM reactsReceivedActivity WHERE user = @user',
+		].map(sql => db.prepare(sql));
 
-	for (const statement of statements) {
-		statement.run({ user: userId });
-	}
+		for (const statement of statements) {
+			statement.run({ user: userId });
+		}
 
-	db.close();
-}
+		db.close();
+		resolve('User cleared from database.');
+	});
+};
 
 export {
 	createDatabase,
