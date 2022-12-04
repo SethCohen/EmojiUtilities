@@ -520,7 +520,9 @@ const getOpt = async (guildId, userId) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
 		db.pragma(`key='${config.db_key}'`);
 		const statement = db.prepare('SELECT flag FROM usersOpt WHERE user = ?');
-		resolve(statement.get(userId).flag);
+		const result = statement.get(userId);
+		const opt = result ? result.flag : true;
+		resolve(opt);
 	});
 };
 
