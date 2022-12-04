@@ -1,4 +1,11 @@
 # Changelog
+## [1.22.7](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.6...v1.22.7) (2022-10-13)
+
+
+### Miscellaneous
+
+* updated README.md ([44b9eab](https://github.com/SethCohen/EmojiUtilities/commit/44b9eabab6f4e9a25e0c6c3ec6e952611c904acd))
+
 ## [1.22.6](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.5...v1.22.6) (2022-10-13)
 
 
