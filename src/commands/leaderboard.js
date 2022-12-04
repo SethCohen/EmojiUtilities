@@ -118,8 +118,8 @@ export default {
 			const emoji = await interaction.guild.emojis.fetch(verifiedEmoji[3]);
 
 			const data = (date.dateRange ?
-				getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type, date.dateRange) :
-				getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type));
+				await getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type, date.dateRange) :
+				await getLeaderboard(interaction.guild.id, emoji.id, interaction.client.id, type));
 			if (!data.length) {
 				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Sorry, there\'s no info to display!\nThe leaderboard is empty!')] });
 			}

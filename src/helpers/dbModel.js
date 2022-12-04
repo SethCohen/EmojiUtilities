@@ -11,7 +11,7 @@ const createDatabase = async (guildId) => {
 
 	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 		const createStatements = [
 			'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
 			'CREATE TABLE IF NOT EXISTS reactsSentActivity(emoji TEXT, user TEXT, datetime TEXT)',
@@ -57,7 +57,7 @@ const deleteFromDb = async (guildId, emojiId, userId, dateTime, table, origin) =
 	return new Promise((resolve, reject) => {
 		if (guildId && emojiId && userId && dateTime) {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			// db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${config.db_key}'`);
 			let statement;
 
 			switch (table) {
@@ -139,7 +139,7 @@ const insertToDb = async (guildId, emojiId, userId, dateTime, table, origin) => 
 	return new Promise((resolve, reject) => {
 		if (guildId && emojiId && userId && dateTime) {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			// db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${config.db_key}'`);
 			let statement;
 
 			switch (table) {
@@ -192,7 +192,7 @@ const insertToDb = async (guildId, emojiId, userId, dateTime, table, origin) => 
 const getLeaderboard = async (guildId, emojiId, clientId, type, dateTime = null) => {
 	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 		let cat;
 		let statement;
 		if (dateTime) { // Query for if a daterange was specified
@@ -316,7 +316,7 @@ const getGetCount = async (guildId, userId, dateTime) => {
 	return new Promise((resolve, reject) => {
 		// console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`);
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 		let count = 0;
 		if (userId !== null) { // Query for server
 			const statements = [
@@ -353,7 +353,7 @@ const getGetCount = async (guildId, userId, dateTime) => {
 const getDisplayStats = async (guildId, dateTime, userId = null) => {
 	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 		let cat;
 
 		if (userId) {
@@ -425,7 +425,7 @@ const getDisplayStats = async (guildId, dateTime, userId = null) => {
 const getSetting = async (guildId, setting) => {
 	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 		const statement = db.prepare('SELECT flag FROM serverSettings WHERE setting = ?');
 		const flag = statement.get(setting).flag;
 		db.close();
@@ -443,7 +443,7 @@ const getSetting = async (guildId, setting) => {
 const setSetting = async (guildId, setting, flag) => {
 	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 		const statement = db.prepare(`
 			UPDATE serverSettings
 			SET flag = @flag
@@ -466,7 +466,7 @@ const setSetting = async (guildId, setting, flag) => {
 const resetDb = async (guildId) => {
 	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 
 		const deleteStatements = [
 			'DELETE FROM messageActivity',
@@ -492,7 +492,7 @@ const resetDb = async (guildId) => {
 const getEmojiTotalCount = async (guildId, emojiId) => {
 	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 		let count = 0;
 
 		const statements = [
@@ -518,7 +518,7 @@ const getEmojiTotalCount = async (guildId, emojiId) => {
 const getOpt = async (guildId, userId) => {
 	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 		const statement = db.prepare('SELECT flag FROM usersOpt WHERE user = ?');
 		resolve(statement.get(userId).flag);
 	});
@@ -533,7 +533,7 @@ const getOpt = async (guildId, userId) => {
 const setOpt = async (guildId, userId, flag) => {
 	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 		const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
 
 		// console.log(`setOpt(${guildId}, ${userId}, ${Number(flag)}) called.`);
@@ -555,7 +555,7 @@ const setOpt = async (guildId, userId, flag) => {
 const clearUserFromDb = async (guildId, userId) => {
 	return new Promise((resolve, reject) => {
 		const db = new Database(`./databases/${guildId}.sqlite`);
-		// db.pragma(`key='${config.db_key}'`);
+		db.pragma(`key='${config.db_key}'`);
 
 		const statements = [
 			'DELETE FROM messageActivity WHERE user = @user',
