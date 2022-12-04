@@ -21,7 +21,7 @@ export default {
 			if (!interactionCommand.channel.nsfw) {
 				return interactionCommand.editReply({ content: 'Sorry, but NSFW content is only allowed NSFW channels.' });
 			}
-			else if (getSetting(interactionCommand.guildId, 'allownsfw')) {
+			else if (await getSetting(interactionCommand.guildId, 'allownsfw')) {
 				data = response.data;
 			}
 			else {

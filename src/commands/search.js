@@ -54,7 +54,7 @@ export default {
 			if (!interactionCommand.channel.nsfw) {
 				return interactionCommand.editReply({ content: 'Sorry, but NSFW content is only allowed NSFW channels.' });
 			}
-			else if (getSetting(interactionCommand.guildId, 'allownsfw')) {	// Checks server flag for if searching for nsfw emojis are allowed
+			else if (await getSetting(interactionCommand.guildId, 'allownsfw')) {	// Checks server flag for if searching for nsfw emojis are allowed
 				await interactionCommand.editReply({
 					content: 'Including NSFW results, eh? Kinky.',
 				});
