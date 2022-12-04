@@ -19,7 +19,7 @@ export default {
 		// Ignore client
 		if (newMessage.author.id === newMessage.client.user.id) return false;
 
-		if (getSetting(newMessage.guildId, 'countmessages')) { // Check server flag for if counting messages for emoji usage is allowed
+		if (await getSetting(newMessage.guildId, 'countmessages')) { // Check server flag for if counting messages for emoji usage is allowed
 			const guildId = newMessage.guildId;
 			const messageAuthorId = newMessage.author.id;
 			const dateTime = newMessage.createdAt.toISOString();
@@ -33,8 +33,8 @@ export default {
 			for (const emoji of emojisBefore) {
 				oldMessage.guild.emojis
 					.fetch(emoji[3])
-					.then(fetchedEmoji => {
-						if (getOpt(guildId, messageAuthorId)) deleteFromDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageUpdate');
+					.then(async fetchedEmoji => {
+						if (await getOpt(guildId, messageAuthorId)) await deleteFromDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageUpdate');
 					})
 					.catch(ignoreError => {
 						// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
@@ -45,8 +45,8 @@ export default {
 			for (const emoji of emojisAfter) {
 				newMessage.guild.emojis
 					.fetch(emoji[3])
-					.then(fetchedEmoji => {
-						if (getOpt(guildId, messageAuthorId)) insertToDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageUpdate');
+					.then(async fetchedEmoji => {
+						if (await getOpt(guildId, messageAuthorId)) await insertToDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageUpdate');
 					})
 					.catch(ignoreError => {
 						// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)

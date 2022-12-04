@@ -21,24 +21,24 @@ export default {
 		try {
 			reactions.each(reaction => {
 				// console.log(reaction.count, reaction.emoji.id, reaction)
-				reaction.users.cache.each(user => {
-					if (getSetting(message.guildId, 'countreacts')) { // Check server flag for if counting reacts for emoji usage is allowed
+				reaction.users.cache.each(async user => {
+					if (await getSetting(message.guildId, 'countreacts')) { // Check server flag for if counting reacts for emoji usage is allowed
 						const guildId = message.guildId;
 						const reactionAuthorId = user.id;
 						const messageAuthorId = message.author.id;
 						const dateTime = message.createdAt.toISOString();
 
 						// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
-						if (!(messageAuthorId === reactionAuthorId) || getSetting(guildId, 'countselfreacts')) { // Check server flag for if counting self-reacts for emoji usage is allowed
+						if (!(messageAuthorId === reactionAuthorId) || await getSetting(guildId, 'countselfreacts')) { // Check server flag for if counting self-reacts for emoji usage is allowed
 							if (reaction.emoji.id) { // if not unicode/default emoji...
 								message.guild.emojis
 									.fetch(reaction.emoji.id)
-									.then(emoji => {
+									.then(async emoji => {
 										// console.log(emoji)
 
 										// If users have not opted out of logging...
-										if (getOpt(guildId, reactionAuthorId)) deleteFromDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionRemoveAll');
-										if (getOpt(guildId, messageAuthorId)) deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionRemoveAll');
+										if (await getOpt(guildId, reactionAuthorId)) await deleteFromDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionRemoveAll');
+										if (await getOpt(guildId, messageAuthorId)) await deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionRemoveAll');
 									})
 									.catch(ignoreError => {
 										// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)

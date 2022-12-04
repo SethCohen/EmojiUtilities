@@ -3,12 +3,12 @@ import { getSetting } from '../helpers/dbModel.js';
 
 export default {
 	name: 'messageCreate',
-	execute(message) {
+	async execute(message) {
 		// Ignore client
 		if (message.author.id === message.client.user.id) return false;
 
 		try {
-			if (getSetting(message.guildId, 'countmessages')) { // Check server flag for if counting messages for emoji usage is allowed
+			if (await getSetting(message.guildId, 'countmessages')) { // Check server flag for if counting messages for emoji usage is allowed
 				const guildId = message.guildId;
 				const messageAuthorId = message.author.id;
 				const dateTime = message.createdAt.toISOString();
@@ -20,9 +20,9 @@ export default {
 				for (const emoji of emojis) {
 					message.guild.emojis
 						.fetch(emoji[3])
-						.then(fetchedEmoji => {
+						.then(async fetchedEmoji => {
 							// If users have not opted out of logging...
-							if (getOpt(guildId, messageAuthorId)) insertToDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageCreate');
+							if (await getOpt(guildId, messageAuthorId)) await insertToDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageCreate');
 						})
 						.catch(ignoreError => {
 							// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
