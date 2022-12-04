@@ -1,4 +1,22 @@
 # Changelog
+## [1.22.8](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.7...v1.22.8) (2022-12-04)
+
+
+### Bug Fixes
+
+* **botinfo:** fixed total emoji value. ([453d105](https://github.com/SethCohen/EmojiUtilities/commit/453d1051ec1d890d31316a865070e75611e6601c))
+* fixed `countmessages`, `countreacts`, `countselfreacts` server flags not working. ([28562c0](https://github.com/SethCohen/EmojiUtilities/commit/28562c016a82c22af64cdfeb27a6e03211f2de00))
+* **leaderboard:** fixed leaderboard not showing any information ([60c5378](https://github.com/SethCohen/EmojiUtilities/commit/60c53782ed320cc562e0b3fa8cecaa5e0fbac27c))
+* **random|search:** fixed `includensfw` server setting flag not working ([0ec8df9](https://github.com/SethCohen/EmojiUtilities/commit/0ec8df9829a91e65b0aea4fa93cdf0e4a6b22caa))
+* **search|random|packsearch:** fixed commands crashing bot ([8e87f65](https://github.com/SethCohen/EmojiUtilities/commit/8e87f65872c0dc1c37377ef7b9415d1b059aca6a))
+
+
+### Miscellaneous
+
+* updated dependencies ([d4a5241](https://github.com/SethCohen/EmojiUtilities/commit/d4a52415474caa3798b317202d6c0cca564559df))
+* updated start server script ([29b6ebb](https://github.com/SethCohen/EmojiUtilities/commit/29b6ebba0b221bb7ca4c6837194ec3db56b0f3dc))
+* updated to ES6 ([de05120](https://github.com/SethCohen/EmojiUtilities/commit/de0512071ebb53bc7057455f7f60a768d7dde67a))
+
 ## [1.22.7](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.6...v1.22.7) (2022-10-13)
 
 
