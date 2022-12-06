@@ -54,7 +54,7 @@ export default {
 		catch (e) {
 			switch (e.message) {
 			case 'Unknown Emoji':
-				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji detected in `emoji`')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji detected in `emoji`')] });
 				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${e.message}\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getRole('role')}`);

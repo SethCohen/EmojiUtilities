@@ -75,20 +75,20 @@ export default {
 
 			switch (e.message) {
 			case 'Emoji doesn\'t exist':
-				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `tag` not found. Please use a default emoji, such as 🍌')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Emoji in `tag` not found. Please use a default emoji, such as 🍌')] });
 				break;
 			case 'Unknown Message':
-				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
 				break;
 			case 'Cannot read properties of undefined (reading \'url\')':
-				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker found in message. Please try again.')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No sticker found in message. Please try again.')] });
 				break;
 			case '404: Not Found':
-				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
 				break;
 			default:
 				console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${e.message}\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString('tag')}\n${interaction.options.getString('name')}`);
-				return interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
+				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}
 	},

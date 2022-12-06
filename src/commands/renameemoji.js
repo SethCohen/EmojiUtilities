@@ -72,7 +72,7 @@ export default {
 		catch (error) {
 			switch (error.message) {
 			case 'Cannot read properties of null (reading \'3\')':
-				interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
 				break;
 			default:
 				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getString('name')}`);

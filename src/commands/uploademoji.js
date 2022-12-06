@@ -41,10 +41,11 @@ export default {
 			const buffer = Buffer.from(response.data, 'utf-8');
 			const filename = Math.random().toString(36).substring(2, 10);
 			let path = `${dir}/${filename}`;
+			const type = await (imageType(buffer));
 
 			// Checks if url is an image and sets temp file path if image needs processing
-			if (imageType(buffer)) {
-				path += imageType(buffer).ext;
+			if (type) {
+				path += type.ext;
 			}
 			else {
 				return interaction.editReply({ content: 'Invalid image type. Command only supports .gif, .png, or .jpg' });

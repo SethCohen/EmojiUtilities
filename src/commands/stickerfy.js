@@ -97,13 +97,14 @@ export default {
 			const buffer = Buffer.from(response.data, 'utf-8');
 			const filename = Math.random().toString(36).substring(2, 10);
 			const path = `${dir}/${filename}`;
+			const type = await imageType(buffer);
 
 			// Checks if url is an image and sets temp file path if image needs processing
-			if (!await imageType(buffer)) return interaction.editReply({ content: 'Invalid image type. Command only supports .gif, .png, or .jpg' });
+			if (!type) return interaction.editReply({ content: 'Invalid image type. Command only supports .gif, .png, or .jpg' });
 
 			// Checks if url is animated or not; if animated treat as gif, if not treat as png
 			if (isAnimated(buffer)) {
-				if (imageType(buffer).ext === 'png') {
+				if (type.ext === 'png') {
 					await uploadSticker(interaction, buffer, name, tag);
 				}
 				else {

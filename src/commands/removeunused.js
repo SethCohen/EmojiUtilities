@@ -60,7 +60,7 @@ export default {
 				.then(async interactionButton => {
 					if (interactionButton.customId === 'confirm') {
 						if (!interactionButton.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
-							interactionCommand.editReply({ content: 'Cancelling emoji adding. Interaction author lacks permissions.' });
+							await interactionCommand.editReply({ content: 'Cancelling emoji adding. Interaction author lacks permissions.' });
 							return await interactionButton.followUp({
 								content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
 								ephemeral: true,
