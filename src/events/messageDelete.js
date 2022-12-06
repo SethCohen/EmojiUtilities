@@ -1,62 +1,48 @@
-import { deleteFromDb, getOpt } from '../helpers/dbModel.js';
-import { getSetting } from '../helpers/dbModel.js';
+import { createDatabase, deleteFromDb, getOpt } from '../helpers/dbModel.js';
+import { getSettings } from '../helpers/dbModel.js';
 
 export default {
 	name: 'messageDelete',
 	async execute(message) {
-
 		// Ignore partials
-		if (message.partial) {
-			// console.log(`messageDelete partial found. Can't fetch old messages.`)
-			return false;
-		}
-
+		if (message.partial) return false;
 		// Ignore invalid messages
 		if (message.author === null) return false;
-
 		// Ignore client
 		if (message.author.id === message.client.user.id) return false;
 
 		try {
-			if (await getSetting(message.guildId, 'countmessages')) { // Check server flag for if counting messages for emoji usage is allowed
-				const guildId = message.guildId;
-				const messageAuthorId = message.author.id;
-				const dateTime = message.createdAt.toISOString();
+			const guildId = message.guildId;
+			const messageAuthorId = message.author.id;
+			const dateTime = message.createdAt.toISOString();
+			const serverFlags = await getSettings(guildId);
+			const messageUserOpt = await getOpt(guildId, messageAuthorId);
 
-				// Finds all emojis in messages via regex
-				const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/g;
-				const emojis = message.content.matchAll(re);
+			// Finds all emojis in messages via regex
+			const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/g;
+			const emojis = message.content.matchAll(re);
 
+			// Delete each message emoji from database
+			if (serverFlags.countmessages && messageUserOpt) {
 				for (const emoji of emojis) {
-					message.guild.emojis
-						.fetch(emoji[3])
-						.then(async fetchedEmoji => {
-							if (await getOpt(guildId, messageAuthorId)) await deleteFromDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageDelete - message');
-						})
-						.catch(ignoreError => {
-							// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
-						});
+					const guildEmoji = await message.guild.emojis.fetch(emoji[3]);
+					await deleteFromDb(guildId, guildEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageDelete - message');
 				}
 			}
-		}
-		catch (e) {
-			console.error('messageDelete message delete failed', e);
-		}
 
-		try {
-			if (await getSetting(message.guildId, 'countreacts')) { // Check server flag for if counting reacts for emoji usage is allowed
-				const guildId = message.guildId;
-				const messageAuthorId = message.author.id;
-				const dateTime = message.createdAt.toISOString();
-
-				message.reactions.cache.each(reaction => {
-					if (message.guild.emojis.resolve(reaction.emoji)) { // Checks for if emoji reaction is a guild emoji
+			// Delete each reaction emoji from database
+			if (serverFlags.countreacts) {
+				message.reactions.cache.each(async reaction => {
+					// Check if reaction is a guild emoji
+					if (message.guild.emojis.resolve(reaction.emoji)) {
 						reaction.users.cache.each(async user => {
+							const reactionUserOpt = await getOpt(guildId, user.id);
+
 							// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
-							if (!(messageAuthorId === user.id) || await getSetting(guildId, 'countselfreacts')) {	// Check server flag for if counting self-reacts for emoji usage is allowed
-								// If users have not opted out of logging...
-								if (await getOpt(guildId, user.id)) await deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, 'reactsSentActivity', 'messageDelete - reaction:Sent');
-								if (await getOpt(guildId, messageAuthorId)) await deleteFromDb(guildId, reaction.emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageDelete - reaction:Given');
+							// Check server flag for if counting self-reacts for emoji usage is allowed
+							if (!(messageAuthorId === user.id) || serverFlags.countselfreacts) {
+								if (reactionUserOpt) await deleteFromDb(guildId, reaction.emoji.id, user.id, dateTime, 'reactsSentActivity', 'messageDelete - reaction:Sent');
+								if (messageUserOpt) await deleteFromDb(guildId, reaction.emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageDelete - reaction:Given');
 							}
 						});
 					}
@@ -64,7 +50,12 @@ export default {
 			}
 		}
 		catch (e) {
-			console.error('messageDelete reaction delete failed', e);
+			if (e.message === 'no such table: serverSettings') {
+				await createDatabase(message.guildId);
+			}
+			else {
+				console.error('messageDelete failed', e);
+			}
 		}
 	},
 };

@@ -118,8 +118,7 @@ const deleteFromDb = async (guildId, emojiId, userId, dateTime, table, origin) =
 			resolve('Record deleted.');
 		}
 		else {
-			// console.log(`deleteFromDb: Cancel delete. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`);
-			reject('deleteFromDb: Cancel delete.');
+			reject(`deleteFromDb: Cancel delete. (guildId: ${guildId}, emojiId: ${emojiId}, userId: ${userId}, dateTime: ${dateTime}, table: ${table}, origin: ${origin})`);
 		}
 	});
 };
@@ -173,8 +172,7 @@ const insertToDb = async (guildId, emojiId, userId, dateTime, table, origin) => 
 			resolve('Record inserted.');
 		}
 		else {
-			console.log(`insertToDb: Cancel insert. (${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}, ${origin})`);
-			reject('insertToDb: Cancel insert.');
+			reject(`insertToDb: Cancel insert. (guildId: ${guildId}, emojiId: ${emojiId}, userId: ${userId}, dateTime: ${dateTime}, table: ${table}, origin: ${origin})`);
 		}
 	});
 };
@@ -419,17 +417,24 @@ const getDisplayStats = async (guildId, dateTime, userId = null) => {
  *      Returns the flag state for a server's config setting.
  *
  * @param guildId                       The server the record is associated with.
- * @param setting                       The setting flag to get.
  * @returns {*|number|string|OpenMode}  The flag's state.
  */
-const getSetting = async (guildId, setting) => {
+const getSettings = async (guildId) => {
 	return new Promise((resolve, reject) => {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		const statement = db.prepare('SELECT flag FROM serverSettings WHERE setting = ?');
-		const flag = statement.get(setting).flag;
-		db.close();
-		resolve(flag);
+		try {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
+			const statement = db.prepare('SELECT * FROM serverSettings');
+			const rows = statement.all();
+			const settings = {};
+			for (const row of rows) {
+				settings[row.setting] = row.flag;
+			}
+			db.close();
+			resolve(settings);
+		} catch (e) {
+			reject(e);
+		}
 	});
 };
 
@@ -581,7 +586,7 @@ export {
 	getLeaderboard,
 	getGetCount,
 	getDisplayStats,
-	getSetting,
+	getSettings,
 	setSetting,
 	resetDb,
 	getEmojiTotalCount,

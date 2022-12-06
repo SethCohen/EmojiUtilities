@@ -1,11 +1,9 @@
-import { deleteFromDb, getOpt } from '../helpers/dbModel.js';
-import { getSetting } from '../helpers/dbModel.js';
+import { createDatabase, deleteFromDb, getOpt } from '../helpers/dbModel.js';
+import { getSettings } from '../helpers/dbModel.js';
 
 export default {
 	name: 'messageReactionRemove',
 	async execute(messageReaction, user) {
-		// console.log(`messageReactionRemove: ${messageReaction.message}, ${messageReaction.emoji}, ${user}.`);
-
 		// Fetch any partials
 		if (messageReaction.partial) {
 			await messageReaction.fetch().catch(e => {
@@ -22,38 +20,39 @@ export default {
 
 		// Ignore invalid messages
 		if (messageReaction.message.author === null) return false;
-
 		// Ignore client
 		if (messageReaction.me || messageReaction.message.author.id === messageReaction.client.user.id) return false;
+		// Ignore default emojis
+		if (!messageReaction.emoji.id) return false;
 
 		try {
-			if (await getSetting(messageReaction.message.guildId, 'countreacts')) { // Check server flag for if counting reacts for emoji usage is allowed
-				const guildId = messageReaction.message.guildId;
-				const reactionAuthorId = user.id;
-				const messageAuthorId = messageReaction.message.author.id;
-				const dateTime = messageReaction.message.createdAt.toISOString();
+			const guildId = messageReaction.message.guildId;
+			const reactionAuthorId = user.id;
+			const messageAuthorId = messageReaction.message.author.id;
+			const dateTime = messageReaction.message.createdAt.toISOString();
 
-				// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
-				if (!(messageAuthorId === reactionAuthorId) || await getSetting(guildId, 'countselfreacts')) { // Check server flag for if counting self-reacts for emoji usage is allowed
-					if (messageReaction.emoji.id) { // if not unicode emoji
-						messageReaction.message.guild.emojis
-							.fetch(messageReaction.emoji.id)
-							.then(async emoji => {
-								// console.log(emoji)
+			// Check server flag for if counting reactions for emoji usage is allowed
+			const serverFlags = await getSettings(guildId);
+			if (!serverFlags.countreacts) return false;
 
-								// If users have not opted out of logging...
-								if (await getOpt(guildId, messageAuthorId)) await deleteFromDb(guildId, emoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionRemove');
-								if (await getOpt(guildId, reactionAuthorId)) await deleteFromDb(guildId, emoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionRemove');
-							})
-							.catch(ignoreError => {
-								// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
-							});
-					}
-				}
+			// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
+			// Check server flag for if counting self-reacts for emoji usage is allowed
+			if (!(messageAuthorId === reactionAuthorId) || serverFlags.countselfreacts) {
+				const guildEmoji = await messageReaction.message.guild.emojis.fetch(messageReaction.emoji.id);
+				const messageUserOpt = await getOpt(guildId, messageAuthorId);
+				const reactionUserOpt = await getOpt(guildId, reactionAuthorId);
+
+				if (messageUserOpt) await deleteFromDb(guildId, guildEmoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionRemove');
+				if (reactionUserOpt) await deleteFromDb(guildId, guildEmoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionRemove');
 			}
 		}
 		catch (e) {
-			console.error('messageReactionRemove failed deleting.', e);
+			if (e.message === 'no such table: serverSettings') {
+				await createDatabase(messageReaction.message.guildId);
+			}
+			else {
+				console.error('messageReactionRemove failed', e);
+			}
 		}
 	},
 };

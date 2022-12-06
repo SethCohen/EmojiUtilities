@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
-import { getSetting } from '../helpers/dbModel.js';
+import { getSettings } from '../helpers/dbModel.js';
 import { sendErrorFeedback, confirmationButtons } from '../helpers/utilities.js';
 
 export default {
@@ -16,12 +16,14 @@ export default {
 		const response = await axios.get('https://emoji.gg/api/');
 		const nsfw = interactionCommand.options.getBoolean('includensfw') ? interactionCommand.options.getBoolean('includensfw') : false;
 
+		const serverFlags = await getSettings(interactionCommand.guildId);
+
 		let data;
 		if (nsfw) {
 			if (!interactionCommand.channel.nsfw) {
 				return interactionCommand.editReply({ content: 'Sorry, but NSFW content is only allowed NSFW channels.' });
 			}
-			else if (await getSetting(interactionCommand.guildId, 'allownsfw')) {
+			else if (serverFlags.allownsfw) {
 				data = response.data;
 			}
 			else {

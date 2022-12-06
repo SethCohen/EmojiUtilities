@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { findBestMatch } from 'string-similarity';
 import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
-import { getSetting } from '../helpers/dbModel.js';
+import { getSettings } from '../helpers/dbModel.js';
 import { sendErrorFeedback, confirmationButtons } from '../helpers/utilities.js';
 
 export default {
@@ -49,12 +49,14 @@ export default {
 		const nsfw = interactionCommand.options.getBoolean('includensfw') ? interactionCommand.options.getBoolean('includensfw') : false;
 		const category = interactionCommand.options.getInteger('category');
 
+		const serverFlags = await getSettings(interactionCommand.guildId);
+
 		let data;
 		if (nsfw) {	// Checks if user is searching for nsfw emojis
 			if (!interactionCommand.channel.nsfw) {
 				return interactionCommand.editReply({ content: 'Sorry, but NSFW content is only allowed NSFW channels.' });
 			}
-			else if (await getSetting(interactionCommand.guildId, 'allownsfw')) {	// Checks server flag for if searching for nsfw emojis are allowed
+			else if (serverFlags.allownsfw) {	// Checks server flag for if searching for nsfw emojis are allowed
 				await interactionCommand.editReply({
 					content: 'Including NSFW results, eh? Kinky.',
 				});

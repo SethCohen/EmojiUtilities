@@ -1,5 +1,5 @@
-import { insertToDb, getOpt } from '../helpers/dbModel.js';
-import { getSetting } from '../helpers/dbModel.js';
+import { insertToDb, getOpt, createDatabase } from '../helpers/dbModel.js';
+import { getSettings } from '../helpers/dbModel.js';
 
 export default {
 	name: 'messageCreate',
@@ -8,30 +8,35 @@ export default {
 		if (message.author.id === message.client.user.id) return false;
 
 		try {
-			if (await getSetting(message.guildId, 'countmessages')) { // Check server flag for if counting messages for emoji usage is allowed
-				const guildId = message.guildId;
-				const messageAuthorId = message.author.id;
-				const dateTime = message.createdAt.toISOString();
+			const guildId = message.guildId;
+			const messageAuthorId = message.author.id;
+			const dateTime = message.createdAt.toISOString();
 
-				// Finds all emojis in messages via regex
-				const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/g;
-				const emojis = message.content.matchAll(re);
+			// Check server flag for if counting messages for emoji usage is allowed
+			const serverFlags = await getSettings(guildId);
+			if (!serverFlags.countmessages) return false;
 
-				for (const emoji of emojis) {
-					message.guild.emojis
-						.fetch(emoji[3])
-						.then(async fetchedEmoji => {
-							// If users have not opted out of logging...
-							if (await getOpt(guildId, messageAuthorId)) await insertToDb(guildId, fetchedEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageCreate');
-						})
-						.catch(ignoreError => {
-							// Ignores failed fetches (As failed fetches means the emoji is not a guild emoji)
-						});
-				}
+			// Check if user is opted out of logging
+			const userOpt = await getOpt(guildId, messageAuthorId);
+			if (!userOpt) return false;
+
+			// Finds all emojis in messages via regex
+			const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/g;
+			const emojis = message.content.matchAll(re);
+
+			// Insert each emoji into database
+			for (const emoji of emojis) {
+				const guildEmoji = await message.guild.emojis.fetch(emoji[3]);
+				await insertToDb(guildId, guildEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageCreate');
 			}
 		}
 		catch (e) {
-			console.error('messageCreate insert failed', e);
+			if (e.message === 'no such table: serverSettings') {
+				await createDatabase(message.guildId);
+			}
+			else {
+				console.error('messageCreate failed', e);
+			}
 		}
 	},
 };
