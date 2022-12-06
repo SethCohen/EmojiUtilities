@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, PermissionsBitField } from 'discord.js';
-import { resetDb } from '../helpers/dbModel.js';
-import { confirmationButtons } from '../helpers/utilities.js';
+import { createDatabase, resetDb } from '../helpers/dbModel.js';
+import { confirmationButtons, sendErrorFeedback } from '../helpers/utilities.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -36,8 +36,8 @@ export default {
 		message.awaitMessageComponent({ filter, time: 30000 })
 			.then(async interactionButton => {
 				if (interactionButton.customId === 'confirm') {
+					await resetDb(interactionCommand.guild.id);
 					await interactionButton.followUp({ content: 'Database reset!', ephemeral: true });
-					resetDb(interactionCommand.guild.id);
 				}
 				else if (interactionButton.customId === 'cancel') {
 					await interactionButton.followUp({ content: 'Canceled reset.', ephemeral: true });
@@ -45,16 +45,21 @@ export default {
 			})
 			.catch(async error => {
 				switch (error.message) {
+				case 'no such table: messageActivity':
+					await createDatabase(interactionCommand.guildId);
+					await interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'Guild database was not found!\nA new database was created just now.\nPlease try the command again.')] });
+					break;
 				case 'Unknown Message':
 					// Ignore unknown interactions (Often caused from deleted interactions).
 					break;
 				case 'Collector received no interactions before ending with reason: time':
-					await interactionCommand.editReply({
+					await interactionCommand.followUp({
 						content: 'User took too long. Interaction timed out.',
 					});
 					break;
 				default:
 					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
+					return await interactionCommand.followUp({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
 				}
 			})
 			.finally(async () => {

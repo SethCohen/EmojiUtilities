@@ -1,4 +1,4 @@
-import { getEmojiTotalCount } from '../helpers/dbModel.js';
+import { createDatabase, getEmojiTotalCount } from '../helpers/dbModel.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { mediaLinks, sendErrorFeedback, verifyEmojiString } from '../helpers/utilities.js';
 
@@ -13,9 +13,8 @@ export default {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		const stringEmoji = interaction.options.getString('emoji');
-
 		try {
+			const stringEmoji = interaction.options.getString('emoji');
 			const verifiedEmoji = verifyEmojiString(stringEmoji);
 			const emoji = await interaction.guild.emojis.fetch(verifiedEmoji[3]);
 
@@ -43,6 +42,10 @@ export default {
 		}
 		catch (error) {
 			switch (error.message) {
+			case 'no such table: messageActivity':
+				await createDatabase(interaction.guildId);
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Guild database was not found!\nA new database was created just now.\nPlease try the command again.')] });
+				break;
 			case 'Cannot read properties of null (reading \'3\')':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
 				break;

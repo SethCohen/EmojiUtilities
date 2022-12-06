@@ -1,4 +1,4 @@
-import { getLeaderboard } from '../helpers/dbModel.js';
+import { createDatabase, getLeaderboard } from '../helpers/dbModel.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { sendErrorFeedback, verifyEmojiString } from '../helpers/utilities.js';
 
@@ -130,6 +130,14 @@ export default {
 		}
 		catch (error) {
 			switch (error.message) {
+			case 'no such table: reactsSentActivity':
+				await createDatabase(interaction.guildId);
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Guild database was not found!\nA new database was created just now.\nPlease try the command again.')] });
+				break;
+			case 'no such table: reactsReceivedActivity':
+				await createDatabase(interaction.guildId);
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Guild database was not found!\nA new database was created just now.\nPlease try the command again.')] });
+				break;
 			case 'Cannot read properties of null (reading \'3\')':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')] });
 				break;

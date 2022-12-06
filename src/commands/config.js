@@ -1,4 +1,4 @@
-import { setSetting } from '../helpers/dbModel.js';
+import { createDatabase, setSetting } from '../helpers/dbModel.js';
 import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
 import { mediaLinks, sendErrorFeedback } from '../helpers/utilities.js';
 
@@ -37,30 +37,34 @@ export default {
 	async execute(interaction) {
 		await interaction.deferReply({ ephemeral: true });
 
-		if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-			return interaction.editReply({
-				content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
-				ephemeral: true,
-			});
-		}
-
-		const setting = interaction.options.getSubcommand();
-		const flag = interaction.options.getBoolean('flag') ? 1 : 0;
-		const embedSuccess = new EmbedBuilder()
-			.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
-
 		try {
+			if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+				return interaction.editReply({
+					content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
+					ephemeral: true,
+				});
+			}
+
+			const setting = interaction.options.getSubcommand();
+			const flag = interaction.options.getBoolean('flag') ? 1 : 0;
+			const embedSuccess = new EmbedBuilder()
+				.setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
+
 			embedSuccess.setTitle(`\`${setting}\` set to \`${Boolean(flag)}\`.`);
 			await setSetting(interaction.guild.id, setting, flag);
 			return interaction.editReply({ embeds: [embedSuccess] });
 		}
 		catch (error) {
 			switch (error.message) {
+			case 'no such table: serverSettings':
+				await createDatabase(interaction.guildId);
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Guild database was not found!\nA new database was created just now.\nPlease try the command again.')] });
+				break;
 			case 'Bots cannot use this endpoint':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Discord recently updated their API, disabling the ability for bots to set command permissions.\nHopefully their new system is updated to re-allow this ability, but in the mean time, you can toggle commands yourself via:\n`Server Settings -> Integrations -> Emoji Utilities -> Manage`')] });
 				break;
 			default:
-				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${setting}\n${flag} `);
+				console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interaction.options.getSubcommand()}\n${interaction.options.getBoolean('flag')} `);
 				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
 			}
 		}

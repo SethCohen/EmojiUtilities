@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { setOpt, clearUserFromDb } from '../helpers/dbModel.js';
-import { confirmationButtons } from '../helpers/utilities.js';
+import { setOpt, clearUserFromDb, createDatabase } from '../helpers/dbModel.js';
+import { confirmationButtons, sendErrorFeedback } from '../helpers/utilities.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -42,15 +42,15 @@ export default {
 		message.awaitMessageComponent({ filter, time: 30000 })
 			.then(async interactionButton => {
 				if (interactionButton.customId === 'confirm') {
+					await setOpt(interactionCommand.guildId, interactionCommand.member.id, flag === 'true');
+
 					await interactionButton.followUp({
 						content: `You have opted-${flag === 'true' ? 'in' : 'out'}. Take care!`,
 						ephemeral: true,
 					});
 
-					setOpt(interactionCommand.guildId, interactionCommand.member.id, flag === 'true');
-
 					// if opted-out delete user from databases
-					if (flag !== 'true') clearUserFromDb(interactionCommand.guildId, interactionCommand.member.id);
+					if (flag !== 'true') await clearUserFromDb(interactionCommand.guildId, interactionCommand.member.id);
 				}
 				else if (interactionButton.customId === 'cancel') {
 					await interactionButton.followUp({
@@ -58,9 +58,20 @@ export default {
 						ephemeral: true,
 					});
 				}
+
+				await interactionCommand.editReply({
+					components: [confirmationButtons(false)],
+				});
 			})
 			.catch(async error => {
 				switch (error.message) {
+				case 'no such table: usersOpt':
+					await createDatabase(interactionCommand.guildId);
+					await interactionCommand.editReply({
+						embeds: [sendErrorFeedback(interactionCommand.commandName, 'Guild database was not found!\nA new database was created just now.\nPlease try the command again.')],
+						components: [],
+					});
+					break;
 				case 'Unknown Message':
 					// Ignore unknown interactions (Often caused from deleted interactions).
 					break;
@@ -68,16 +79,16 @@ export default {
 					await interactionCommand.editReply({
 						content: 'User took too long. Interaction timed out.',
 						embeds: [embed],
+						components: [],
 					});
 					break;
 				default:
-					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
+					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand.options.getString('flag')}`);
+					return await interactionCommand.editReply({
+						embeds: [sendErrorFeedback(interactionCommand.commandName)],
+						components: [],
+					});
 				}
-			})
-			.finally(async () => {
-				await interactionCommand.editReply({
-					components: [confirmationButtons(false)],
-				});
 			});
 	},
 };

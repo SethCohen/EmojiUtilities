@@ -1,6 +1,6 @@
-import { getDisplayStats } from '../helpers/dbModel.js';
+import { createDatabase, getDisplayStats } from '../helpers/dbModel.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { navigationButtons } from '../helpers/utilities.js';
+import { navigationButtons, sendErrorFeedback } from '../helpers/utilities.js';
 
 const validateDateRange = (dateRange) => {
 	let dateString;
@@ -121,68 +121,70 @@ export default {
 	async execute(interactionCommand) {
 		await interactionCommand.deferReply();
 
-		const dateRange = interactionCommand.options.getInteger('daterange');
-		const user = interactionCommand.options.getUser('user');
-		const date = validateDateRange(dateRange);
-		const data = (user ?
-			await getDisplayStats(interactionCommand.guild.id, date.dateRange, user.id) :
-			await getDisplayStats(interactionCommand.guild.id, date.dateRange));
-		const occurrences = getSortedOccurrences(interactionCommand, data);
+		try {
+			const dateRange = interactionCommand.options.getInteger('daterange');
+			const user = interactionCommand.options.getUser('user');
+			const date = validateDateRange(dateRange);
+			const data = (user ?
+				await getDisplayStats(interactionCommand.guild.id, date.dateRange, user.id) :
+				await getDisplayStats(interactionCommand.guild.id, date.dateRange));
+			const occurrences = getSortedOccurrences(interactionCommand, data);
 
-		// Display output
-		const pages = await getPages(user, date, interactionCommand, occurrences);
-		let currentPageIndex = 0;
-		if (pages.length) {
-			await interactionCommand.editReply({
-				embeds: [pages[currentPageIndex]],
-				components: [navigationButtons(true)],
-			});
-		}
-		else {
-			await interactionCommand.editReply({ content: 'Sorry, there\'s no info to display!' });
-		}
-
-		// Get page button pressing
-		const message = await interactionCommand.fetchReply();
-		const collector = message.createMessageComponentCollector({ time: 30000 });
-		collector.on('collect', async interactionButton => {
-			if (interactionButton.member === interactionCommand.member) {
-				if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
-					++currentPageIndex;
-				}
-				else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
-					--currentPageIndex;
-				}
-				else if (currentPageIndex === 0) {
-					currentPageIndex = pages.length - 1;
-				}
-				else if (currentPageIndex === pages.length - 1) {
-					currentPageIndex = 0;
-				}
-				await interactionButton.update({ embeds: [pages[currentPageIndex]] });
-			}
-			else {
-				await interactionButton.reply({
-					content: 'You can\'t interact with this button. You are not the command author.',
-					ephemeral: true,
+			// Display output
+			const pages = await getPages(user, date, interactionCommand, occurrences);
+			let currentPageIndex = 0;
+			if (pages.length) {
+				await interactionCommand.editReply({
+					embeds: [pages[currentPageIndex]],
+					components: [navigationButtons(true)],
 				});
 			}
-		});
-		// eslint-disable-next-line no-unused-vars
-		collector.on('end', async collected => {
-			try {
-				await interactionCommand.editReply({ components: [navigationButtons(false)] });
+			else {
+				await interactionCommand.editReply({ content: 'Sorry, there\'s no info to display!' });
 			}
-			catch (error) {
-				switch (error.message) {
-				case 'Unknown Message':
-					// Ignore unknown interactions (Often caused from deleted interactions).
-					break;
-				default:
-					console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
+
+			// Get page button pressing
+			const message = await interactionCommand.fetchReply();
+			const collector = message.createMessageComponentCollector({ time: 30000 });
+			collector.on('collect', async interactionButton => {
+				if (interactionButton.member === interactionCommand.member) {
+					if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
+						++currentPageIndex;
+					}
+					else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
+						--currentPageIndex;
+					}
+					else if (currentPageIndex === 0) {
+						currentPageIndex = pages.length - 1;
+					}
+					else if (currentPageIndex === pages.length - 1) {
+						currentPageIndex = 0;
+					}
+					await interactionButton.update({ embeds: [pages[currentPageIndex]] });
 				}
+				else {
+					await interactionButton.reply({
+						content: 'You can\'t interact with this button. You are not the command author.',
+						ephemeral: true,
+					});
+				}
+			});
+			// eslint-disable-next-line no-unused-vars
+			collector.on('end', async collected => {
+				await interactionCommand.editReply({ components: [navigationButtons(false)] });
+				// console.log(`Collected ${collected.size} interactions.`);
+			});
+		}
+		catch (error) {
+			switch (error.message) {
+			case 'no such table: reactsSentActivity':
+				await createDatabase(interactionCommand.guildId);
+				await interactionCommand.editReply({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'Guild database was not found!\nA new database was created just now.\nPlease try the command again.')] });
+				break;
+			default:
+				console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand.options.getInteger('daterange')}\n${interactionCommand.options.getUser('user')}`);
+				return await interactionCommand.editReply({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
 			}
-			// console.log(`Collected ${collected.size} interactions.`);
-		});
+		}
 	},
 };
