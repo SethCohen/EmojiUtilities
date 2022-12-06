@@ -8,36 +8,40 @@ import config from '../../config.json' assert { type: 'json' };
  */
 const createDatabase = async (guildId) => {
 	// console.log(`createDatabase(${guildId}) called.`)
-
 	return new Promise((resolve, reject) => {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		const createStatements = [
-			'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
-			'CREATE TABLE IF NOT EXISTS reactsSentActivity(emoji TEXT, user TEXT, datetime TEXT)',
-			'CREATE TABLE IF NOT EXISTS reactsReceivedActivity(emoji TEXT, user TEXT, datetime TEXT)',
-			'CREATE TABLE IF NOT EXISTS serverSettings(setting TEXT UNIQUE, flag INTEGER)',
-			'CREATE TABLE IF NOT EXISTS usersOpt(user TEXT UNIQUE, flag INTEGER)',
-		].map(sql => db.prepare(sql));
+		try {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
 
-		for (const createStatement of createStatements) {
-			createStatement.run();
+			const createStatements = [
+				'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
+				'CREATE TABLE IF NOT EXISTS reactsSentActivity(emoji TEXT, user TEXT, datetime TEXT)',
+				'CREATE TABLE IF NOT EXISTS reactsReceivedActivity(emoji TEXT, user TEXT, datetime TEXT)',
+				'CREATE TABLE IF NOT EXISTS serverSettings(setting TEXT UNIQUE, flag INTEGER)',
+				'CREATE TABLE IF NOT EXISTS usersOpt(user TEXT UNIQUE, flag INTEGER)',
+			].map(sql => db.prepare(sql));
+
+			for (const createStatement of createStatements) {
+				createStatement.run();
+			}
+
+			const insertStatement = db.prepare('INSERT OR IGNORE INTO serverSettings (setting, flag) VALUES (@setting, @flag)');
+			const insertSettings = db.transaction((settings) => {
+				for (const setting of settings) insertStatement.run(setting);
+			});
+
+			insertSettings([
+				{ setting: 'countmessages', flag: 1 },
+				{ setting: 'countreacts', flag: 1 },
+				{ setting: 'countselfreacts', flag: 1 },
+				{ setting: 'allownsfw', flag: 0 },
+			]);
+
+			db.close();
+			resolve('Database created.');
+		} catch (e) {
+			reject(e);
 		}
-
-		const insertStatement = db.prepare('INSERT OR IGNORE INTO serverSettings (setting, flag) VALUES (@setting, @flag)');
-		const insertSettings = db.transaction((settings) => {
-			for (const setting of settings) insertStatement.run(setting);
-		});
-
-		insertSettings([
-			{ setting: 'countmessages', flag: 1 },
-			{ setting: 'countreacts', flag: 1 },
-			{ setting: 'countselfreacts', flag: 1 },
-			{ setting: 'allownsfw', flag: 0 },
-		]);
-
-		db.close();
-		resolve('Database created.');
 	});
 };
 
@@ -53,7 +57,6 @@ const createDatabase = async (guildId) => {
  */
 const deleteFromDb = async (guildId, emojiId, userId, dateTime, table, origin) => {
 	// console.log(`deleteFromDb(${guildId}, ${emojiId}, ${userId}, ${dateTime}, ${table}) called from ${origin}.`);
-
 	return new Promise((resolve, reject) => {
 		if (guildId && emojiId && userId && dateTime) {
 			const db = new Database(`./databases/${guildId}.sqlite`);
@@ -118,7 +121,7 @@ const deleteFromDb = async (guildId, emojiId, userId, dateTime, table, origin) =
 			resolve('Record deleted.');
 		}
 		else {
-			reject(`deleteFromDb: Cancel delete. (guildId: ${guildId}, emojiId: ${emojiId}, userId: ${userId}, dateTime: ${dateTime}, table: ${table}, origin: ${origin})`);
+			reject(`deleteFromDb failed: (guildId: ${guildId}, emojiId: ${emojiId}, userId: ${userId}, dateTime: ${dateTime}, table: ${table}, origin: ${origin})`);
 		}
 	});
 };
@@ -172,7 +175,7 @@ const insertToDb = async (guildId, emojiId, userId, dateTime, table, origin) => 
 			resolve('Record inserted.');
 		}
 		else {
-			reject(`insertToDb: Cancel insert. (guildId: ${guildId}, emojiId: ${emojiId}, userId: ${userId}, dateTime: ${dateTime}, table: ${table}, origin: ${origin})`);
+			reject(`insertToDb failed: (guildId: ${guildId}, emojiId: ${emojiId}, userId: ${userId}, dateTime: ${dateTime}, table: ${table}, origin: ${origin})`);
 		}
 	});
 };
@@ -189,116 +192,120 @@ const insertToDb = async (guildId, emojiId, userId, dateTime, table, origin) => 
  */
 const getLeaderboard = async (guildId, emojiId, clientId, type, dateTime = null) => {
 	return new Promise((resolve, reject) => {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		let cat;
-		let statement;
-		if (dateTime) { // Query for if a daterange was specified
-			if (type === 'sent') {
-				statement = db.prepare(`
-					SELECT 
-						user,
-						COUNT(emoji) 
-					FROM
-						(
-							SELECT 
-								*
-							FROM 
-								messageActivity
-							UNION ALL
-							SELECT
-								*
-							FROM
-								reactsSentActivity
-						)
-					WHERE 
-						emoji = @emojiId
-						AND user IS NOT @clientId
-						AND datetime > @dateTime
-					GROUP BY 
-						user
-					ORDER BY 
-						COUNT(emoji) DESC
-					LIMIT 10;
-				`);
+		try {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
+			let cat;
+			let statement;
+			if (dateTime) { // Query for if a daterange was specified
+				if (type === 'sent') {
+					statement = db.prepare(`
+						SELECT 
+							user,
+							COUNT(emoji) 
+						FROM
+							(
+								SELECT 
+									*
+								FROM 
+									messageActivity
+								UNION ALL
+								SELECT
+									*
+								FROM
+									reactsSentActivity
+							)
+						WHERE 
+							emoji = @emojiId
+							AND user IS NOT @clientId
+							AND datetime > @dateTime
+						GROUP BY 
+							user
+						ORDER BY 
+							COUNT(emoji) DESC
+						LIMIT 10;
+					`);
+				}
+				else if (type === 'received') {
+					statement = db.prepare(`
+						SELECT
+							user,
+							COUNT(emoji)
+						FROM
+							reactsReceivedActivity
+						WHERE 
+							emoji = @emojiId
+							AND user IS NOT @clientId
+							AND datetime > @dateTime
+						GROUP BY 
+							user
+						ORDER BY 
+							COUNT(emoji) DESC
+						LIMIT 10;
+					`);
+				}
+				cat = statement.all({
+					emojiId: emojiId,
+					clientId: clientId,
+					dateTime: dateTime,
+				});
 			}
-			else if (type === 'received') {
-				statement = db.prepare(`
-					SELECT
-						user,
-						COUNT(emoji)
-					FROM
-						reactsReceivedActivity
-					WHERE 
-						emoji = @emojiId
-						AND user IS NOT @clientId
-						AND datetime > @dateTime
-					GROUP BY 
-						user
-					ORDER BY 
-						COUNT(emoji) DESC
-					LIMIT 10;
-				`);
+			else { // Query for if a daterange was NOT specified
+				if (type === 'sent') {
+					statement = db.prepare(`
+						SELECT 
+							user,
+							COUNT(emoji)
+						FROM
+							(
+								SELECT 
+									*
+								FROM 
+									messageActivity
+								UNION ALL
+								SELECT
+									*
+								FROM
+									reactsSentActivity
+							)
+						WHERE 
+							emoji = @emojiId
+							AND user IS NOT @clientId
+						GROUP BY 
+							user
+						ORDER BY 
+							COUNT(emoji) DESC
+						LIMIT 10;
+					`);
+				}
+				else if (type === 'received') {
+					statement = db.prepare(`
+						SELECT 
+							user,
+							COUNT(emoji) 
+						FROM 
+							reactsReceivedActivity
+						WHERE 
+							emoji = @emojiId
+							AND user IS NOT @clientId
+						GROUP BY 
+							user
+						ORDER BY 
+							COUNT(emoji) DESC
+						LIMIT 10;
+					`);
+				}
+				cat = statement.all({
+					emojiId: emojiId,
+					clientId: clientId,
+				});
 			}
-			cat = statement.all({
-				emojiId: emojiId,
-				clientId: clientId,
-				dateTime: dateTime,
-			});
-		}
-		else { // Query for if a daterange was NOT specified
-			if (type === 'sent') {
-				statement = db.prepare(`
-					SELECT 
-						user,
-						COUNT(emoji)
-					FROM
-						(
-							SELECT 
-								*
-							FROM 
-								messageActivity
-							UNION ALL
-							SELECT
-								*
-							FROM
-								reactsSentActivity
-						)
-					WHERE 
-						emoji = @emojiId
-						AND user IS NOT @clientId
-					GROUP BY 
-						user
-					ORDER BY 
-						COUNT(emoji) DESC
-					LIMIT 10;
-				`);
-			}
-			else if (type === 'received') {
-				statement = db.prepare(`
-					SELECT 
-						user,
-						COUNT(emoji) 
-					FROM 
-						reactsReceivedActivity
-					WHERE 
-						emoji = @emojiId
-						AND user IS NOT @clientId
-					GROUP BY 
-						user
-					ORDER BY 
-						COUNT(emoji) DESC
-					LIMIT 10;
-				`);
-			}
-			cat = statement.all({
-				emojiId: emojiId,
-				clientId: clientId,
-			});
-		}
 
-		db.close();
-		resolve(cat);
+			db.close();
+			resolve(cat);
+		} catch (e) {
+			reject(e);
+		}
 	});
 };
 
@@ -312,31 +319,34 @@ const getLeaderboard = async (guildId, emojiId, clientId, type, dateTime = null)
  */
 const getGetCount = async (guildId, userId, dateTime) => {
 	return new Promise((resolve, reject) => {
-		// console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`);
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		let count = 0;
-		if (userId !== null) { // Query for server
-			const statements = [
-				'SELECT COUNT(emoji) FROM messageActivity WHERE user = @user AND datetime > @datetime',
-				'SELECT COUNT(emoji) FROM reactsSentActivity WHERE user = @user AND datetime > @datetime',
-			].map(sql => db.prepare(sql));
-			for (const statement of statements) {
-				count += Object.values(statement.get({ user: userId, datetime: dateTime }))[0];
+		try { // console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`);
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
+			let count = 0;
+			if (userId !== null) { // Query for server
+				const statements = [
+					'SELECT COUNT(emoji) FROM messageActivity WHERE user = @user AND datetime > @datetime',
+					'SELECT COUNT(emoji) FROM reactsSentActivity WHERE user = @user AND datetime > @datetime',
+				].map(sql => db.prepare(sql));
+				for (const statement of statements) {
+					count += Object.values(statement.get({ user: userId, datetime: dateTime }))[0];
+				}
 			}
-		}
-		else { // Query for a user
-			const statements = [
-				'SELECT COUNT(emoji) FROM messageActivity WHERE datetime > @datetime',
-				'SELECT COUNT(emoji) FROM reactsSentActivity WHERE datetime > @datetime',
-			].map(sql => db.prepare(sql));
-			for (const statement of statements) {
-				count += Object.values(statement.get({ datetime: dateTime }))[0];
+			else { // Query for a user
+				const statements = [
+					'SELECT COUNT(emoji) FROM messageActivity WHERE datetime > @datetime',
+					'SELECT COUNT(emoji) FROM reactsSentActivity WHERE datetime > @datetime',
+				].map(sql => db.prepare(sql));
+				for (const statement of statements) {
+					count += Object.values(statement.get({ datetime: dateTime }))[0];
+				}
 			}
-		}
 
-		db.close();
-		resolve(count);
+			db.close();
+			resolve(count);
+		} catch (e) {
+			reject(e);
+		}
 	});
 };
 
@@ -350,66 +360,70 @@ const getGetCount = async (guildId, userId, dateTime) => {
  */
 const getDisplayStats = async (guildId, dateTime, userId = null) => {
 	return new Promise((resolve, reject) => {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		let cat;
+		try {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
+			let cat;
 
-		if (userId) {
-			const statement = db.prepare(`
-				SELECT 
-					emoji,
-					COUNT(emoji) 
-				FROM 
-					(
-						SELECT 
-							*
-						FROM 
-							messageActivity
-						UNION ALL
-						SELECT
-							*
-						FROM
-							reactsSentActivity
-					)
-				WHERE 
-					user = @user
-					AND datetime > @datetime
-				GROUP BY emoji
-				ORDER BY COUNT(emoji) DESC
-			`);
-			cat = statement.all({
-				user: userId,
-				datetime: dateTime,
-			});
-		}
-		else {
-			const statement = db.prepare(`
-				SELECT 
-					emoji,
-					COUNT(emoji) 
-				FROM 
-					(
-						SELECT 
-							*
-						FROM 
-							messageActivity
-						UNION ALL
-						SELECT
-							*
-						FROM
-							reactsSentActivity
-					)
-				WHERE datetime > @datetime
-				GROUP BY emoji
-				ORDER BY COUNT(emoji) DESC
-			`);
-			cat = statement.all({
-				datetime: dateTime,
-			});
-		}
+			if (userId) {
+				const statement = db.prepare(`
+					SELECT 
+						emoji,
+						COUNT(emoji) 
+					FROM 
+						(
+							SELECT 
+								*
+							FROM 
+								messageActivity
+							UNION ALL
+							SELECT
+								*
+							FROM
+								reactsSentActivity
+						)
+					WHERE 
+						user = @user
+						AND datetime > @datetime
+					GROUP BY emoji
+					ORDER BY COUNT(emoji) DESC
+				`);
+				cat = statement.all({
+					user: userId,
+					datetime: dateTime,
+				});
+			}
+			else {
+				const statement = db.prepare(`
+					SELECT 
+						emoji,
+						COUNT(emoji) 
+					FROM 
+						(
+							SELECT 
+								*
+							FROM 
+								messageActivity
+							UNION ALL
+							SELECT
+								*
+							FROM
+								reactsSentActivity
+						)
+					WHERE datetime > @datetime
+					GROUP BY emoji
+					ORDER BY COUNT(emoji) DESC
+				`);
+				cat = statement.all({
+					datetime: dateTime,
+				});
+			}
 
-		db.close();
-		resolve(cat);
+			db.close();
+			resolve(cat);
+		} catch (e) {
+			reject(e);
+		}
 	});
 };
 
@@ -447,19 +461,23 @@ const getSettings = async (guildId) => {
  */
 const setSetting = async (guildId, setting, flag) => {
 	return new Promise((resolve, reject) => {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		const statement = db.prepare(`
-			UPDATE serverSettings
-			SET flag = @flag
-			WHERE setting = @setting
-		`);
-		statement.run({
-			setting: setting,
-			flag: flag,
-		});
-		db.close();
-		resolve('Setting set.');
+		try {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
+			const statement = db.prepare(`
+				UPDATE serverSettings
+				SET flag = @flag
+				WHERE setting = @setting
+			`);
+			statement.run({
+				setting: setting,
+				flag: flag,
+			});
+			db.close();
+			resolve('Setting set.');
+		} catch (e) {
+			reject(e);
+		}
 	});
 };
 
@@ -470,21 +488,25 @@ const setSetting = async (guildId, setting, flag) => {
  */
 const resetDb = async (guildId) => {
 	return new Promise((resolve, reject) => {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
+		try {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
 
-		const deleteStatements = [
-			'DELETE FROM messageActivity',
-			'DELETE FROM reactsSentActivity',
-			'DELETE FROM reactsReceivedActivity',
-		].map(sql => db.prepare(sql));
+			const deleteStatements = [
+				'DELETE FROM messageActivity',
+				'DELETE FROM reactsSentActivity',
+				'DELETE FROM reactsReceivedActivity',
+			].map(sql => db.prepare(sql));
 
-		for (const deleteStatement of deleteStatements) {
-			deleteStatement.run();
+			for (const deleteStatement of deleteStatements) {
+				deleteStatement.run();
+			}
+
+			db.close();
+			resolve('Database reset.');
+		} catch (e) {
+			reject(e);
 		}
-
-		db.close();
-		resolve('Database reset.');
 	});
 };
 
@@ -496,20 +518,24 @@ const resetDb = async (guildId) => {
  */
 const getEmojiTotalCount = async (guildId, emojiId) => {
 	return new Promise((resolve, reject) => {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		let count = 0;
+		try {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
+			let count = 0;
 
-		const statements = [
-			'SELECT COUNT(emoji) FROM messageActivity WHERE emoji == @emoji',
-			'SELECT COUNT(emoji) FROM reactsSentActivity WHERE emoji == @emoji',
-		].map(sql => db.prepare(sql));
-		for (const statement of statements) {
-			count += Object.values(statement.get({ emoji: emojiId }))[0];
+			const statements = [
+				'SELECT COUNT(emoji) FROM messageActivity WHERE emoji == @emoji',
+				'SELECT COUNT(emoji) FROM reactsSentActivity WHERE emoji == @emoji',
+			].map(sql => db.prepare(sql));
+			for (const statement of statements) {
+				count += Object.values(statement.get({ emoji: emojiId }))[0];
+			}
+
+			db.close();
+			resolve(count);
+		} catch (e) {
+			reject(e);
 		}
-
-		db.close();
-		resolve(count);
 	});
 };
 
@@ -522,12 +548,16 @@ const getEmojiTotalCount = async (guildId, emojiId) => {
  */
 const getOpt = async (guildId, userId) => {
 	return new Promise((resolve, reject) => {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		const statement = db.prepare('SELECT flag FROM usersOpt WHERE user = ?');
-		const result = statement.get(userId);
-		const opt = result ? result.flag : true;
-		resolve(opt);
+		try {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
+			const statement = db.prepare('SELECT flag FROM usersOpt WHERE user = ?');
+			const result = statement.get(userId);
+			const opt = result ? result.flag : true;
+			resolve(opt);
+		} catch (e) {
+			reject(e);
+		}
 	});
 };
 
@@ -539,18 +569,22 @@ const getOpt = async (guildId, userId) => {
  */
 const setOpt = async (guildId, userId, flag) => {
 	return new Promise((resolve, reject) => {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
-		const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
+		try {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
+			const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
 
-		// console.log(`setOpt(${guildId}, ${userId}, ${Number(flag)}) called.`);
+			// console.log(`setOpt(${guildId}, ${userId}, ${Number(flag)}) called.`);
 
-		statement.run({
-			user: userId,
-			flag: Number(flag),
-		});
-		db.close();
-		resolve('User opt set.');
+			statement.run({
+				user: userId,
+				flag: Number(flag),
+			});
+			db.close();
+			resolve('User opt set.');
+		} catch (e) {
+			reject(e);
+		}
 	});
 };
 
@@ -561,21 +595,25 @@ const setOpt = async (guildId, userId, flag) => {
  */
 const clearUserFromDb = async (guildId, userId) => {
 	return new Promise((resolve, reject) => {
-		const db = new Database(`./databases/${guildId}.sqlite`);
-		db.pragma(`key='${config.db_key}'`);
+		try {
+			const db = new Database(`./databases/${guildId}.sqlite`);
+			db.pragma(`key='${config.db_key}'`);
 
-		const statements = [
-			'DELETE FROM messageActivity WHERE user = @user',
-			'DELETE FROM reactsSentActivity WHERE user = @user',
-			'DELETE FROM reactsReceivedActivity WHERE user = @user',
-		].map(sql => db.prepare(sql));
+			const statements = [
+				'DELETE FROM messageActivity WHERE user = @user',
+				'DELETE FROM reactsSentActivity WHERE user = @user',
+				'DELETE FROM reactsReceivedActivity WHERE user = @user',
+			].map(sql => db.prepare(sql));
 
-		for (const statement of statements) {
-			statement.run({ user: userId });
+			for (const statement of statements) {
+				statement.run({ user: userId });
+			}
+
+			db.close();
+			resolve('User cleared from database.');
+		} catch (e) {
+			reject(e);
 		}
-
-		db.close();
-		resolve('User cleared from database.');
 	});
 };
 
