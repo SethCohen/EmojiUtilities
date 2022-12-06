@@ -26,6 +26,7 @@ export default {
 					// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
 					// Check server flag for if counting self-reacts for emoji usage is allowed
 					if (!(messageAuthorId === reactionAuthorId) || serverFlags.countselfreacts) {
+						if (!reaction.emoji.id) return false;
 						const guildEmoji = await message.guild.emojis.fetch(reaction.emoji.id);
 						const messageUserOpt = await getOpt(guildId, messageAuthorId);
 						const reactionUserOpt = await getOpt(guildId, reactionAuthorId);
