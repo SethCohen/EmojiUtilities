@@ -1,4 +1,29 @@
 # Changelog
+## [1.23.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.8...v1.23.0) (2022-12-06)
+
+
+### Features
+
+* added `gif2apng` as embedded dependency ([6e0a5ed](https://github.com/SethCohen/EmojiUtilities/commit/6e0a5ede4668c238cf57dd6e8519aceb16595042))
+
+
+### Bug Fixes
+
+* **commands:** added fix for no guild found ([f1f898f](https://github.com/SethCohen/EmojiUtilities/commit/f1f898f505fc61738ed1318cbab90e01e506b6eb))
+* **events:** fixed bot crashing errors on unicode emojis detected ([13fb349](https://github.com/SethCohen/EmojiUtilities/commit/13fb349f97d2b309af036fc7fa51837bd41e9634))
+* fixed user opt error flag checking ([8a75adb](https://github.com/SethCohen/EmojiUtilities/commit/8a75adb2e70a97b84ffe496bdb2105518cb335b4))
+
+
+### Miscellaneous
+
+* added try-catches for error futureproofing ([400bc05](https://github.com/SethCohen/EmojiUtilities/commit/400bc05b4f1ad88f578b4d78178c35811ca9c0d7))
+
+
+### Code Refactoring
+
+* added `await`s to promise objects that require them ([a286cfc](https://github.com/SethCohen/EmojiUtilities/commit/a286cfc7780ef6cef8b011ae374f5d6fe7d739bb))
+* **events:** refactored all events code for readability. ([040ca13](https://github.com/SethCohen/EmojiUtilities/commit/040ca132f78ec5213ea2b2792708b9eaec67fd15))
+
 ## [1.22.8](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.7...v1.22.8) (2022-12-04)
 
 
