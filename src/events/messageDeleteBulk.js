@@ -54,6 +54,9 @@ export default {
 				if (e.message === 'no such table: serverSettings') {
 					await createDatabase(message.guildId);
 				}
+				else if (e.message === 'Unknown Emoji') {
+					return false;
+				}
 				else {
 					console.error('messageDeleteBulk failed', e);
 				}
