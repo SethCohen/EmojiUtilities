@@ -112,7 +112,7 @@ export default {
 						.resize(320, 320, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
 						.gif({ colours: 32, dither: 0.0 })
 						.toFile(`${path}.gif`);
-					exec(`./helpers/gif2apng ${path}.gif`,
+					exec(`./src/helpers/gif2apng ${path}.gif`,
 						async (execError, stdout, stderr) => {
 							if (execError) throw execError;
 							if (stderr) console.error(`gif2apng stderr ${stderr}`);
