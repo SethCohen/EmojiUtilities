@@ -1,4 +1,17 @@
 # Changelog
+## [1.23.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.0...v1.23.1) (2022-12-30)
+
+
+### Bug Fixes
+
+* **events:** fixed bot crashing errors on unicode emojis detected ([2bf5001](https://github.com/SethCohen/EmojiUtilities/commit/2bf5001bc1d3d02e9eaebadbfe8319a0f74a6d58))
+* **stickerfy:** fixed gif conversion not working ([9d99644](https://github.com/SethCohen/EmojiUtilities/commit/9d9964409c20bbe0600b84f9952d555a0a4a9eee))
+
+
+### Miscellaneous
+
+* updated dependencies ([a6620cf](https://github.com/SethCohen/EmojiUtilities/commit/a6620cf3673821206d0d726cea4b82f85993361b))
+
 ## [1.23.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.22.8...v1.23.0) (2022-12-06)
 
 
