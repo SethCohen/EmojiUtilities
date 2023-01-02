@@ -1,4 +1,11 @@
 # Changelog
+## [1.23.2](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.1...v1.23.2) (2023-01-02)
+
+
+### Bug Fixes
+
+* **stickersteal:** fixed command not working on bot lacking View Channel permission ([d2dd07a](https://github.com/SethCohen/EmojiUtilities/commit/d2dd07a6410049ae476ba6dc5d93acff0ad1b28d))
+
 ## [1.23.1](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.0...v1.23.1) (2022-12-30)
 
 
