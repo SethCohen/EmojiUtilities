@@ -86,6 +86,9 @@ export default {
 			case '404: Not Found':
 				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.')] });
 				break;
+			case 'Missing Access':
+				await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName, 'Bot missing `View Channel` permission for channel sticker is in. Please fix channel or bot permissions and try again.')] });
+				break;
 			default:
 				console.error(`**Command:**\n${interaction.commandName}\n**Error Message:**\n${e.message}\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString('tag')}\n${interaction.options.getString('name')}`);
 				return await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
