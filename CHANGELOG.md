@@ -1,4 +1,12 @@
 # Changelog
+## [1.23.3](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.2...v1.23.3) (2023-01-04)
+
+
+### Bug Fixes
+
+* **emojisteal:** added error catch for invalid emoji name. ([4ce6da7](https://github.com/SethCohen/EmojiUtilities/commit/4ce6da7703495990896fb544ad7a73e6f9dcada7))
+* **removeunused:** added error catch for too many emojis attempting to delete. ([d035dff](https://github.com/SethCohen/EmojiUtilities/commit/d035dff838db09de138ba4059e153e946668658a))
+
 ## [1.23.2](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.1...v1.23.2) (2023-01-02)
 
 
