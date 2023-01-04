@@ -107,8 +107,11 @@ export default {
 				await createDatabase(interactionCommand.guildId);
 				await interactionCommand.editReply({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'Guild database was not found!\nA new database was created just now.\nPlease try the command again.')] });
 				break;
+			case 'Invalid Form Body\ncontent[BASE_TYPE_MAX_LENGTH]: Must be 2000 or fewer in length.':
+				await interactionCommand.editReply({ embeds: [sendErrorFeedback(interactionCommand.commandName, 'Too many emojis specified in `number` field to delete.\nPlease try again with a smaller number.')] });
+				break;
 			default:
-				console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand.options.getString('type')}\n${interactionCommand.options.getString('emoji')}\n${interactionCommand.options.getInteger('daterange')}`);
+				console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand.options.getInteger('number')}`);
 				return await interactionCommand.editReply({ embeds: [sendErrorFeedback(interactionCommand.commandName)] });
 			}
 		}
