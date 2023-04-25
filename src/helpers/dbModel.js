@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3-multiple-ciphers';
-import config from '../../config.json' assert { type: 'json' };
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 /** createDatabase
  *      Generates unique sqlite file with tables and default config settings for a unique server.
@@ -11,7 +12,7 @@ const createDatabase = async (guildId) => {
 	return new Promise((resolve, reject) => {
 		try {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 
 			const createStatements = [
 				'CREATE TABLE IF NOT EXISTS messageActivity(emoji TEXT, user TEXT, datetime TEXT)',
@@ -39,7 +40,8 @@ const createDatabase = async (guildId) => {
 
 			db.close();
 			resolve('Database created.');
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
@@ -60,7 +62,7 @@ const deleteFromDb = async (guildId, emojiId, userId, dateTime, table, origin) =
 	return new Promise((resolve, reject) => {
 		if (guildId && emojiId && userId && dateTime) {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 			let statement;
 
 			switch (table) {
@@ -141,7 +143,7 @@ const insertToDb = async (guildId, emojiId, userId, dateTime, table, origin) => 
 	return new Promise((resolve, reject) => {
 		if (guildId && emojiId && userId && dateTime) {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 			let statement;
 
 			switch (table) {
@@ -194,10 +196,11 @@ const getLeaderboard = async (guildId, emojiId, clientId, type, dateTime = null)
 	return new Promise((resolve, reject) => {
 		try {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 			let cat;
 			let statement;
-			if (dateTime) { // Query for if a daterange was specified
+			if (dateTime) {
+				// Query for if a daterange was specified
 				if (type === 'sent') {
 					statement = db.prepare(`
 						SELECT 
@@ -250,7 +253,8 @@ const getLeaderboard = async (guildId, emojiId, clientId, type, dateTime = null)
 					dateTime: dateTime,
 				});
 			}
-			else { // Query for if a daterange was NOT specified
+			else {
+				// Query for if a daterange was NOT specified
 				if (type === 'sent') {
 					statement = db.prepare(`
 						SELECT 
@@ -303,7 +307,8 @@ const getLeaderboard = async (guildId, emojiId, clientId, type, dateTime = null)
 
 			db.close();
 			resolve(cat);
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
@@ -319,11 +324,13 @@ const getLeaderboard = async (guildId, emojiId, clientId, type, dateTime = null)
  */
 const getGetCount = async (guildId, userId, dateTime) => {
 	return new Promise((resolve, reject) => {
-		try { // console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`);
+		try {
+			// console.log(`getGetCount(${guildId}, ${userId}, ${dateTime}) called.`);
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 			let count = 0;
-			if (userId !== null) { // Query for server
+			if (userId !== null) {
+				// Query for server
 				const statements = [
 					'SELECT COUNT(emoji) FROM messageActivity WHERE user = @user AND datetime > @datetime',
 					'SELECT COUNT(emoji) FROM reactsSentActivity WHERE user = @user AND datetime > @datetime',
@@ -332,7 +339,8 @@ const getGetCount = async (guildId, userId, dateTime) => {
 					count += Object.values(statement.get({ user: userId, datetime: dateTime }))[0];
 				}
 			}
-			else { // Query for a user
+			else {
+				// Query for a user
 				const statements = [
 					'SELECT COUNT(emoji) FROM messageActivity WHERE datetime > @datetime',
 					'SELECT COUNT(emoji) FROM reactsSentActivity WHERE datetime > @datetime',
@@ -344,7 +352,8 @@ const getGetCount = async (guildId, userId, dateTime) => {
 
 			db.close();
 			resolve(count);
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
@@ -362,7 +371,7 @@ const getDisplayStats = async (guildId, dateTime, userId = null) => {
 	return new Promise((resolve, reject) => {
 		try {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 			let cat;
 
 			if (userId) {
@@ -421,7 +430,8 @@ const getDisplayStats = async (guildId, dateTime, userId = null) => {
 
 			db.close();
 			resolve(cat);
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
@@ -437,7 +447,7 @@ const getSettings = async (guildId) => {
 	return new Promise((resolve, reject) => {
 		try {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 			const statement = db.prepare('SELECT * FROM serverSettings');
 			const rows = statement.all();
 			const settings = {};
@@ -446,7 +456,8 @@ const getSettings = async (guildId) => {
 			}
 			db.close();
 			resolve(settings);
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
@@ -463,7 +474,7 @@ const setSetting = async (guildId, setting, flag) => {
 	return new Promise((resolve, reject) => {
 		try {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 			const statement = db.prepare(`
 				UPDATE serverSettings
 				SET flag = @flag
@@ -475,7 +486,8 @@ const setSetting = async (guildId, setting, flag) => {
 			});
 			db.close();
 			resolve('Setting set.');
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
@@ -490,7 +502,7 @@ const resetDb = async (guildId) => {
 	return new Promise((resolve, reject) => {
 		try {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 
 			const deleteStatements = [
 				'DELETE FROM messageActivity',
@@ -504,7 +516,8 @@ const resetDb = async (guildId) => {
 
 			db.close();
 			resolve('Database reset.');
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
@@ -520,7 +533,7 @@ const getEmojiTotalCount = async (guildId, emojiId) => {
 	return new Promise((resolve, reject) => {
 		try {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 			let count = 0;
 
 			const statements = [
@@ -533,7 +546,8 @@ const getEmojiTotalCount = async (guildId, emojiId) => {
 
 			db.close();
 			resolve(count);
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
@@ -550,12 +564,13 @@ const getOpt = async (guildId, userId) => {
 	return new Promise((resolve, reject) => {
 		try {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 			const statement = db.prepare('SELECT flag FROM usersOpt WHERE user = ?');
 			const result = statement.get(userId);
 			const opt = result ? result.flag : true;
 			resolve(opt);
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
@@ -571,7 +586,7 @@ const setOpt = async (guildId, userId, flag) => {
 	return new Promise((resolve, reject) => {
 		try {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 			const statement = db.prepare('REPLACE INTO usersOpt (user, flag) VALUES (@user, @flag)');
 
 			// console.log(`setOpt(${guildId}, ${userId}, ${Number(flag)}) called.`);
@@ -582,7 +597,8 @@ const setOpt = async (guildId, userId, flag) => {
 			});
 			db.close();
 			resolve('User opt set.');
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
@@ -597,7 +613,7 @@ const clearUserFromDb = async (guildId, userId) => {
 	return new Promise((resolve, reject) => {
 		try {
 			const db = new Database(`./databases/${guildId}.sqlite`);
-			db.pragma(`key='${config.db_key}'`);
+			db.pragma(`key='${process.env.SQLITEDB_KEY}'`);
 
 			const statements = [
 				'DELETE FROM messageActivity WHERE user = @user',
@@ -611,7 +627,8 @@ const clearUserFromDb = async (guildId, userId) => {
 
 			db.close();
 			resolve('User cleared from database.');
-		} catch (e) {
+		}
+		catch (e) {
 			reject(e);
 		}
 	});
