@@ -9,3 +9,5 @@ src/commands/test.py
 /src/helpers/updateDatabases.js
 /databases/
 .env
+.vscode/*
+src/helpers/dbModel.js

@@ -1,0 +1,15 @@
+.git/
+.github/
+.idea/
+.vscode/
+backups/
+databases/
+node_modules/
+.env
+.eslintrc.json
+.gitignore
+.prettierrc.json
+CHANGELOG.md
+jsconfig.json
+LICENSE
+README.md

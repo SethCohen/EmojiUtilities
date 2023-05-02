@@ -1,52 +1,60 @@
-import { createDatabase, deleteFromDb, getOpt } from '../helpers/dbModel.js';
-import { getSettings } from '../helpers/dbModel.js';
+import { Events } from 'discord.js';
+import { processMessageReactionRemove } from './messageReactionRemove.js';
+import { getUserOpt, shouldProcessReaction } from '../helpers/utilities.js';
+import { deleteEmojiRecords, getGuildInfo, insertGuild } from '../helpers/mongodbModel.js';
+
+async function processMessageReactionRemoveAll(message, reactions) {
+  const guildInfo = await getGuildInfo(message.client.db, message.guildId);
+  const messageUserOpt = await getUserOpt(guildInfo, message.author.id);
+
+  for (const reaction of reactions.values()) {
+    for (const user of reaction.users.cache.values()) {
+      processMessageReactionRemove(reaction, user);
+    }
+  }
+
+  const users = [];
+  const tags = ['sent-reaction', 'received-reaction'];
+
+  const guildEmojiMessageReactions = reactions.filter((reaction) =>
+    message.guild.emojis.resolve(reaction.emoji)
+  );
+
+  for (const messageReaction of guildEmojiMessageReactions.values()) {
+    for (const reactionUser of messageReaction.users.cache.values()) {
+      const reactionUserOpt = await getUserOpt(guildInfo, reactionUser.id);
+      if (shouldProcessReaction(messageReaction, guildInfo, reactionUserOpt)) {
+        users.push(reactionUser.id);
+        tags.push('sent-reaction');
+      }
+      if (shouldProcessReaction(messageReaction, guildInfo, messageUserOpt)) {
+        users.push(message.author.id);
+        tags.push('received-reaction');
+      }
+    }
+  }
+
+  const filter = {
+    guild: message.guildId,
+    message: message.id,
+    user: { $in: users },
+    tag: { $in: tags },
+  };
+
+  await deleteEmojiRecords(message.client.db, filter);
+}
 
 export default {
-	name: 'messageReactionRemoveAll',
-	async execute(message, reactions) {
-		// Ignore partials
-		if (message.partial) return false;
-		// Ignore invalid messages
-		if (message.author === null) return false;
-		// Ignore client
-		if (message.author.id === message.client.user.id) return false;
-
-		try {
-			for (const reaction of reactions.values()) {
-				for (const user of reaction.users.cache.values()) {
-					const guildId = message.guildId;
-					const reactionAuthorId = user.id;
-					const messageAuthorId = message.author.id;
-					const dateTime = message.createdAt.toISOString();
-
-					// Check server flag for if counting reactions for emoji usage is allowed
-					const serverFlags = await getSettings(guildId);
-					if (!serverFlags.countreacts) return false;
-
-					// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
-					// Check server flag for if counting self-reacts for emoji usage is allowed
-					if (!(messageAuthorId === reactionAuthorId) || serverFlags.countselfreacts) {
-						if (!reaction.emoji.id) return false;
-						const guildEmoji = await message.guild.emojis.fetch(reaction.emoji.id);
-						const messageUserOpt = await getOpt(guildId, messageAuthorId);
-						const reactionUserOpt = await getOpt(guildId, reactionAuthorId);
-
-						if (messageUserOpt) await deleteFromDb(guildId, guildEmoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionRemove');
-						if (reactionUserOpt) await deleteFromDb(guildId, guildEmoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionRemove');
-					}
-				}
-			}
-		}
-		catch (e) {
-			if (e.message === 'no such table: serverSettings') {
-				await createDatabase(message.guildId);
-			}
-			else if (e.message === 'Unknown Emoji') {
-				return false;
-			}
-			else {
-				console.error('messageReactionRemoveAll failed', e);
-			}
-		}
-	},
+  name: Events.MessageReactionRemoveAll,
+  async execute(message, reactions) {
+    try {
+      await processMessageReactionRemoveAll(message, reactions);
+    } catch (error) {
+      if (error.message == `Cannot read properties of null (reading 'usersOpt')`) {
+        await insertGuild(message.client.db, message.guild);
+      } else {
+        console.error(Events.MessageReactionRemoveAll, error);
+      }
+    }
+  },
 };

@@ -1,31 +1,42 @@
 import fs from 'fs';
-import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v9';
-
-// eslint-disable-next-line no-unused-vars
-import config from '../../config.json' assert { type: "json" };
+import path from 'path';
+import * as url from 'url';
+import { REST, Routes } from 'discord.js';
+import * as dotenv from 'dotenv';
+dotenv.config();
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const commands = [];
-const commandFiles = fs.readdirSync('./src/commands').filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-	const command = require(`../commands/${file}`);
-	commands.push(command.data.toJSON());
-}
-
-const rest = new REST({ version: '10' }).setToken(config.token);
+const commandsPath = path.join(__dirname, '../commands');
+const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith('.js'));
 
 (async () => {
-	try {
-		await rest.put(
-			// Routes.applicationGuildCommands(config.clientId, config.guildId), // <-- Guild version
-			Routes.applicationCommands(config.clientId), // <-- Global version
-			{ body: commands },
-		);
+  for (const file of commandFiles) {
+    const filePath = path.join(commandsPath, file);
+    const commandModule = await import(url.pathToFileURL(filePath));
+    const command = commandModule.default;
+    if ('data' in command && 'execute' in command) {
+      commands.push(command.data.toJSON());
+    }
+    else {
+      console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+    }
+  }
 
-		console.log('Successfully registered application commands.');
-	}
-	catch (error) {
-		console.error(`deployCommands.js error\n${error}`);
-	}
+  const rest = new REST().setToken(process.env.BOT_TOKEN);
+
+  try {
+    console.log(`Started refreshing ${commands.length} application (/) commands.`);
+
+    const data = await rest.put(
+      // Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+      Routes.applicationCommands(process.env.CLIENT_ID),
+      { body: commands },
+    );
+
+    console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+  }
+  catch (error) {
+    console.error(error);
+  }
 })();

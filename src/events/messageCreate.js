@@ -1,45 +1,56 @@
-import { insertToDb, getOpt, createDatabase } from '../helpers/dbModel.js';
-import { getSettings } from '../helpers/dbModel.js';
+import { Events } from 'discord.js';
+import { getGuildInfo, addEmojiRecords, insertGuild } from '../helpers/mongodbModel.js';
+import {
+  createEmojiRecord,
+  extractEmojis,
+  getUserOpt,
+  shouldProcessMessage,
+} from '../helpers/utilities.js';
+
+async function processEmojis(message) {
+  const emojis = extractEmojis(message);
+
+  const emojiRecords = [];
+  for (const emoji of emojis) {
+    const guildEmoji = await message.guild.emojis.fetch(emoji[3]).catch(() => null);
+    if (!guildEmoji) continue;
+    const emojiRecord = createEmojiRecord(
+      message.guildId,
+      message.id,
+      guildEmoji.id,
+      message.author.id,
+      message.createdAt,
+      'message'
+    );
+
+    emojiRecords.push(emojiRecord);
+  }
+
+  if (emojiRecords.length === 0) return false;
+
+  await addEmojiRecords(message.client.db, emojiRecords);
+}
+
+async function processMessageCreate(message) {
+  const guildInfo = await getGuildInfo(message.client.db, message.guildId);
+  const userOpt = await getUserOpt(guildInfo, message.author.id);
+
+  if (shouldProcessMessage(message, guildInfo, userOpt)) {
+    await processEmojis(message, guildInfo);
+  }
+}
 
 export default {
-	name: 'messageCreate',
-	async execute(message) {
-		// Ignore client
-		if (message.author.id === message.client.user.id) return false;
-
-		try {
-			const guildId = message.guildId;
-			const messageAuthorId = message.author.id;
-			const dateTime = message.createdAt.toISOString();
-
-			// Check server flag for if counting messages for emoji usage is allowed
-			const serverFlags = await getSettings(guildId);
-			if (!serverFlags.countmessages) return false;
-
-			// Check if user is opted out of logging
-			const userOpt = await getOpt(guildId, messageAuthorId);
-			if (!userOpt) return false;
-
-			// Finds all emojis in messages via regex
-			const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/g;
-			const emojis = message.content.matchAll(re);
-
-			// Insert each emoji into database
-			for (const emoji of emojis) {
-				const guildEmoji = await message.guild.emojis.fetch(emoji[3]);
-				await insertToDb(guildId, guildEmoji.id, messageAuthorId, dateTime, 'messageActivity', 'messageCreate');
-			}
-		}
-		catch (e) {
-			if (e.message === 'no such table: serverSettings') {
-				await createDatabase(message.guildId);
-			}
-			else if (e.message === 'Unknown Emoji') {
-				return false;
-			}
-			else {
-				console.error('messageCreate failed', e);
-			}
-		}
-	},
+  name: Events.MessageCreate,
+  async execute(message) {
+    try {
+      await processMessageCreate(message);
+    } catch (error) {
+      if (error.message == `Cannot read properties of null (reading 'usersOpt')`) {
+        await insertGuild(message.client.db, message.guild);
+      } else {
+        console.error(Events.MessageCreate, error);
+      }
+    }
+  },
 };

@@ -1,61 +1,66 @@
-import { createDatabase, deleteFromDb, getOpt } from '../helpers/dbModel.js';
-import { getSettings } from '../helpers/dbModel.js';
+import { Events } from 'discord.js';
+import { deleteEmojiRecord, getGuildInfo, insertGuild } from '../helpers/mongodbModel.js';
+import {
+  createEmojiRecord,
+  fetchReactionPartials,
+  getUserOpt,
+  isDifferentAuthor,
+  isTrackingSelfReacts,
+  shouldProcessReaction,
+} from '../helpers/utilities.js';
+
+async function processReactionRemoval(messageReaction, userId, tag) {
+  const guildEmoji = await messageReaction.message.guild.emojis
+    .fetch(messageReaction.emoji.id)
+    .catch(() => null);
+
+  if (!guildEmoji) return false;
+
+  const emojiRecord = createEmojiRecord(
+    messageReaction.message.guildId,
+    messageReaction.message.id,
+    messageReaction.emoji.id,
+    userId,
+    messageReaction.message.createdAt,
+    tag
+  );
+  await deleteEmojiRecord(messageReaction.client.db, emojiRecord);
+}
+
+async function processMessageReactionRemove(messageReaction, user) {
+  await fetchReactionPartials(messageReaction);
+
+  const guildInfo = await getGuildInfo(messageReaction.client.db, messageReaction.message.guildId);
+  const reactionAuthorId = user.id;
+  const messageAuthorId = messageReaction.message.author.id;
+
+  if (isDifferentAuthor(messageAuthorId, reactionAuthorId) || isTrackingSelfReacts(guildInfo)) {
+    const messageUserOpt = getUserOpt(guildInfo, messageAuthorId);
+    const reactionUserOpt = getUserOpt(guildInfo, reactionAuthorId);
+
+    if (shouldProcessReaction(messageReaction, guildInfo, messageUserOpt)) {
+      await processReactionRemoval(messageReaction, messageAuthorId, 'received-reaction');
+    }
+
+    if (shouldProcessReaction(messageReaction, guildInfo, reactionUserOpt)) {
+      await processReactionRemoval(messageReaction, reactionAuthorId, 'sent-reaction');
+    }
+  }
+}
 
 export default {
-	name: 'messageReactionRemove',
-	async execute(messageReaction, user) {
-		// Fetch any partials
-		if (messageReaction.partial) {
-			await messageReaction.fetch().catch(e => {
-				// console.error('messageReactionRemove messageReaction.fetch() failed.', e);
-				return false;
-			});
-		}
-		if (messageReaction.message.partial) {
-			await messageReaction.message.fetch().catch(e => {
-				// console.error('messageReactionRemove messageReaction.message.fetch() failed.', e);
-				return false;
-			});
-		}
-
-		// Ignore invalid messages
-		if (messageReaction.message.author === null) return false;
-		// Ignore client
-		if (messageReaction.me || messageReaction.message.author.id === messageReaction.client.user.id) return false;
-		// Ignore default emojis
-		if (!messageReaction.emoji.id) return false;
-
-		try {
-			const guildId = messageReaction.message.guildId;
-			const reactionAuthorId = user.id;
-			const messageAuthorId = messageReaction.message.author.id;
-			const dateTime = messageReaction.message.createdAt.toISOString();
-
-			// Check server flag for if counting reactions for emoji usage is allowed
-			const serverFlags = await getSettings(guildId);
-			if (!serverFlags.countreacts) return false;
-
-			// p -> q       Don't pass if message author is reaction user AND countselfreacts flag is false
-			// Check server flag for if counting self-reacts for emoji usage is allowed
-			if (!(messageAuthorId === reactionAuthorId) || serverFlags.countselfreacts) {
-				const guildEmoji = await messageReaction.message.guild.emojis.fetch(messageReaction.emoji.id);
-				const messageUserOpt = await getOpt(guildId, messageAuthorId);
-				const reactionUserOpt = await getOpt(guildId, reactionAuthorId);
-
-				if (messageUserOpt) await deleteFromDb(guildId, guildEmoji.id, messageAuthorId, dateTime, 'reactsReceivedActivity', 'messageReactionRemove');
-				if (reactionUserOpt) await deleteFromDb(guildId, guildEmoji.id, reactionAuthorId, dateTime, 'reactsSentActivity', 'messageReactionRemove');
-			}
-		}
-		catch (e) {
-			if (e.message === 'no such table: serverSettings') {
-				await createDatabase(messageReaction.message.guildId);
-			}
-			else if (e.message === 'Unknown Emoji') {
-				return false;
-			}
-			else {
-				console.error('messageReactionRemove failed', e);
-			}
-		}
-	},
+  name: Events.MessageReactionRemove,
+  async execute(messageReaction, user) {
+    try {
+      await processMessageReactionRemove(messageReaction, user);
+    } catch (error) {
+      if (error.message == `Cannot read properties of null (reading 'usersOpt')`) {
+        await insertGuild(messageReaction.client.db, messageReaction.message.guild);
+      } else {
+        console.error(Events.MessageReactionRemove, error);
+      }
+    }
+  },
 };
+
+export { processMessageReactionRemove };
