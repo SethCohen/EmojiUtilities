@@ -1,4 +1,22 @@
 # Changelog
+## [1.23.4](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.3...v1.23.4) (2023-05-02)
+
+
+### Code Refactoring
+
+* entire codebase refactor ([62c6dc3](https://github.com/SethCohen/EmojiUtilities/commit/62c6dc31a00c39c2212e4e6f7e22cc5da85da2e5))
+
+
+### Miscellaneous
+
+* added docker support ([62c6dc3](https://github.com/SethCohen/EmojiUtilities/commit/62c6dc31a00c39c2212e4e6f7e22cc5da85da2e5))
+* added prettier eslint support ([62c6dc3](https://github.com/SethCohen/EmojiUtilities/commit/62c6dc31a00c39c2212e4e6f7e22cc5da85da2e5))
+* added vscode debug support ([934fbbe](https://github.com/SethCohen/EmojiUtilities/commit/934fbbee60d56c7e4a4d7406db13f32997ee0cc3))
+* moved linter to own file ([934fbbe](https://github.com/SethCohen/EmojiUtilities/commit/934fbbee60d56c7e4a4d7406db13f32997ee0cc3))
+* replaced `config.json` with `.env` ([934fbbe](https://github.com/SethCohen/EmojiUtilities/commit/934fbbee60d56c7e4a4d7406db13f32997ee0cc3))
+* replaced database system from sqlite to mongodb ([62c6dc3](https://github.com/SethCohen/EmojiUtilities/commit/62c6dc31a00c39c2212e4e6f7e22cc5da85da2e5))
+* updated dependencies ([934fbbe](https://github.com/SethCohen/EmojiUtilities/commit/934fbbee60d56c7e4a4d7406db13f32997ee0cc3))
+
 ## [1.23.3](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.2...v1.23.3) (2023-01-04)
 
 
