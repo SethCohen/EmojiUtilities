@@ -1,12 +1,12 @@
 import { SlashCommandBuilder, PermissionsBitField } from 'discord.js';
 import fs from 'fs';
 import axios from 'axios';
-import { exec } from 'child_process';
 import { sendErrorFeedback } from '../helpers/utilities.js';
 import converter from 'discord-emoji-converter';
 import imageType from 'image-type';
 import sharp from 'sharp';
 import isAnimated from 'is-animated';
+import toApng from 'gif-to-apng';
 
 const uploadSticker = async (interaction, input, name, tag) => {
   return interaction.guild.stickers
@@ -20,28 +20,39 @@ const uploadSticker = async (interaction, input, name, tag) => {
       switch (error.message) {
         case 'Maximum number of stickers reached (0)':
           await interaction.editReply({
-            embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')],
+            embeds: [
+              sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.'),
+            ],
           });
           break;
         case 'Maximum number of stickers reached (5)':
           await interaction.editReply({
-            embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')],
+            embeds: [
+              sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.'),
+            ],
           });
           break;
         case 'Maximum number of stickers reached (15)':
           await interaction.editReply({
-            embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')],
+            embeds: [
+              sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.'),
+            ],
           });
           break;
         case 'Maximum number of stickers reached (60)':
           await interaction.editReply({
-            embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')],
+            embeds: [
+              sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.'),
+            ],
           });
           break;
         case 'Missing Permissions':
           await interaction.editReply({
             embeds: [
-              sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.'),
+              sendErrorFeedback(
+                interaction.commandName,
+                'Bot is missing `Manage Emojis And Stickers` permission.'
+              ),
             ],
           });
           break;
@@ -50,7 +61,7 @@ const uploadSticker = async (interaction, input, name, tag) => {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Unable to upload sticker to server. Output image is too large to upload to server. Try again with a more optimized gif.',
+                'Unable to upload sticker to server. Output image is too large to upload to server. Try again with a more optimized gif.'
               ),
             ],
           });
@@ -60,7 +71,7 @@ const uploadSticker = async (interaction, input, name, tag) => {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Unable to upload sticker.\n`name` must be between 2 and 30 characters in length.',
+                'Unable to upload sticker.\n`name` must be between 2 and 30 characters in length.'
               ),
             ],
           });
@@ -70,7 +81,7 @@ const uploadSticker = async (interaction, input, name, tag) => {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Unable to upload sticker.\n`name` must be between 2 and 30 characters in length.',
+                'Unable to upload sticker.\n`name` must be between 2 and 30 characters in length.'
               ),
             ],
           });
@@ -80,7 +91,7 @@ const uploadSticker = async (interaction, input, name, tag) => {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Unable to upload sticker.\nLength of gif exceeds maximum duration of 5 seconds.',
+                'Unable to upload sticker.\nLength of gif exceeds maximum duration of 5 seconds.'
               ),
             ],
           });
@@ -90,17 +101,18 @@ const uploadSticker = async (interaction, input, name, tag) => {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Invalid asset. Please try again with a valid png or animated png.',
+                'Invalid asset. Please try again with a valid png or animated png.'
               ),
             ],
           });
           break;
         default:
           console.error(
-            `**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message
-            }\n**Raw Input:**\n${interaction.options.getString('url')}\n${interaction.options.getString(
-              'name',
-            )}\n${interaction.options.getString('tag')}`,
+            `**Command:**\n${interaction.commandName}\n**Error Message:**\n${
+              error.message
+            }\n**Raw Input:**\n${interaction.options.getString(
+              'url'
+            )}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`
           );
           await interaction.editReply({
             embeds: [sendErrorFeedback(interaction.commandName)],
@@ -112,13 +124,23 @@ const uploadSticker = async (interaction, input, name, tag) => {
 export default {
   data: new SlashCommandBuilder()
     .setName('stickerfy')
-    .setDescription('Convert a given image url into a sticker and adds it to server (Supports jpg, png, gif, webp).')
-    .addStringOption((option) =>
-      option.setName('url').setDescription('The url of the image to turn into a sticker.').setRequired(true),
+    .setDescription(
+      'Convert a given image url into a sticker and adds it to server (Supports jpg, png, gif, webp).'
     )
-    .addStringOption((option) => option.setName('name').setDescription('The name for the sticker.').setRequired(true))
     .addStringOption((option) =>
-      option.setName('tag').setDescription('The Discord unicode emoji to represent the sticker.').setRequired(true),
+      option
+        .setName('url')
+        .setDescription('The url of the image to turn into a sticker.')
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option.setName('name').setDescription('The name for the sticker.').setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName('tag')
+        .setDescription('The Discord unicode emoji to represent the sticker.')
+        .setRequired(true)
     ),
   async execute(interaction) {
     await interaction.deferReply();
@@ -126,7 +148,8 @@ export default {
     try {
       if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
         return interaction.editReply({
-          content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+          content:
+            'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
           ephemeral: true,
         });
       }
@@ -160,8 +183,7 @@ export default {
       if (isAnimated(buffer)) {
         if (type.ext === 'png') {
           await uploadSticker(interaction, buffer, name, tag);
-        }
-        else {
+        } else {
           await sharp(buffer, { animated: true })
             .resize(320, 320, {
               fit: 'contain',
@@ -169,22 +191,14 @@ export default {
             })
             .gif({ colours: 32, dither: 0.0 })
             .toFile(`${path}.gif`);
-          exec(`./src/helpers/gif2apng ${path}.gif`, async (execError, stdout, stderr) => {
-            if (execError) throw execError;
-            if (stderr) console.error(`gif2apng stderr ${stderr}`);
 
-            await uploadSticker(interaction, `${path}.png`, name, tag).finally(() => {
-              fs.unlink(`${path}.gif`, (err) => {
-                if (err) console.error(`Unable to delete image: ${err}`);
-              });
-              fs.unlink(`${path}.png`, (err) => {
-                if (err) console.error(`Unable to delete image: ${err}`);
-              });
-            });
-          });
+          toApng(`${path}.gif`)
+            .then(async () => {
+              await uploadSticker(interaction, `${path}.png`, name, tag);
+            })
+            .catch(console.error);
         }
-      }
-      else {
+      } else {
         await sharp(buffer)
           .resize(320, 320, {
             fit: 'contain',
@@ -201,15 +215,14 @@ export default {
           });
         });
       }
-    }
-    catch (error) {
+    } catch (error) {
       switch (error.message) {
-        case 'Emoji doesn\'t exist':
+        case "Emoji doesn't exist":
           await interaction.editReply({
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Invalid value in `tag`.\nExpected default discord emoji, e.g. 🍌',
+                'Invalid value in `tag`.\nExpected default discord emoji, e.g. 🍌'
               ),
             ],
           });
@@ -224,22 +237,23 @@ export default {
             embeds: [sendErrorFeedback(interaction.commandName, 'Invalid url in `url`.')],
           });
           break;
-        case 'Cannot read properties of null (reading \'ext\')':
+        case "Cannot read properties of null (reading 'ext')":
           await interaction.editReply({
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Invalid url in `url`.\nCan\'t detect image type. Try again with a direct link to the image.',
+                "Invalid url in `url`.\nCan't detect image type. Try again with a direct link to the image."
               ),
             ],
           });
           break;
         default:
           console.error(
-            `**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message
-            }\n**Raw Input:**\n${interaction.options.getString('url')}\n${interaction.options.getString(
-              'name',
-            )}\n${interaction.options.getString('tag')}`,
+            `**Command:**\n${interaction.commandName}\n**Error Message:**\n${
+              error.message
+            }\n**Raw Input:**\n${interaction.options.getString(
+              'url'
+            )}\n${interaction.options.getString('name')}\n${interaction.options.getString('tag')}`
           );
           await interaction.editReply({
             embeds: [sendErrorFeedback(interaction.commandName)],

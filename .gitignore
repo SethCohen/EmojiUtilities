@@ -11,3 +11,5 @@ src/commands/test.py
 .env
 .vscode/*
 src/helpers/dbModel.js
+temps/
+jsconfig.json
