@@ -14,11 +14,14 @@ RUN apt-get update && apt-get install -y \
 # Set the working directory
 WORKDIR /app
 
-# Copy files to working directory
-COPY . .
+# Copy npm files to working directory
+COPY package*.json .
 
 # Install dependencies
 RUN npm install --only=production
+
+# Copy files to working directory
+COPY . .
 
 # Run app
 CMD ["npm", "start"]
