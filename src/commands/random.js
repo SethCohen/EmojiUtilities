@@ -8,7 +8,7 @@ export default {
     .setName('random')
     .setDescription('Gets a random emoji as an image.')
     .addBooleanOption((option) =>
-      option.setName('includensfw').setDescription('Includes NSFW results. Default: False'),
+      option.setName('includensfw').setDescription('Includes NSFW results. Default: False')
     ),
   async execute(interactionCommand) {
     await interactionCommand.deferReply();
@@ -18,7 +18,10 @@ export default {
       const nsfw = interactionCommand.options.getBoolean('includensfw')
         ? interactionCommand.options.getBoolean('includensfw')
         : false;
-      const guildInfo = await getGuildInfo(interactionCommand.client.db, interactionCommand.guildId);
+      const guildInfo = await getGuildInfo(
+        interactionCommand.client.db,
+        interactionCommand.guildId
+      );
 
       let data;
       if (nsfw) {
@@ -33,8 +36,7 @@ export default {
           });
         }
         data = response.data;
-      }
-      else {
+      } else {
         data = response.data.filter((json) => {
           return json.category !== 9;
         });
@@ -56,7 +58,7 @@ export default {
         await i.deferUpdate();
         if (i.user.id !== interactionCommand.user.id) {
           await i.followUp({
-            content: 'You can\'t interact with this button. You are not the command author.',
+            content: "You can't interact with this button. You are not the command author.",
             ephemeral: true,
           });
         }
@@ -68,12 +70,17 @@ export default {
           if (interactionButton.customId === 'confirm') {
             await interactionCommand.editReply({ embeds: [embed] });
 
-            if (!interactionButton.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+            if (
+              !interactionButton.memberPermissions.has(
+                PermissionsBitField.Flags.ManageEmojisAndStickers
+              )
+            ) {
               await interactionCommand.editReply({
                 content: 'Cancelling emoji adding. Interaction author lacks permissions.',
               });
               return await interactionButton.followUp({
-                content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+                content:
+                  'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
                 ephemeral: true,
               });
             }
@@ -93,7 +100,10 @@ export default {
                   case 'Maximum number of emojis reached (50)':
                     interactionCommand.followUp({
                       embeds: [
-                        sendErrorFeedback(interactionCommand.commandName, 'No emoji slots available in server.'),
+                        sendErrorFeedback(
+                          interactionCommand.commandName,
+                          'No emoji slots available in server.'
+                        ),
                       ],
                     });
                     break;
@@ -102,7 +112,7 @@ export default {
                       embeds: [
                         sendErrorFeedback(
                           interactionCommand.commandName,
-                          'Image filesize is too big. Cannot add to server, sorry.',
+                          'Image filesize is too big. Cannot add to server, sorry.'
                         ),
                       ],
                     });
@@ -112,22 +122,21 @@ export default {
                       embeds: [
                         sendErrorFeedback(
                           interactionCommand.commandName,
-                          'Cannot add emoji to server.\nBot is missing Manage Emojis & Stickers permission.',
+                          'Cannot add emoji to server.\nBot is missing Manage Emojis & Stickers permission.'
                         ),
                       ],
                     });
                     break;
                   default:
                     console.error(
-                      `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand}`,
+                      `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand}`
                     );
                     return interactionCommand.followUp({
                       embeds: [sendErrorFeedback(interactionCommand.commandName)],
                     });
                 }
               });
-          }
-          else if (interactionButton.customId === 'cancel') {
+          } else if (interactionButton.customId === 'cancel') {
             return await interactionCommand.editReply({
               content: 'Canceled.',
               embeds: [embed],
@@ -146,7 +155,9 @@ export default {
               });
               break;
             default:
-              console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
+              console.error(
+                `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`
+              );
           }
         })
         .finally(async () => {
@@ -154,15 +165,17 @@ export default {
             components: [confirmationButtons(false)],
           });
         });
-    }
-    catch (error) {
+    } catch (error) {
       switch (error.message) {
         default:
           console.error(
-            `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message
-            }\nRaw Input:\n${interactionCommand.options.getString('type')}\n${interactionCommand.options.getString(
-              'emoji',
-            )}\n${interactionCommand.options.getInteger('daterange')}`,
+            `Command:\n${interactionCommand.commandName}\nError Message:\n${
+              error.message
+            }\nRaw Input:\n${interactionCommand.options.getString(
+              'type'
+            )}\n${interactionCommand.options.getString(
+              'emoji'
+            )}\n${interactionCommand.options.getInteger('daterange')}`
           );
           return await interactionCommand.editReply({
             embeds: [sendErrorFeedback(interactionCommand.commandName)],

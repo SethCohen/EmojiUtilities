@@ -8,7 +8,7 @@ export default {
     .setName('aboutemoji')
     .setDescription('Displays generic information about an emoji.')
     .addStringOption((option) =>
-      option.setName('emoji').setDescription('The emoji to get info for.').setRequired(true),
+      option.setName('emoji').setDescription('The emoji to get info for.').setRequired(true)
     ),
   async execute(interaction) {
     await interaction.deferReply();
@@ -21,9 +21,8 @@ export default {
       let author;
       try {
         author = await emoji.fetchAuthor();
-      }
-      catch (e) {
-        author = '`N/A` - Bot is missing `Manage Emojis` permission and can\'t access emoji author.';
+      } catch (e) {
+        author = "`N/A` - Bot is missing `Manage Emojis` permission and can't access emoji author.";
       }
 
       const count = await getEmojiTotalCount(interaction.client.db, interaction.guild.id, emoji.id);
@@ -35,12 +34,11 @@ export default {
         .addFields(
           { name: 'Author:', value: author.toString() },
           { name: 'Date Added:', value: emoji.createdAt.toString() },
-          { name: 'Total Times Used:', value: count.toString() },
+          { name: 'Total Times Used:', value: count.toString() }
         );
 
       return interaction.editReply({ embeds: [embedSuccess] });
-    }
-    catch (error) {
+    } catch (error) {
       switch (error.message) {
         case 'no such table: messageActivity':
           // await createDatabase(interaction.guildId);
@@ -48,12 +46,12 @@ export default {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Guild database was not found!\nA new database was created just now.\nPlease try the command again.',
+                'Guild database was not found!\nA new database was created just now.\nPlease try the command again.'
               ),
             ],
           });
           break;
-        case 'Cannot read properties of null (reading \'3\')':
+        case "Cannot read properties of null (reading '3')":
           await interaction.editReply({
             embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')],
           });
@@ -63,15 +61,16 @@ export default {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Emoji in `emoji` is from another server.\nI can\'t get info on emojis from other servers, sorry!\n\nIf you were trying to get an emoji from another server though, try `/copysteal`. ',
+                "Emoji in `emoji` is from another server.\nI can't get info on emojis from other servers, sorry!\n\nIf you were trying to get an emoji from another server though, try `/copysteal`. "
               ),
             ],
           });
           break;
         default:
           console.error(
-            `Command:\n${interaction.commandName}\nError Message:\n${error.message
-            }\nRaw Input:\n${interaction.options.getString('emoji')}`,
+            `Command:\n${interaction.commandName}\nError Message:\n${
+              error.message
+            }\nRaw Input:\n${interaction.options.getString('emoji')}`
           );
           return await interaction.editReply({
             embeds: [sendErrorFeedback(interaction.commandName)],

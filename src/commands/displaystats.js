@@ -90,8 +90,7 @@ const getPages = async (user, date, interaction, occurrences) => {
       try {
         const emoji = await interaction.guild.emojis.fetch(emojiId);
         embed.addFields([{ name: `${emoji}`, value: `${count}`, inline: true }]);
-      }
-      catch (ignoreError) {
+      } catch (ignoreError) {
         // Ignore empty rows
       }
     }
@@ -116,11 +115,13 @@ export default {
           { name: 'Monthly', value: 30 },
           { name: 'Weekly', value: 7 },
           { name: 'Daily', value: 1 },
-          { name: 'Hourly', value: 60 },
-        ),
+          { name: 'Hourly', value: 60 }
+        )
     )
     .addUserOption((option) =>
-      option.setName('user').setDescription('The user to query for. Not specifying grabs entire server\'s statistics.'),
+      option
+        .setName('user')
+        .setDescription("The user to query for. Not specifying grabs entire server's statistics.")
     ),
   async execute(interactionCommand) {
     await interactionCommand.deferReply();
@@ -130,8 +131,17 @@ export default {
       const user = interactionCommand.options.getUser('user');
       const date = validateDateRange(dateRange);
       const data = user
-        ? await getDisplayStats(interactionCommand.client.db, interactionCommand.guild.id, date.dateRange, user.id)
-        : await getDisplayStats(interactionCommand.client.db, interactionCommand.guild.id, date.dateRange);
+        ? await getDisplayStats(
+            interactionCommand.client.db,
+            interactionCommand.guild.id,
+            date.dateRange,
+            user.id
+          )
+        : await getDisplayStats(
+            interactionCommand.client.db,
+            interactionCommand.guild.id,
+            date.dateRange
+          );
 
       const occurrences = getSortedOccurrences(interactionCommand, data);
 
@@ -143,10 +153,9 @@ export default {
           embeds: [pages[currentPageIndex]],
           components: [navigationButtons(true)],
         });
-      }
-      else {
+      } else {
         await interactionCommand.editReply({
-          content: 'Sorry, there\'s no info to display!',
+          content: "Sorry, there's no info to display!",
         });
       }
 
@@ -159,21 +168,17 @@ export default {
         if (interactionButton.member === interactionCommand.member) {
           if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
             ++currentPageIndex;
-          }
-          else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
+          } else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
             --currentPageIndex;
-          }
-          else if (currentPageIndex === 0) {
+          } else if (currentPageIndex === 0) {
             currentPageIndex = pages.length - 1;
-          }
-          else if (currentPageIndex === pages.length - 1) {
+          } else if (currentPageIndex === pages.length - 1) {
             currentPageIndex = 0;
           }
           await interactionButton.update({ embeds: [pages[currentPageIndex]] });
-        }
-        else {
+        } else {
           await interactionButton.reply({
-            content: 'You can\'t interact with this button. You are not the command author.',
+            content: "You can't interact with this button. You are not the command author.",
             ephemeral: true,
           });
         }
@@ -185,15 +190,15 @@ export default {
         });
         // console.log(`Collected ${collected.size} interactions.`);
       });
-    }
-    catch (error) {
+    } catch (error) {
       switch (error.message) {
         default:
           console.error(
-            `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message
-            }\nRaw Input:\n${interactionCommand.options.getInteger('daterange')}\n${interactionCommand.options.getUser(
-              'user',
-            )}`,
+            `Command:\n${interactionCommand.commandName}\nError Message:\n${
+              error.message
+            }\nRaw Input:\n${interactionCommand.options.getInteger(
+              'daterange'
+            )}\n${interactionCommand.options.getUser('user')}`
           );
           return await interactionCommand.editReply({
             embeds: [sendErrorFeedback(interactionCommand.commandName)],

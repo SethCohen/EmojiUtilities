@@ -66,8 +66,7 @@ const createOutput = async (interaction, emoji, date, array) => {
     try {
       const user = await interaction.guild.members.fetch(userId);
       embed.addFields([{ name: `${leaderboardPos}. ${user.displayName}`, value: `${count}` }]);
-    }
-    catch (e) {
+    } catch (e) {
       console.error(`createOutput error\n${e}`);
     }
     leaderboardPos++;
@@ -79,16 +78,19 @@ const createOutput = async (interaction, emoji, date, array) => {
 export default {
   data: new SlashCommandBuilder()
     .setName('leaderboard')
-    .setDescription('Displays the top ten users for a specified emote\'s usage')
+    .setDescription("Displays the top ten users for a specified emote's usage")
     .addStringOption((option) =>
       option
         .setName('type')
         .setDescription('The type of leaderboard to display.')
         .setRequired(true)
-        .addChoices({ name: 'Sent', value: 'sent' }, { name: 'Received', value: 'received' }),
+        .addChoices({ name: 'Sent', value: 'sent' }, { name: 'Received', value: 'received' })
     )
     .addStringOption((option) =>
-      option.setName('emoji').setDescription('The emoji to get the leaderboard for.').setRequired(true),
+      option
+        .setName('emoji')
+        .setDescription('The emoji to get the leaderboard for.')
+        .setRequired(true)
     )
     .addIntegerOption((option) =>
       option
@@ -100,8 +102,8 @@ export default {
           { name: 'Monthly', value: 30 },
           { name: 'Weekly', value: 7 },
           { name: 'Daily', value: 1 },
-          { name: 'Hourly', value: 60 },
-        ),
+          { name: 'Hourly', value: 60 }
+        )
     ),
   async execute(interaction) {
     await interaction.deferReply();
@@ -118,18 +120,27 @@ export default {
 
       const data = date.dateRange
         ? await getLeaderboard(
-          interaction.client.db,
-          interaction.guild.id,
-          emoji.id,
-          interaction.client.id,
-          type,
-          date.dateRange,
-        )
-        : await getLeaderboard(interaction.client.db, interaction.guild.id, emoji.id, interaction.client.id, type);
+            interaction.client.db,
+            interaction.guild.id,
+            emoji.id,
+            interaction.client.id,
+            type,
+            date.dateRange
+          )
+        : await getLeaderboard(
+            interaction.client.db,
+            interaction.guild.id,
+            emoji.id,
+            interaction.client.id,
+            type
+          );
       if (!data.length) {
         return await interaction.editReply({
           embeds: [
-            sendErrorFeedback(interaction.commandName, 'Sorry, there\'s no info to display!\nThe leaderboard is empty!'),
+            sendErrorFeedback(
+              interaction.commandName,
+              "Sorry, there's no info to display!\nThe leaderboard is empty!"
+            ),
           ],
         });
       }
@@ -137,25 +148,32 @@ export default {
       const embedSuccess = await createOutput(interaction, emoji, date, data);
 
       return interaction.editReply({ embeds: [embedSuccess] });
-    }
-    catch (error) {
+    } catch (error) {
       switch (error.message) {
-        case 'Cannot read properties of null (reading \'3\')':
+        case "Cannot read properties of null (reading '3')":
           await interaction.editReply({
             embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')],
           });
           break;
         case 'Unknown Emoji':
           await interaction.editReply({
-            embeds: [sendErrorFeedback(interaction.commandName, 'Emoji found in `emoji` is not from this server.')],
+            embeds: [
+              sendErrorFeedback(
+                interaction.commandName,
+                'Emoji found in `emoji` is not from this server.'
+              ),
+            ],
           });
           break;
         default:
           console.error(
-            `Command:\n${interaction.commandName}\nError Message:\n${error.message
-            }\nRaw Input:\n${interaction.options.getString('type')}\n${interaction.options.getString(
-              'emoji',
-            )}\n${interaction.options.getInteger('daterange')}`,
+            `Command:\n${interaction.commandName}\nError Message:\n${
+              error.message
+            }\nRaw Input:\n${interaction.options.getString(
+              'type'
+            )}\n${interaction.options.getString('emoji')}\n${interaction.options.getInteger(
+              'daterange'
+            )}`
           );
           return await interaction.editReply({
             embeds: [sendErrorFeedback(interaction.commandName)],

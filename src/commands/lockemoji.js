@@ -6,9 +6,14 @@ export default {
   data: new SlashCommandBuilder()
     .setName('lockemoji')
     .setDescription('Restricts a specified server-emoji to a specific role.')
-    .addStringOption((option) => option.setName('emoji').setDescription('The emoji to restrict.').setRequired(true))
+    .addStringOption((option) =>
+      option.setName('emoji').setDescription('The emoji to restrict.').setRequired(true)
+    )
     .addRoleOption((option) =>
-      option.setName('role').setDescription('The role that has access to the emoji.').setRequired(true),
+      option
+        .setName('role')
+        .setDescription('The role that has access to the emoji.')
+        .setRequired(true)
     ),
   async execute(interaction) {
     try {
@@ -16,7 +21,8 @@ export default {
 
       if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
         return interaction.editReply({
-          content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
+          content:
+            'You do not have enough permissions to use this command.\nRequires **Administrator**.',
           ephemeral: true,
         });
       }
@@ -34,7 +40,7 @@ export default {
           const embed = new EmbedBuilder()
             .setTitle(`Restricted ${editedEmoji} to role @${role.name}!`)
             .setDescription(
-              `If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`,
+              `If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`
             );
           return interaction.editReply({ embeds: [embed] });
         })
@@ -43,22 +49,27 @@ export default {
             case 'Missing Permissions':
               interaction.editReply({
                 embeds: [
-                  sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.'),
+                  sendErrorFeedback(
+                    interaction.commandName,
+                    'Bot is missing `Manage Emojis And Stickers` permission.'
+                  ),
                 ],
               });
               break;
             default:
               console.error(
-                `Command:\n${interaction.commandName}\nError Message:\n${editEmojiError.message
-                }\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getRole('role')}`,
+                `Command:\n${interaction.commandName}\nError Message:\n${
+                  editEmojiError.message
+                }\nRaw Input:\n${interaction.options.getString(
+                  'emoji'
+                )}\n${interaction.options.getRole('role')}`
               );
               return interaction.editReply({
                 embeds: [sendErrorFeedback(interaction.commandName)],
               });
           }
         });
-    }
-    catch (e) {
+    } catch (e) {
       switch (e.message) {
         case 'Unknown Emoji':
           await interaction.editReply({
@@ -67,8 +78,11 @@ export default {
           break;
         default:
           console.error(
-            `Command:\n${interaction.commandName}\nError Message:\n${e.message
-            }\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getRole('role')}`,
+            `Command:\n${interaction.commandName}\nError Message:\n${
+              e.message
+            }\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getRole(
+              'role'
+            )}`
           );
           return interaction.editReply({
             embeds: [sendErrorFeedback(interaction.commandName)],

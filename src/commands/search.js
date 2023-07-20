@@ -9,7 +9,7 @@ export default {
     .setName('search')
     .setDescription('Searches for an emoji from emoji.gg')
     .addStringOption((option) =>
-      option.setName('name').setDescription('Name of an emoji to search for.').setRequired(true),
+      option.setName('name').setDescription('Name of an emoji to search for.').setRequired(true)
     )
     .addIntegerOption((option) =>
       option
@@ -35,11 +35,11 @@ export default {
           { name: 'Animals', value: 17 },
           { name: 'Recolors', value: 18 },
           { name: 'Flags', value: 19 },
-          { name: 'Hearts', value: 20 },
-        ),
+          { name: 'Hearts', value: 20 }
+        )
     )
     .addBooleanOption((option) =>
-      option.setName('includensfw').setDescription('Includes NSFW results. Default: False'),
+      option.setName('includensfw').setDescription('Includes NSFW results. Default: False')
     ),
   async execute(interactionCommand) {
     await interactionCommand.deferReply();
@@ -52,7 +52,10 @@ export default {
         ? interactionCommand.options.getBoolean('includensfw')
         : false;
       const category = interactionCommand.options.getInteger('category');
-      const guildInfo = await getGuildInfo(interactionCommand.client.db, interactionCommand.guildId);
+      const guildInfo = await getGuildInfo(
+        interactionCommand.client.db,
+        interactionCommand.guildId
+      );
 
       let data;
       if (nsfw) {
@@ -69,24 +72,24 @@ export default {
         }
         data = category
           ? response.data.filter((json) => {
-            return json.category === category;
-          })
+              return json.category === category;
+            })
           : response.data;
-      }
-      else {
+      } else {
         if (category === 9) {
           return await interactionCommand.editReply({
-            content: 'Sorry, but searching through the NSFW category requires **includensfw: True**.',
+            content:
+              'Sorry, but searching through the NSFW category requires **includensfw: True**.',
           });
         }
 
         data = category
           ? response.data.filter((json) => {
-            return json.category === category;
-          })
+              return json.category === category;
+            })
           : response.data.filter((json) => {
-            return json.category !== 9;
-          });
+              return json.category !== 9;
+            });
       }
 
       // Searches for best match
@@ -94,7 +97,7 @@ export default {
         name,
         data.map((json) => {
           return json.title;
-        }),
+        })
       );
 
       const embed = new EmbedBuilder()
@@ -102,7 +105,7 @@ export default {
         .setDescription(
           `This emoji had the highest percent likeness to your search parameters at ${(
             match.bestMatch.rating * 100
-          ).toFixed(2)}%\nWould you like to upload it to the server?`,
+          ).toFixed(2)}%\nWould you like to upload it to the server?`
         )
         .setImage(data[match.bestMatchIndex].image);
 
@@ -117,7 +120,7 @@ export default {
         await i.deferUpdate();
         if (i.user.id !== interactionCommand.user.id) {
           await i.followUp({
-            content: 'You can\'t interact with this button. You are not the command author.',
+            content: "You can't interact with this button. You are not the command author.",
             ephemeral: true,
           });
         }
@@ -127,12 +130,17 @@ export default {
         .awaitMessageComponent({ filter, time: 30000 })
         .then(async (interactionButton) => {
           if (interactionButton.customId === 'confirm') {
-            if (!interactionButton.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+            if (
+              !interactionButton.memberPermissions.has(
+                PermissionsBitField.Flags.ManageEmojisAndStickers
+              )
+            ) {
               await interactionCommand.editReply({
                 content: 'Cancelling emoji adding. Interaction author lacks permissions.',
               });
               return await interactionButton.followUp({
-                content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+                content:
+                  'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
                 ephemeral: true,
               });
             }
@@ -152,7 +160,10 @@ export default {
                   case 'Maximum number of emojis reached (50)':
                     interactionCommand.followUp({
                       embeds: [
-                        sendErrorFeedback(interactionCommand.commandName, 'No emoji slots available in server.'),
+                        sendErrorFeedback(
+                          interactionCommand.commandName,
+                          'No emoji slots available in server.'
+                        ),
                       ],
                     });
                     break;
@@ -161,27 +172,27 @@ export default {
                       embeds: [
                         sendErrorFeedback(
                           interactionCommand.commandName,
-                          'Image filesize is too big. Cannot add to server, sorry.',
+                          'Image filesize is too big. Cannot add to server, sorry.'
                         ),
                       ],
                     });
                     break;
                   default:
                     console.error(
-                      `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message
+                      `Command:\n${interactionCommand.commandName}\nError Message:\n${
+                        error.message
                       }\nRaw Input:\n${interactionCommand.options.getString(
-                        'name',
-                      )}\n${interactionCommand.options.getInteger('category')}\n${interactionCommand.options.getBoolean(
-                        'includensfw',
-                      )}`,
+                        'name'
+                      )}\n${interactionCommand.options.getInteger(
+                        'category'
+                      )}\n${interactionCommand.options.getBoolean('includensfw')}`
                     );
                     return interactionCommand.followUp({
                       embeds: [sendErrorFeedback(interactionCommand.commandName)],
                     });
                 }
               });
-          }
-          else if (interactionButton.customId === 'cancel') {
+          } else if (interactionButton.customId === 'cancel') {
             return await interactionCommand.editReply({ content: 'Canceled.' });
           }
         })
@@ -196,7 +207,9 @@ export default {
               });
               break;
             default:
-              console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
+              console.error(
+                `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`
+              );
           }
         })
         .finally(async () => {
@@ -204,25 +217,27 @@ export default {
             components: [confirmationButtons(false)],
           });
         });
-    }
-    catch (error) {
+    } catch (error) {
       switch (error.message) {
         case 'no such table: serverSettings':
           await interactionCommand.editReply({
             embeds: [
               sendErrorFeedback(
                 interactionCommand.commandName,
-                'Guild database was not found!\nA new database was created just now.\nPlease try the command again.',
+                'Guild database was not found!\nA new database was created just now.\nPlease try the command again.'
               ),
             ],
           });
           break;
         default:
           console.error(
-            `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message
-            }\nRaw Input:\n${interactionCommand.options.getString('type')}\n${interactionCommand.options.getString(
-              'emoji',
-            )}\n${interactionCommand.options.getInteger('daterange')}`,
+            `Command:\n${interactionCommand.commandName}\nError Message:\n${
+              error.message
+            }\nRaw Input:\n${interactionCommand.options.getString(
+              'type'
+            )}\n${interactionCommand.options.getString(
+              'emoji'
+            )}\n${interactionCommand.options.getInteger('daterange')}`
           );
           return await interactionCommand.editReply({
             embeds: [sendErrorFeedback(interactionCommand.commandName)],

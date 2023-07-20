@@ -10,7 +10,7 @@ export default {
       option
         .setName('emoji')
         .setDescription('The emoji to unlock. Can be either emoji object, emoji name, or emoji id.')
-        .setRequired(true),
+        .setRequired(true)
     ),
   async execute(interaction) {
     try {
@@ -18,7 +18,8 @@ export default {
 
       if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
         return interaction.editReply({
-          content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
+          content:
+            'You do not have enough permissions to use this command.\nRequires **Administrator**.',
           ephemeral: true,
         });
       }
@@ -27,9 +28,11 @@ export default {
       const verifiedEmoji = verifyEmojiString(stringEmoji);
 
       const findEmoji = await interaction.guild.emojis.cache.find(
-        (emoji) => emoji.name === stringEmoji || emoji.id === stringEmoji,
+        (emoji) => emoji.name === stringEmoji || emoji.id === stringEmoji
       );
-      const foundEmoji = findEmoji ? findEmoji : await interaction.guild.emojis.fetch(verifiedEmoji[3]);
+      const foundEmoji = findEmoji
+        ? findEmoji
+        : await interaction.guild.emojis.fetch(verifiedEmoji[3]);
 
       foundEmoji
         .edit({ roles: [`${interaction.guild.id}`] })
@@ -37,7 +40,7 @@ export default {
           const embed = new EmbedBuilder()
             .setTitle(`Unlocked ${editedEmoji} for role everyone.`)
             .setDescription(
-              `If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`,
+              `If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`
             );
           return interaction.editReply({ embeds: [embed] });
         })
@@ -46,29 +49,34 @@ export default {
             case 'Missing Permissions':
               interaction.editReply({
                 embeds: [
-                  sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.'),
+                  sendErrorFeedback(
+                    interaction.commandName,
+                    'Bot is missing `Manage Emojis And Stickers` permission.'
+                  ),
                 ],
               });
               break;
             default:
               console.error(
-                `Command:\n${interaction.commandName}\nError Message:\n${editEmojiError.message
-                }\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getRole('role')}`,
+                `Command:\n${interaction.commandName}\nError Message:\n${
+                  editEmojiError.message
+                }\nRaw Input:\n${interaction.options.getString(
+                  'emoji'
+                )}\n${interaction.options.getRole('role')}`
               );
               return interaction.editReply({
                 embeds: [sendErrorFeedback(interaction.commandName)],
               });
           }
         });
-    }
-    catch (e) {
+    } catch (e) {
       switch (e.message) {
-        case 'Cannot read properties of null (reading \'3\')':
+        case "Cannot read properties of null (reading '3')":
           await interaction.editReply({
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Invalid input. No such server emoji found. Please try again.',
+                'Invalid input. No such server emoji found. Please try again.'
               ),
             ],
           });
@@ -78,15 +86,18 @@ export default {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Invalid input. No such server emoji found. Please try again.',
+                'Invalid input. No such server emoji found. Please try again.'
               ),
             ],
           });
           break;
         default:
           console.error(
-            `Command:\n${interaction.commandName}\nError Message:\n${e.message
-            }\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getRole('role')}`,
+            `Command:\n${interaction.commandName}\nError Message:\n${
+              e.message
+            }\nRaw Input:\n${interaction.options.getString('emoji')}\n${interaction.options.getRole(
+              'role'
+            )}`
           );
           return await interaction.editReply({
             embeds: [sendErrorFeedback(interaction.commandName)],

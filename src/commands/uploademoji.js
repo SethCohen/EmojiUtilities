@@ -11,7 +11,7 @@ export default {
     .setName('uploademoji')
     .setDescription('Uploads a given url as an emoji.')
     .addStringOption((option) =>
-      option.setName('url').setDescription('The url of the emoji to upload.').setRequired(true),
+      option.setName('url').setDescription('The url of the emoji to upload.').setRequired(true)
     )
     .addStringOption((option) => option.setName('name').setDescription('Name for the emoji')),
   async execute(interaction) {
@@ -20,14 +20,17 @@ export default {
 
       if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
         return interaction.editReply({
-          content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+          content:
+            'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
           ephemeral: true,
         });
       }
 
       const url = interaction.options.getString('url');
       const randGenName = Math.random().toString(36).substring(2, 10);
-      const name = interaction.options.getString('name') ? interaction.options.getString('name') : randGenName;
+      const name = interaction.options.getString('name')
+        ? interaction.options.getString('name')
+        : randGenName;
 
       const dir = './temps';
       if (!fs.existsSync(dir)) {
@@ -43,8 +46,7 @@ export default {
       // Checks if url is an image and sets temp file path if image needs processing
       if (type) {
         path += type.ext;
-      }
-      else {
+      } else {
         return interaction.editReply({
           content: 'Invalid image type. Command only supports .gif, .png, or .jpg',
         });
@@ -63,7 +65,7 @@ export default {
           const embed = new EmbedBuilder()
             .setTitle(`Added ${emoji} to server!`)
             .setDescription(
-              `If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`,
+              `If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`
             );
           return interaction.editReply({ embeds: [embed] });
         })
@@ -74,7 +76,7 @@ export default {
                 embeds: [
                   sendErrorFeedback(
                     interaction.commandName,
-                    'Invalid value in `name`.\nMust be between 2 to 32 characters in length.',
+                    'Invalid value in `name`.\nMust be between 2 to 32 characters in length.'
                   ),
                 ],
               });
@@ -84,7 +86,7 @@ export default {
                 embeds: [
                   sendErrorFeedback(
                     interaction.commandName,
-                    'Invalid value in `name`.\nMust be between 2 to 32 characters in length and can only contain alphanumeric characters and underscores.',
+                    'Invalid value in `name`.\nMust be between 2 to 32 characters in length and can only contain alphanumeric characters and underscores.'
                   ),
                 ],
               });
@@ -94,7 +96,7 @@ export default {
                 embeds: [
                   sendErrorFeedback(
                     interaction.commandName,
-                    'Invalid value in `name`.\nMust only contain alphanumeric characters and underscores.',
+                    'Invalid value in `name`.\nMust only contain alphanumeric characters and underscores.'
                   ),
                 ],
               });
@@ -104,20 +106,25 @@ export default {
                 embeds: [
                   sendErrorFeedback(
                     interaction.commandName,
-                    'Invalid value in `name`.\nEmoji names must be at least 2 characters long and can only contain alphanumeric characters and underscores.',
+                    'Invalid value in `name`.\nEmoji names must be at least 2 characters long and can only contain alphanumeric characters and underscores.'
                   ),
                 ],
               });
               break;
             case 'Maximum number of emojis reached (50)':
               interaction.editReply({
-                embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')],
+                embeds: [
+                  sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.'),
+                ],
               });
               break;
             case 'Missing Permissions':
               interaction.editReply({
                 embeds: [
-                  sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.'),
+                  sendErrorFeedback(
+                    interaction.commandName,
+                    'Bot is missing `Manage Emojis And Stickers` permission.'
+                  ),
                 ],
               });
               break;
@@ -126,20 +133,28 @@ export default {
                 embeds: [
                   sendErrorFeedback(
                     interaction.commandName,
-                    'Invalid image type. Discord only supports .jpg, .jpeg, .png, and .gif images.',
+                    'Invalid image type. Discord only supports .jpg, .jpeg, .png, and .gif images.'
                   ),
                 ],
               });
               break;
             case 'Failed to resize asset below the maximum size: 262144':
               interaction.editReply({
-                embeds: [sendErrorFeedback(interaction.commandName, 'Couldn\'t resize image below 256KB size limit.')],
+                embeds: [
+                  sendErrorFeedback(
+                    interaction.commandName,
+                    "Couldn't resize image below 256KB size limit."
+                  ),
+                ],
               });
               break;
             default:
               console.error(
-                `**Command:**\n${interaction.commandName}\n**Error Message:**\n${createEmojiError.message
-                }\n**Raw Input:**\n${interaction.options.getString('url')}\n${interaction.options.getString('name')}`,
+                `**Command:**\n${interaction.commandName}\n**Error Message:**\n${
+                  createEmojiError.message
+                }\n**Raw Input:**\n${interaction.options.getString(
+                  'url'
+                )}\n${interaction.options.getString('name')}`
               );
               return interaction.editReply({
                 embeds: [sendErrorFeedback(interaction.commandName)],
@@ -151,8 +166,7 @@ export default {
             if (err) console.error(`Unable to delete image: ${err}`);
           });
         });
-    }
-    catch (error) {
+    } catch (error) {
       switch (error.message) {
         case 'connect ECONNREFUSED ::1:80':
           await interaction.editReply({

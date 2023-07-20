@@ -19,7 +19,9 @@ const createEmojisList = (interaction) => {
 };
 
 export default {
-  data: new SlashCommandBuilder().setName('listemojis').setDescription('Displays all usable emotes to chat.'),
+  data: new SlashCommandBuilder()
+    .setName('listemojis')
+    .setDescription('Displays all usable emotes to chat.'),
   async execute(interactionCommand) {
     await interactionCommand.deferReply();
 
@@ -38,21 +40,17 @@ export default {
       if (interactionButton.member === interactionCommand.member) {
         if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
           ++currentPageIndex;
-        }
-        else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
+        } else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
           --currentPageIndex;
-        }
-        else if (currentPageIndex === 0) {
+        } else if (currentPageIndex === 0) {
           currentPageIndex = pages.length - 1;
-        }
-        else if (currentPageIndex === pages.length - 1) {
+        } else if (currentPageIndex === pages.length - 1) {
           currentPageIndex = 0;
         }
         await interactionButton.update({ content: pages[currentPageIndex] });
-      }
-      else {
+      } else {
         await interactionButton.reply({
-          content: 'You can\'t interact with this button. You are not the command author.',
+          content: "You can't interact with this button. You are not the command author.",
           ephemeral: true,
         });
       }
@@ -63,14 +61,15 @@ export default {
         await interactionCommand.editReply({
           components: [navigationButtons(false)],
         });
-      }
-      catch (error) {
+      } catch (error) {
         switch (error.message) {
           case 'Unknown Message':
             // Ignore unknown interactions (Often caused from deleted interactions).
             break;
           default:
-            console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
+            console.error(
+              `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`
+            );
         }
       }
       // console.log(`Collected ${collected.size} interactions.`);

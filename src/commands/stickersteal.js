@@ -10,21 +10,27 @@ export default {
       option
         .setName('messageid')
         .setDescription(
-          'The message id that contains the sticker. Requires Developer Mode enable in Discord Settings to get.',
+          'The message id that contains the sticker. Requires Developer Mode enable in Discord Settings to get.'
         )
-        .setRequired(true),
+        .setRequired(true)
     )
     .addStringOption((option) =>
-      option.setName('tag').setDescription('The Discord unicode emoji to represent the sticker.').setRequired(true),
+      option
+        .setName('tag')
+        .setDescription('The Discord unicode emoji to represent the sticker.')
+        .setRequired(true)
     )
-    .addStringOption((option) => option.setName('name').setDescription('The name for the sticker.')),
+    .addStringOption((option) =>
+      option.setName('name').setDescription('The name for the sticker.')
+    ),
   async execute(interaction) {
     await interaction.deferReply();
 
     try {
       if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
         return interaction.editReply({
-          content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+          content:
+            'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
           ephemeral: true,
         });
       }
@@ -54,44 +60,66 @@ export default {
           switch (error.message) {
             case 'Maximum number of stickers reached (5)':
               interaction.editReply({
-                embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')],
+                embeds: [
+                  sendErrorFeedback(
+                    interaction.commandName,
+                    'No sticker slots available in server.'
+                  ),
+                ],
               });
               break;
             case 'Maximum number of stickers reached (15)':
               interaction.editReply({
-                embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')],
+                embeds: [
+                  sendErrorFeedback(
+                    interaction.commandName,
+                    'No sticker slots available in server.'
+                  ),
+                ],
               });
               break;
             case 'Maximum number of stickers reached (30)':
               interaction.editReply({
-                embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')],
+                embeds: [
+                  sendErrorFeedback(
+                    interaction.commandName,
+                    'No sticker slots available in server.'
+                  ),
+                ],
               });
               break;
             case 'Maximum number of stickers reached (60)':
               interaction.editReply({
-                embeds: [sendErrorFeedback(interaction.commandName, 'No sticker slots available in server.')],
+                embeds: [
+                  sendErrorFeedback(
+                    interaction.commandName,
+                    'No sticker slots available in server.'
+                  ),
+                ],
               });
               break;
             default:
               console.error(
-                `**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message
-                }\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString(
-                  'name',
-                )}\n${interaction.options.getString('tag')}`,
+                `**Command:**\n${interaction.commandName}\n**Error Message:**\n${
+                  error.message
+                }\n**Raw Input:**\n${interaction.options.getString(
+                  'messageid'
+                )}\n${interaction.options.getString('name')}\n${interaction.options.getString(
+                  'tag'
+                )}`
               );
               return interaction.editReply({
                 embeds: [sendErrorFeedback(interaction.commandName)],
               });
           }
         });
-    }
-    catch (e) {
+    } catch (e) {
       if (e.message.includes('Invalid Form Body\nmessage_id[NUMBER_TYPE_COERCE]')) {
         return interaction.editReply({
           embeds: [
             sendErrorFeedback(
               interaction.commandName,
-              'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.',
+              'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.'
             ),
           ],
         });
@@ -101,19 +129,19 @@ export default {
           embeds: [
             sendErrorFeedback(
               interaction.commandName,
-              'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.',
+              'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.'
             ),
           ],
         });
       }
 
       switch (e.message) {
-        case 'Emoji doesn\'t exist':
+        case "Emoji doesn't exist":
           await interaction.editReply({
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Emoji in `tag` not found. Please use a default emoji, such as 🍌',
+                'Emoji in `tag` not found. Please use a default emoji, such as 🍌'
               ),
             ],
           });
@@ -123,14 +151,19 @@ export default {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.',
+                'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.'
               ),
             ],
           });
           break;
-        case 'Cannot read properties of undefined (reading \'url\')':
+        case "Cannot read properties of undefined (reading 'url')":
           await interaction.editReply({
-            embeds: [sendErrorFeedback(interaction.commandName, 'No sticker found in message. Please try again.')],
+            embeds: [
+              sendErrorFeedback(
+                interaction.commandName,
+                'No sticker found in message. Please try again.'
+              ),
+            ],
           });
           break;
         case '404: Not Found':
@@ -138,7 +171,7 @@ export default {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.',
+                'Message not found. Make sure `messageId` is correct and command is run in same channel as sticker.'
               ),
             ],
           });
@@ -148,17 +181,18 @@ export default {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                'Bot missing `View Channel` permission for channel sticker is in. Please fix channel or bot permissions and try again.',
+                'Bot missing `View Channel` permission for channel sticker is in. Please fix channel or bot permissions and try again.'
               ),
             ],
           });
           break;
         default:
           console.error(
-            `**Command:**\n${interaction.commandName}\n**Error Message:**\n${e.message
-            }\n**Raw Input:**\n${interaction.options.getString('messageid')}\n${interaction.options.getString(
-              'tag',
-            )}\n${interaction.options.getString('name')}`,
+            `**Command:**\n${interaction.commandName}\n**Error Message:**\n${
+              e.message
+            }\n**Raw Input:**\n${interaction.options.getString(
+              'messageid'
+            )}\n${interaction.options.getString('tag')}\n${interaction.options.getString('name')}`
           );
           return await interaction.editReply({
             embeds: [sendErrorFeedback(interaction.commandName)],

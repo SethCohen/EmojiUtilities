@@ -11,7 +11,7 @@ export default {
         .setName('flag')
         .setDescription('Whether to opt-in or opt-out')
         .addChoices({ name: 'Opt-in', value: 'true' }, { name: 'Opt-out', value: 'false' })
-        .setRequired(true),
+        .setRequired(true)
     ),
   async execute(interactionCommand) {
     await interactionCommand.deferReply({ ephemeral: true });
@@ -19,12 +19,15 @@ export default {
     const flag = interactionCommand.options.getString('flag');
 
     const embed = new EmbedBuilder()
-      .setTitle(`Are you sure you want to opt-${flag === 'true' ? 'in' : 'out'} of your server's database?`)
+      .setTitle(
+        `Are you sure you want to opt-${flag === 'true' ? 'in' : 'out'} of your server's database?`
+      )
       .setDescription(
-        `${flag === 'true'
-          ? 'Opting in will allow the bot to record your emoji usage again.'
-          : 'Opting out will both disallow that AND **clear all previous records of your emoji usage from your server\'s database immediately.**\nThis is a permanent decision. There is no undoing this action.'
-        }`,
+        `${
+          flag === 'true'
+            ? 'Opting in will allow the bot to record your emoji usage again.'
+            : "Opting out will both disallow that AND **clear all previous records of your emoji usage from your server's database immediately.**\nThis is a permanent decision. There is no undoing this action."
+        }`
       );
 
     await interactionCommand.editReply({
@@ -38,7 +41,7 @@ export default {
       await i.deferUpdate();
       if (i.user.id !== interactionCommand.user.id) {
         await i.followUp({
-          content: 'You can\'t interact with this button. You are not the command author.',
+          content: "You can't interact with this button. You are not the command author.",
           ephemeral: true,
         });
       }
@@ -52,7 +55,7 @@ export default {
             interactionCommand.client.db,
             interactionCommand.guildId,
             interactionCommand.member.id,
-            flag === 'true',
+            flag === 'true'
           );
 
           await interactionButton.followUp({
@@ -65,11 +68,10 @@ export default {
             await clearUserFromDb(
               interactionCommand.client.db,
               interactionCommand.guildId,
-              interactionCommand.member.id,
+              interactionCommand.member.id
             );
           }
-        }
-        else if (interactionButton.customId === 'cancel') {
+        } else if (interactionButton.customId === 'cancel') {
           await interactionButton.followUp({
             content: `Canceled opt-${flag === 'true' ? 'in' : 'out'}.`,
             ephemeral: true,
@@ -94,8 +96,9 @@ export default {
             break;
           default:
             console.error(
-              `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message
-              }\nRaw Input:\n${interactionCommand.options.getString('flag')}`,
+              `Command:\n${interactionCommand.commandName}\nError Message:\n${
+                error.message
+              }\nRaw Input:\n${interactionCommand.options.getString('flag')}`
             );
             return await interactionCommand.editReply({
               embeds: [sendErrorFeedback(interactionCommand.commandName)],

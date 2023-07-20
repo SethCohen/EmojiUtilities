@@ -7,8 +7,7 @@ const getEmojiUrl = (emoji) => {
 
   if (isAnimated) {
     return `https://cdn.discordapp.com/emojis/${emoji[3]}.gif`;
-  }
-  else {
+  } else {
     return `https://cdn.discordapp.com/emojis/${emoji[3]}.png`;
   }
 };
@@ -17,14 +16,19 @@ export default {
   data: new SlashCommandBuilder()
     .setName('emojisteal')
     .setDescription('Steals a custom emoji and uploads it to your server.')
-    .addStringOption((option) => option.setName('emoji').setDescription('The custom emoji to steal.').setRequired(true))
-    .addStringOption((option) => option.setName('name').setDescription('Name for the copied emoji')),
+    .addStringOption((option) =>
+      option.setName('emoji').setDescription('The custom emoji to steal.').setRequired(true)
+    )
+    .addStringOption((option) =>
+      option.setName('name').setDescription('Name for the copied emoji')
+    ),
   async execute(interaction) {
     await interaction.deferReply();
 
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
       return interaction.editReply({
-        content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+        content:
+          'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
         ephemeral: true,
       });
     }
@@ -45,7 +49,7 @@ export default {
         const embedSuccess = new EmbedBuilder()
           .setTitle(`Added ${emoji} to server!`)
           .setDescription(
-            `If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`,
+            `If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`
           );
         return interaction.editReply({ embeds: [embedSuccess] });
       })
@@ -53,23 +57,35 @@ export default {
         switch (error.message) {
           case 'Failed to resize asset below the maximum size: 262144':
             await interaction.editReply({
-              embeds: [sendErrorFeedback(interaction.commandName, 'Couldn\'t resize image below 256KB size limit.')],
+              embeds: [
+                sendErrorFeedback(
+                  interaction.commandName,
+                  "Couldn't resize image below 256KB size limit."
+                ),
+              ],
             });
             break;
           case 'Maximum number of emojis reached (50)':
             await interaction.editReply({
-              embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')],
+              embeds: [
+                sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.'),
+              ],
             });
             break;
           case 'Maximum number of emojis reached (250)':
             await interaction.editReply({
-              embeds: [sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.')],
+              embeds: [
+                sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.'),
+              ],
             });
             break;
           case 'Missing Permissions':
             await interaction.editReply({
               embeds: [
-                sendErrorFeedback(interaction.commandName, 'Bot is missing `Manage Emojis And Stickers` permission.'),
+                sendErrorFeedback(
+                  interaction.commandName,
+                  'Bot is missing `Manage Emojis And Stickers` permission.'
+                ),
               ],
             });
             break;
@@ -78,7 +94,7 @@ export default {
               embeds: [
                 sendErrorFeedback(
                   interaction.commandName,
-                  'Invalid emoji name specified in `name`. Name must be alphanumerical only and 2 to 32 characters in length. Please try again.',
+                  'Invalid emoji name specified in `name`. Name must be alphanumerical only and 2 to 32 characters in length. Please try again.'
                 ),
               ],
             });
@@ -88,7 +104,7 @@ export default {
               embeds: [
                 sendErrorFeedback(
                   interaction.commandName,
-                  'Invalid emoji name specified in `name`. Name must be alphanumerical only and 2 to 32 characters in length. Please try again.',
+                  'Invalid emoji name specified in `name`. Name must be alphanumerical only and 2 to 32 characters in length. Please try again.'
                 ),
               ],
             });
@@ -98,7 +114,7 @@ export default {
               embeds: [
                 sendErrorFeedback(
                   interaction.commandName,
-                  'Invalid emoji name specified in `name`. Name must be alphanumerical only and 2 to 32 characters in length. Please try again.',
+                  'Invalid emoji name specified in `name`. Name must be alphanumerical only and 2 to 32 characters in length. Please try again.'
                 ),
               ],
             });
@@ -108,8 +124,11 @@ export default {
             break;
           default:
             console.error(
-              `**Command:**\n${interaction.commandName}\n**Error Message:**\n${error.message
-              }\n**Raw Input:**\n${interaction.options.getString('emoji')}\n${interaction.options.getString('name')}`,
+              `**Command:**\n${interaction.commandName}\n**Error Message:**\n${
+                error.message
+              }\n**Raw Input:**\n${interaction.options.getString(
+                'emoji'
+              )}\n${interaction.options.getString('name')}`
             );
             return await interaction.editReply({
               embeds: [sendErrorFeedback(interaction.commandName)],

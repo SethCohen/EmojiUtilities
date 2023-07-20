@@ -6,14 +6,21 @@ export default {
   data: new SlashCommandBuilder()
     .setName('removeunused')
     .setDescription('Removes one or more of the least used emojis')
-    .addIntegerOption((option) => option.setName('number').setDescription('How many emojis to remove. Default: 1')),
+    .addIntegerOption((option) =>
+      option.setName('number').setDescription('How many emojis to remove. Default: 1')
+    ),
   async execute(interactionCommand) {
     await interactionCommand.deferReply();
 
     try {
-      if (!interactionCommand.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+      if (
+        !interactionCommand.member.permissions.has(
+          PermissionsBitField.Flags.ManageEmojisAndStickers
+        )
+      ) {
         return interactionCommand.reply({
-          content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+          content:
+            'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
           ephemeral: true,
         });
       }
@@ -21,14 +28,20 @@ export default {
       const number = interactionCommand.options.getInteger('number')
         ? interactionCommand.options.getInteger('number')
         : 1;
-      const occurrences = await getDisplayStats(interactionCommand.client.db, interactionCommand.guild.id, '0');
+      const occurrences = await getDisplayStats(
+        interactionCommand.client.db,
+        interactionCommand.guild.id,
+        '0'
+      );
 
       // Gets all emojis:count in guild by descending count and splices array to just bottom n rows.
       // Essentially returns the n least-used emojis in the server.
       const toRemove = interactionCommand.guild.emojis.cache
         .map((emoji) => {
           const item = occurrences.find((row) => row.emoji === emoji.id);
-          return item ? { emoji: emoji.id, count: item['COUNT(emoji)'] } : { emoji: emoji.id, count: 0 };
+          return item
+            ? { emoji: emoji.id, count: item['COUNT(emoji)'] }
+            : { emoji: emoji.id, count: 0 };
         })
         .sort((a, b) => {
           return b.count - a.count;
@@ -52,7 +65,7 @@ export default {
         await i.deferUpdate();
         if (i.user.id !== interactionCommand.user.id) {
           await i.followUp({
-            content: 'You can\'t interact with this button. You are not the command author.',
+            content: "You can't interact with this button. You are not the command author.",
             ephemeral: true,
           });
         }
@@ -62,12 +75,17 @@ export default {
         .awaitMessageComponent({ filter, time: 30000 })
         .then(async (interactionButton) => {
           if (interactionButton.customId === 'confirm') {
-            if (!interactionButton.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+            if (
+              !interactionButton.memberPermissions.has(
+                PermissionsBitField.Flags.ManageEmojisAndStickers
+              )
+            ) {
               await interactionCommand.editReply({
                 content: 'Cancelling emoji adding. Interaction author lacks permissions.',
               });
               return await interactionButton.followUp({
-                content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+                content:
+                  'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
                 ephemeral: true,
               });
             }
@@ -78,8 +96,7 @@ export default {
             return await interactionCommand.editReply({
               content: 'Emojis deleted.',
             });
-          }
-          else if (interactionButton.customId === 'cancel') {
+          } else if (interactionButton.customId === 'cancel') {
             return await interactionButton.editReply({
               content: `Emojis to remove: ${emojis}.\nCanceled.`,
             });
@@ -92,7 +109,7 @@ export default {
               break;
             case 'Unknown Emoji':
               await interactionCommand.editReply({
-                content: 'Can\'t delete emoji. Emoji not found.',
+                content: "Can't delete emoji. Emoji not found.",
               });
               break;
             case 'Collector received no interactions before ending with reason: time':
@@ -102,8 +119,9 @@ export default {
               break;
             default:
               console.error(
-                `**Command:**\n${interactionCommand.commandName}\n**Error Message:**\n${error.message
-                }\n**Raw Input:**\n${interactionCommand.options.getInteger('number')}`,
+                `**Command:**\n${interactionCommand.commandName}\n**Error Message:**\n${
+                  error.message
+                }\n**Raw Input:**\n${interactionCommand.options.getInteger('number')}`
               );
           }
         })
@@ -112,23 +130,23 @@ export default {
             components: [confirmationButtons(false)],
           });
         });
-    }
-    catch (error) {
+    } catch (error) {
       switch (error.message) {
         case 'Invalid Form Body\ncontent[BASE_TYPE_MAX_LENGTH]: Must be 2000 or fewer in length.':
           await interactionCommand.editReply({
             embeds: [
               sendErrorFeedback(
                 interactionCommand.commandName,
-                'Too many emojis specified in `number` field to delete.\nPlease try again with a smaller number.',
+                'Too many emojis specified in `number` field to delete.\nPlease try again with a smaller number.'
               ),
             ],
           });
           break;
         default:
           console.error(
-            `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message
-            }\nRaw Input:\n${interactionCommand.options.getInteger('number')}`,
+            `Command:\n${interactionCommand.commandName}\nError Message:\n${
+              error.message
+            }\nRaw Input:\n${interactionCommand.options.getInteger('number')}`
           );
           return await interactionCommand.editReply({
             embeds: [sendErrorFeedback(interactionCommand.commandName)],

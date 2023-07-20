@@ -13,3 +13,5 @@ src/commands/test.py
 src/helpers/dbModel.js
 temps/
 jsconfig.json
+fluentd.conf
+.vscode/

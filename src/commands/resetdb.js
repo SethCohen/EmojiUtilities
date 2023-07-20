@@ -3,20 +3,23 @@ import { confirmationButtons, sendErrorFeedback } from '../helpers/utilities.js'
 import { resetDb } from '../helpers/mongodbModel.js';
 
 export default {
-  data: new SlashCommandBuilder().setName('resetdb').setDescription('Clears your server\'s databases.'),
+  data: new SlashCommandBuilder()
+    .setName('resetdb')
+    .setDescription("Clears your server's databases."),
   async execute(interactionCommand) {
     await interactionCommand.deferReply({ ephemeral: true });
 
     if (!interactionCommand.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       return interactionCommand.reply({
-        content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
+        content:
+          'You do not have enough permissions to use this command.\nRequires **Administrator**.',
         ephemeral: true,
       });
     }
 
     await interactionCommand.editReply({
       content:
-        'Are you sure you want to reset your server\'s database?\nThis is a permanent decision. There is no undoing this action.',
+        "Are you sure you want to reset your server's database?\nThis is a permanent decision. There is no undoing this action.",
       components: [confirmationButtons(true)],
     });
 
@@ -26,7 +29,7 @@ export default {
       await i.deferUpdate();
       if (i.user.id !== interactionCommand.user.id) {
         await i.followUp({
-          content: 'You can\'t interact with this button. You are not the command author.',
+          content: "You can't interact with this button. You are not the command author.",
           ephemeral: true,
         });
       }
@@ -41,8 +44,7 @@ export default {
             content: 'Database reset!',
             ephemeral: true,
           });
-        }
-        else if (interactionButton.customId === 'cancel') {
+        } else if (interactionButton.customId === 'cancel') {
           await interactionButton.followUp({
             content: 'Canceled reset.',
             ephemeral: true,
@@ -60,7 +62,9 @@ export default {
             });
             break;
           default:
-            console.error(`Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`);
+            console.error(
+              `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`
+            );
             return await interactionCommand.followUp({
               embeds: [sendErrorFeedback(interactionCommand.commandName)],
             });

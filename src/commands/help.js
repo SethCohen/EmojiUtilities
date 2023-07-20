@@ -12,7 +12,7 @@ export default {
       .setTitle('Help')
       .setDescription(
         mediaLinks +
-        ' | [FAQ](https://github.com/SethCohen/EmojiUtilities/wiki#frequently-asked-questions) | [List of Supported Commands](https://github.com/SethCohen/EmojiUtilities/wiki)',
+          ' | [FAQ](https://github.com/SethCohen/EmojiUtilities/wiki#frequently-asked-questions) | [List of Supported Commands](https://github.com/SethCohen/EmojiUtilities/wiki)'
       );
 
     return interaction.editReply({ embeds: [embed] });

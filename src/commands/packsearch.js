@@ -25,7 +25,7 @@ export default {
     .setName('packsearch')
     .setDescription('Searches for an emoji pack from emoji.gg')
     .addStringOption((option) =>
-      option.setName('name').setDescription('Name of the pack to search for.').setRequired(true),
+      option.setName('name').setDescription('Name of the pack to search for.').setRequired(true)
     ),
   async execute(interactionCommand) {
     await interactionCommand.deferReply();
@@ -37,7 +37,7 @@ export default {
       name,
       data.map((json) => {
         return json.name;
-      }),
+      })
     );
 
     const slug = data[match.bestMatchIndex].slug;
@@ -64,9 +64,14 @@ export default {
             components: [navigationButtons(true), confirmationButtons(false)],
           });
 
-          if (!interactionButton.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+          if (
+            !interactionButton.memberPermissions.has(
+              PermissionsBitField.Flags.ManageEmojisAndStickers
+            )
+          ) {
             return interactionCommand.editReply({
-              content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+              content:
+                'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
               ephemeral: true,
             });
           }
@@ -85,7 +90,12 @@ export default {
               switch (error.message) {
                 case 'Maximum number of emojis reached (50)':
                   interactionCommand.followUp({
-                    embeds: [sendErrorFeedback(interactionCommand.commandName, 'No emoji slots available in server.')],
+                    embeds: [
+                      sendErrorFeedback(
+                        interactionCommand.commandName,
+                        'No emoji slots available in server.'
+                      ),
+                    ],
                   });
                   break;
                 case 'Invalid Form Body\nimage: File cannot be larger than 256.0 kb.':
@@ -93,7 +103,7 @@ export default {
                     embeds: [
                       sendErrorFeedback(
                         interactionCommand.commandName,
-                        'For some reason, even though this image is on emoji.gg, it\'s over 256kb and thus cannot be uploaded to the server.',
+                        "For some reason, even though this image is on emoji.gg, it's over 256kb and thus cannot be uploaded to the server."
                       ),
                     ],
                   });
@@ -103,61 +113,56 @@ export default {
                     embeds: [
                       sendErrorFeedback(
                         interactionCommand.commandName,
-                        'For some reason, even though this image is on emoji.gg, it\'s over 256kb and thus cannot be uploaded to the server.',
+                        "For some reason, even though this image is on emoji.gg, it's over 256kb and thus cannot be uploaded to the server."
                       ),
                     ],
                   });
                   break;
                 default:
                   console.error(
-                    `**Command:**\n${interactionCommand.commandName}\n**Error Message:**\n${error.message
-                    }\n**Raw Input:**\n${interactionCommand.options.getString('name')}`,
+                    `**Command:**\n${interactionCommand.commandName}\n**Error Message:**\n${
+                      error.message
+                    }\n**Raw Input:**\n${interactionCommand.options.getString('name')}`
                   );
                   return interactionCommand.followUp({
                     embeds: [sendErrorFeedback(interactionCommand.commandName)],
                   });
               }
             });
-        }
-        else if (interactionButton.customId === 'cancel') {
+        } else if (interactionButton.customId === 'cancel') {
           await interactionButton.update({
             embeds: [pages[currentPageIndex]],
             components: [navigationButtons(false), confirmationButtons(false)],
           });
           return interactionCommand.editReply({ content: 'Canceled.' });
-        }
-        else if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
+        } else if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
           ++currentPageIndex;
           await interactionButton.update({
             embeds: [pages[currentPageIndex]],
             components: [navigationButtons(true), confirmationButtons(true)],
           });
-        }
-        else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
+        } else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
           --currentPageIndex;
           await interactionButton.update({
             embeds: [pages[currentPageIndex]],
             components: [navigationButtons(true), confirmationButtons(true)],
           });
-        }
-        else if (currentPageIndex === 0) {
+        } else if (currentPageIndex === 0) {
           currentPageIndex = pages.length - 1;
           await interactionButton.update({
             embeds: [pages[currentPageIndex]],
             components: [navigationButtons(true), confirmationButtons(true)],
           });
-        }
-        else if (currentPageIndex === pages.length - 1) {
+        } else if (currentPageIndex === pages.length - 1) {
           currentPageIndex = 0;
           await interactionButton.update({
             embeds: [pages[currentPageIndex]],
             components: [navigationButtons(true), confirmationButtons(true)],
           });
         }
-      }
-      else {
+      } else {
         await interactionButton.reply({
-          content: 'You can\'t interact with this button. You are not the command author.',
+          content: "You can't interact with this button. You are not the command author.",
           ephemeral: true,
         });
       }
@@ -169,16 +174,16 @@ export default {
           content: 'Command timed out.',
           components: [navigationButtons(false), confirmationButtons(false)],
         });
-      }
-      catch (error) {
+      } catch (error) {
         switch (error.message) {
           case 'Unknown Message':
             // Ignore unknown interactions (Often caused from deleted interactions).
             break;
           default:
             console.error(
-              `**Command:**\n${interactionCommand.commandName}\n**Error Message:**\n${error.message
-              }\n**Raw Input:**\n${interactionCommand.options.getString('name')}`,
+              `**Command:**\n${interactionCommand.commandName}\n**Error Message:**\n${
+                error.message
+              }\n**Raw Input:**\n${interactionCommand.options.getString('name')}`
             );
         }
       }

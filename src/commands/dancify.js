@@ -10,12 +10,13 @@ const dancifyText = async (text, interaction) => {
   for (const char of text) {
     if (/[a-zA-Z0-9]/.test(char)) {
       // Get dancing letter emojis from EmojiUtilities support server
-      const foundEmoji = await guild.emojis.cache.find((emoji) => emoji.name === char.toLowerCase() + '_');
+      const foundEmoji = await guild.emojis.cache.find(
+        (emoji) => emoji.name === char.toLowerCase() + '_'
+      );
       if (foundEmoji) {
         result += foundEmoji.toString();
       }
-    }
-    else if (char === ' ') {
+    } else if (char === ' ') {
       result += '    ';
     }
   }
@@ -26,7 +27,9 @@ export default {
   data: new SlashCommandBuilder()
     .setName('dancify')
     .setDescription('Turns an input into a dancing text.')
-    .addStringOption((option) => option.setName('text').setDescription('The text to dancify.').setRequired(true)),
+    .addStringOption((option) =>
+      option.setName('text').setDescription('The text to dancify.').setRequired(true)
+    ),
   async execute(interaction) {
     await interaction.deferReply();
 
@@ -40,15 +43,14 @@ export default {
       return await interaction.editReply({
         content: await dancifyText(text, interaction),
       });
-    }
-    catch (error) {
+    } catch (error) {
       switch (error.message) {
         case 'Invalid Form Body\ndata.content: Must be 2000 or fewer in length.':
           await interaction.editReply({
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                '`text` must be less than 80 characters.\nIf you\'re wondering why so low, visit the support server and check the FAQ section in #important-info',
+                "`text` must be less than 80 characters.\nIf you're wondering why so low, visit the support server and check the FAQ section in #important-info"
               ),
             ],
           });
@@ -58,7 +60,7 @@ export default {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                '`text` must be less than 80 characters.\nIf you\'re wondering why so low, visit the support server and check the FAQ section in #important-info',
+                "`text` must be less than 80 characters.\nIf you're wondering why so low, visit the support server and check the FAQ section in #important-info"
               ),
             ],
           });
@@ -68,15 +70,16 @@ export default {
             embeds: [
               sendErrorFeedback(
                 interaction.commandName,
-                '`text` must contain at least one or more alphanumerical character.\nSpecial characters and unicodes inputs are ignored.',
+                '`text` must contain at least one or more alphanumerical character.\nSpecial characters and unicodes inputs are ignored.'
               ),
             ],
           });
           break;
         default:
           console.error(
-            `Command:\n${interaction.commandName}\nError Message:\n${error.message
-            }\nRaw Input:\n${interaction.options.getString('text')}`,
+            `Command:\n${interaction.commandName}\nError Message:\n${
+              error.message
+            }\nRaw Input:\n${interaction.options.getString('text')}`
           );
           return await interaction.editReply({
             embeds: [sendErrorFeedback(interaction.commandName)],
