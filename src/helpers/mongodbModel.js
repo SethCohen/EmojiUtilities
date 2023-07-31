@@ -111,23 +111,12 @@ async function getGetCount(db, guildId, userId, dateTime) {
 }
 
 async function setSetting(db, guildId, setting, flag) {
-  try {
     const guildsCollection = db.collection('guilds');
 
-    const updateResult = await guildsCollection.updateOne(
+    await guildsCollection.updateOne(
       { _id: guildId },
       { $set: { [`settings.${setting}`]: flag } }
     );
-
-    if (updateResult.modifiedCount > 0) {
-      return 'Setting set.';
-    } else {
-      throw new Error('Setting not found or no update needed.');
-    }
-  } catch (e) {
-    console.error('Error while setting setting:', e);
-    throw e;
-  }
 }
 
 async function getDisplayStats(db, guildId, dateTime, userId = null) {
