@@ -7,3 +7,17 @@ services:
     env_file:
       - .env
     image: sethcohendev/emojiutilities:latest
+    depends_on:
+      - mongodb
+    links:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
