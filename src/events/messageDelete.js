@@ -65,7 +65,7 @@ async function processEmojis(message, guildInfo) {
 }
 
 async function processMessageDelete(message) {
-  const guildInfo = await getGuildInfo(message.client.db, message.guildId);
+  const guildInfo = await getGuildInfo(message.client.db, message.guild);
   await processEmojis(message, guildInfo);
 }
 

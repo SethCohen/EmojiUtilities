@@ -20,7 +20,7 @@ export default {
         : false;
       const guildInfo = await getGuildInfo(
         interactionCommand.client.db,
-        interactionCommand.guildId
+        interactionCommand.guild
       );
 
       let data;

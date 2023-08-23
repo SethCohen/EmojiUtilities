@@ -4,7 +4,7 @@ import { getUserOpt, shouldProcessReaction } from '../helpers/utilities.js';
 import { deleteEmojiRecords, getGuildInfo, insertGuild } from '../helpers/mongodbModel.js';
 
 async function processMessageReactionRemoveAll(message, reactions) {
-  const guildInfo = await getGuildInfo(message.client.db, message.guildId);
+  const guildInfo = await getGuildInfo(message.client.db, message.guild);
   const messageUserOpt = await getUserOpt(guildInfo, message.author.id);
 
   for (const reaction of reactions.values()) {

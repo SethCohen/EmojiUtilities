@@ -32,7 +32,7 @@ async function processEmojis(message) {
 }
 
 async function processMessageCreate(message) {
-  const guildInfo = await getGuildInfo(message.client.db, message.guildId);
+  const guildInfo = await getGuildInfo(message.client.db, message.guild);
   const userOpt = await getUserOpt(guildInfo, message.author.id);
 
   if (shouldProcessMessage(message, guildInfo, userOpt)) {

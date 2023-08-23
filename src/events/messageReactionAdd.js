@@ -30,7 +30,7 @@ async function processReaction(messageReaction, userId, tag) {
 async function processMessageReactionAdd(messageReaction, user) {
   await fetchReactionPartials(messageReaction);
 
-  const guildInfo = await getGuildInfo(messageReaction.client.db, messageReaction.message.guildId);
+  const guildInfo = await getGuildInfo(messageReaction.client.db, messageReaction.message.guild);
   const reactionAuthorId = user.id;
   const messageAuthorId = messageReaction.message.author.id;
 

@@ -15,9 +15,9 @@ async function insertGuild(db, guild) {
     };
 
     await guildSettingsCollection.insertOne(newGuild);
-    console.log(`New guild {${guild.id}, ${guild.name}}inserted.`);
+    console.log(`New guild {${guild.id}, ${guild.name}} inserted.`);
   } catch (error) {
-    console.error('Error inserting guild:', error);
+    if (!error.message.toString().includes('MongoServerError: E11000 duplicate key error')) console.error('Error inserting guild:', error);
   }
 }
 
@@ -58,8 +58,13 @@ const getEmojiTotalCount = async (db, guildId, emojiId) => {
   }
 };
 
-async function getGuildInfo(db, guildId) {
-  return await db.collection('guilds').findOne({ _id: guildId });
+async function getGuildInfo(db, guild) {
+  const guildInfo = await db.collection('guilds').findOne({ _id: guild.id });
+  if (guildInfo === null) {
+    console.log(guildInfo)
+    await insertGuild(db, guild);
+  }
+  return guildInfo;
 }
 
 async function getGetCount(db, guildId, userId, dateTime) {

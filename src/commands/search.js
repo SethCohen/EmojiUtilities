@@ -54,7 +54,7 @@ export default {
       const category = interactionCommand.options.getInteger('category');
       const guildInfo = await getGuildInfo(
         interactionCommand.client.db,
-        interactionCommand.guildId
+        interactionCommand.guild
       );
 
       let data;
