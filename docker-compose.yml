@@ -1,9 +1,13 @@
-version: '3.9'
+version: '3.8'
 services:
   emojiutilities:
     build:
       context: .
       dockerfile: Dockerfile
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
     env_file:
       - .env
     image: sethcohendev/emojiutilities:latest
@@ -16,6 +20,8 @@ services:
     image: mongo:latest
     ports:
       - "27017:27017"
+    env_file:
+      - .env
     volumes:
       - mongodb_data:/data/db
 
