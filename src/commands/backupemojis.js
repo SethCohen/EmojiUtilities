@@ -1,44 +1,62 @@
 import fs from 'fs';
-import axios from 'axios';
 import archiver from 'archiver';
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { DataResolver, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import imageType from 'image-type';
 import { mediaLinks } from '../helpers/constants.js';
 
 const createZip = async (interaction) => {
   const dir = './temps';
+
+  // Create temp directory if it doesn't exist
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
-  const dirPath = `${dir}/${interaction.guildId}_emojis`;
-  const output = fs.createWriteStream(dirPath + '.zip');
+
+  // Create a output path for the server's emojis
+  const output = fs.createWriteStream(`${dir}/${interaction.guildId}_emojis.zip`);
+
+  // Create a new archive
   const archive = archiver('zip', {
     zlib: { level: 9 },
   });
 
   output.on('close', function () {
-    // console.log(archive.pointer() + ' total bytes');
-    // console.log('Archiver has been finalized and the output file descriptor has closed.');
+    console.log(archive.pointer() + ' total bytes');
+    console.log('archiver has been finalized and the output file descriptor has closed.');
   });
+
+  output.on('end', function () {
+    console.log('Data has been drained');
+  });
+
+  archive.on('warning', function (err) {
+    if (err.code === 'ENOENT') {
+      console.log(err)
+    } else {
+      throw err;
+    }
+  });
+
   archive.on('error', function (err) {
     throw err;
   });
 
   archive.pipe(output);
+
   const emojis = await interaction.guild.emojis.fetch();
-  for await (const emoji of emojis) {
-    const imageType = emoji[1].url.slice(-4);
-    const fileName = emoji[1].name;
+  for (const emoji of emojis.values()) {
+    const buffer = await DataResolver.resolveFile(emoji.url)
 
-    const response = await axios.get(emoji[1].url, {
-      responseType: 'arraybuffer',
-    });
-    const buffer = Buffer.from(response.data, 'utf-8');
+    const filetype = await imageType(buffer.data);
+    const fileName = emoji.name;
+    const filepath = `${fileName}.${filetype.ext}`;
 
-    archive.append(buffer, { name: fileName + imageType });
+    archive.append(buffer.data, { name: filepath });
   }
+
   await archive.finalize();
 
-  return dirPath + '.zip';
+  return `${dir}/${interaction.guildId}_emojis.zip`;
 };
 
 const deleteZip = (zipPath) => {
@@ -68,6 +86,6 @@ export default {
       files: [zipPath],
     });
 
-    await deleteZip(zipPath);
+    deleteZip(zipPath);
   },
 };
