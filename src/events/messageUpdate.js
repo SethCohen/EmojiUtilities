@@ -43,6 +43,8 @@ async function processEmojis(message, action) {
 }
 
 async function processMessageUpdate(oldMessage, newMessage) {
+  if(newMessage.partial) await newMessage.fetch();
+
   const guildInfo = await getGuildInfo(newMessage.client.db, newMessage.guild);
   const userOpt = await getUserOpt(guildInfo, newMessage.author.id);
 
