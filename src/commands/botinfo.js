@@ -1,16 +1,12 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import ms from 'ms';
 import { sendErrorFeedback } from '../helpers/utilities.js';
-import { getGetCount } from '../helpers/mongodbModel.js';
 import { mediaLinks } from '../helpers/constants.js';
 
 const getAllGuildsEmojiCount = async (interaction) => {
-  let totalEmojiCount = 0;
-  const guilds = await interaction.client.guilds.cache.values();
-  for await (const guild of guilds) {
-    totalEmojiCount += await getGetCount(interaction.client.db, guild.id, null, 0);
-  }
-  return totalEmojiCount;
+  const emojiRecordsCollection = interaction.client.db.collection('emoji_records');
+  const totalCount = await emojiRecordsCollection.countDocuments();
+  return totalCount;
 };
 
 export default {
