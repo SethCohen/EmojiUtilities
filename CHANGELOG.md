@@ -1,4 +1,34 @@
 # Changelog
+## [1.23.5](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.4...v1.23.5) (2023-09-01)
+
+
+### Bug Fixes
+
+* **backupemojis:** fixed archiving failing ([d6d32f9](https://github.com/SethCohen/EmojiUtilities/commit/d6d32f971f3101aa2b71fc60503c20151d53ca03))
+* **config:** fixed error on no update needed ([2b49897](https://github.com/SethCohen/EmojiUtilities/commit/2b498978d9ea1c80d8938004046f332809a50e44))
+* fixed null guild info requests ([804d48b](https://github.com/SethCohen/EmojiUtilities/commit/804d48bf1bb8a227c43c11478558b65819a460de))
+* **messageUpdate:** fixed error on partial newMessages ([8a86039](https://github.com/SethCohen/EmojiUtilities/commit/8a860394a6e927bc578d819e7cd6a88e5e2ca44f))
+* **stickerfy:** fixed gif2apng not detected error ([b056003](https://github.com/SethCohen/EmojiUtilities/commit/b056003c9341d86d682dbc689e9ebdff7bc44e49))
+
+
+### Styles
+
+* **ready:** bot logs guilds count on load ([2e5652b](https://github.com/SethCohen/EmojiUtilities/commit/2e5652b1a5a4b25222ee1325169e5ad7a1f848bd))
+
+
+### Miscellaneous
+
+* reorder Dockerfile ([#21](https://github.com/SethCohen/EmojiUtilities/issues/21)) ([da485e2](https://github.com/SethCohen/EmojiUtilities/commit/da485e252ee2384ef5a3321834f3ca15fa0e08a8))
+* updated dependencies ([e9d660c](https://github.com/SethCohen/EmojiUtilities/commit/e9d660c27311ab1f4a3917cb7104bbc5b95c52ee))
+* updated dependencies ([e82e9a9](https://github.com/SethCohen/EmojiUtilities/commit/e82e9a9f697d4b02c9de053e05a7e802474990db))
+* updated docker compose ([68d75c0](https://github.com/SethCohen/EmojiUtilities/commit/68d75c03f67cb0910b23002e396f50d757d18feb))
+* updated docker-compose ([67a45c7](https://github.com/SethCohen/EmojiUtilities/commit/67a45c76f5793479ca74ed879720027a3d0aafb2))
+
+
+### Code Refactoring
+
+* **botinfo:** optimized db calls for emoji usages recorded ([4201d33](https://github.com/SethCohen/EmojiUtilities/commit/4201d33879096cbc7107002d1723fc1c2876c711))
+
 ## [1.23.4](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.3...v1.23.4) (2023-05-02)
 
 
