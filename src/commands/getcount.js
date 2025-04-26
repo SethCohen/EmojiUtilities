@@ -7,66 +7,42 @@ export default {
   data: new SlashCommandBuilder()
     .setName('getcount')
     .setDescription('Displays the total emote usage to chat.')
-    .addUserOption((option) =>
-      option.setName('user').setDescription('The user to get total emote usage stats for.')
+    .addUserOption(option =>
+      option.setName('user')
+        .setDescription('The user to get total emote usage stats for.')
     ),
+
   async execute(interaction) {
     await interaction.deferReply();
 
     try {
       const user = interaction.options.getUser('user');
+      const userId = user?.id;
 
-      const yearly = new Date();
+      const now = new Date();
+      const yearly = new Date(now);
       yearly.setDate(yearly.getDate() - 365);
-      const monthly = new Date();
+      const monthly = new Date(now);
       monthly.setMonth(monthly.getMonth() - 1);
-      const weekly = new Date();
+      const weekly = new Date(now);
       weekly.setDate(weekly.getDate() - 7);
-      const daily = new Date();
+      const daily = new Date(now);
       daily.setDate(daily.getDate() - 1);
-      const hourly = new Date();
+      const hourly = new Date(now);
       hourly.setHours(hourly.getHours() - 1);
 
-      const alltimeCount = await getGetCount(
-        interaction.client.db,
-        interaction.guild.id,
-        user ? user.id : user,
-        '0'
-      );
-      const yearlyCount = await getGetCount(
-        interaction.client.db,
-        interaction.guild.id,
-        user ? user.id : user,
-        yearly.toISOString()
-      );
-      const monthlyCount = await getGetCount(
-        interaction.client.db,
-        interaction.guild.id,
-        user ? user.id : user,
-        monthly.toISOString()
-      );
-      const weeklyCount = await getGetCount(
-        interaction.client.db,
-        interaction.guild.id,
-        user ? user.id : user,
-        weekly.toISOString()
-      );
-      const dailyCount = await getGetCount(
-        interaction.client.db,
-        interaction.guild.id,
-        user ? user.id : user,
-        daily.toISOString()
-      );
-      const hourlyCount = await getGetCount(
-        interaction.client.db,
-        interaction.guild.id,
-        user ? user.id : user,
-        daily.toISOString()
-      );
+      const [alltimeCount, yearlyCount, monthlyCount, weeklyCount, dailyCount, hourlyCount] = await Promise.all([
+        getGetCount(interaction.client.db, interaction.guild.id, userId, '0'),
+        getGetCount(interaction.client.db, interaction.guild.id, userId, yearly.toISOString()),
+        getGetCount(interaction.client.db, interaction.guild.id, userId, monthly.toISOString()),
+        getGetCount(interaction.client.db, interaction.guild.id, userId, weekly.toISOString()),
+        getGetCount(interaction.client.db, interaction.guild.id, userId, daily.toISOString()),
+        getGetCount(interaction.client.db, interaction.guild.id, userId, hourly.toISOString())
+      ]);
 
-      const embedSuccess = new EmbedBuilder()
-        .setDescription(mediaLinks)
+      const embed = new EmbedBuilder()
         .setTitle(`${user ? user.username : 'Server'}'s Total Count Statistics`)
+        .setDescription(mediaLinks)
         .addFields(
           { name: 'All-Time', value: alltimeCount.toString(), inline: true },
           { name: 'Yearly', value: yearlyCount.toString(), inline: true },
@@ -75,20 +51,15 @@ export default {
           { name: 'Daily', value: dailyCount.toString(), inline: true },
           { name: 'Hourly', value: hourlyCount.toString(), inline: true }
         )
-        .setThumbnail(`${user ? user.displayAvatarURL() : interaction.guild.iconURL()}`);
-      return interaction.editReply({ embeds: [embedSuccess] });
+        .setThumbnail(user?.displayAvatarURL() || interaction.guild.iconURL());
+
+      await interaction.editReply({ embeds: [embed] });
+
     } catch (error) {
-      switch (error.message) {
-        default:
-          console.error(
-            `Command:\n${interaction.commandName}\nError Message:\n${
-              error.message
-            }\nRaw Input:\n${interaction.options.getString('emoji')}`
-          );
-          return await interaction.editReply({
-            embeds: [sendErrorFeedback(interaction.commandName)],
-          });
-      }
+      console.error(`Command:\n${interaction.commandName}\nError:\n${error.stack}`);
+      await interaction.editReply({
+        embeds: [sendErrorFeedback(interaction.commandName)],
+      });
     }
   },
 };
