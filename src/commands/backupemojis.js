@@ -1,69 +1,60 @@
-import fs from 'fs';
+import { promises as fsPromises, existsSync, mkdirSync, createWriteStream } from 'fs';
 import archiver from 'archiver';
-import { DataResolver, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import discord from 'discord.js';
+const { DataResolver, EmbedBuilder, SlashCommandBuilder } = discord;
 import imageType from 'image-type';
 import { mediaLinks } from '../helpers/constants.js';
 
-const createZip = async (interaction) => {
+const ensureTempDir = () => {
   const dir = './temps';
-
-  // Create temp directory if it doesn't exist
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
+  if (!existsSync(dir)) {
+    mkdirSync(dir);
   }
+  return dir;
+};
 
-  // Create a output path for the server's emojis
-  const output = fs.createWriteStream(`${dir}/${interaction.guildId}_emojis.zip`);
-
-  // Create a new archive
-  const archive = archiver('zip', {
-    zlib: { level: 9 },
-  });
-
-  output.on('close', function () {
-    console.log(archive.pointer() + ' total bytes');
-    console.log('archiver has been finalized and the output file descriptor has closed.');
-  });
-
-  output.on('end', function () {
-    console.log('Data has been drained');
-  });
-
-  archive.on('warning', function (err) {
-    if (err.code === 'ENOENT') {
-      console.log(err)
-    } else {
-      throw err;
-    }
-  });
-
-  archive.on('error', function (err) {
-    throw err;
-  });
+const createZip = async (interaction) => {
+  const dir = ensureTempDir();
+  const zipPath = `${dir}/${interaction.guildId}_emojis.zip`;
+  const output = createWriteStream(zipPath);
+  const archive = archiver('zip', { zlib: { level: 9 } });
 
   archive.pipe(output);
 
   const emojis = await interaction.guild.emojis.fetch();
-  for (const emoji of emojis.values()) {
-    const buffer = await DataResolver.resolveFile(emoji.url)
 
-    const filetype = await imageType(buffer.data);
-    const fileName = emoji.name;
-    const filepath = `${fileName}.${filetype.ext}`;
+  const emojiBuffers = await Promise.all(
+    emojis.map(async (emoji) => {
+      try {
+        const response = await fetch(emoji.imageURL());
+        const buffer = Buffer.from(await response.arrayBuffer());
+        const filetype = await imageType(buffer);
+        const filepath = `${emoji.name}.${filetype.ext}`;
+        return { buffer, filepath };
+      } catch (err) {
+        console.error(`Failed to fetch emoji ${emoji.name}:`, err);
+        return null;
+      }
+    })
+  );
 
-    archive.append(buffer.data, { name: filepath });
+  for (const entry of emojiBuffers) {
+    if (entry) {
+      archive.append(entry.buffer, { name: entry.filepath });
+    }
   }
 
   await archive.finalize();
+  await new Promise((resolve, reject) => {
+    output.on('close', resolve);
+    output.on('error', reject);
+  });
 
-  return `${dir}/${interaction.guildId}_emojis.zip`;
+  return zipPath;
 };
 
-const deleteZip = (zipPath) => {
-  fs.unlink(zipPath, (err) => {
-    if (err) throw err;
-    // console.log(`${zipPath} was deleted.`);
-  });
+const deleteZip = async (zipPath) => {
+  await fsPromises.unlink(zipPath);
 };
 
 export default {
@@ -72,20 +63,25 @@ export default {
     .setDescription('Returns a .zip of all the emojis in a server.'),
   async execute(interaction) {
     await interaction.deferReply();
+    await interaction.editReply({ content: 'Backing up server emojis...' });
 
-    await interaction.editReply({ content: 'Backing up emojis...' });
-    const zipPath = await createZip(interaction);
+    try {
+      const zipPath = await createZip(interaction);
 
-    const embedSuccess = new EmbedBuilder().setDescription(
-      `If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`,
-    );
+      const embedSuccess = new EmbedBuilder().setDescription(
+        `If you've enjoyed this bot so far, please consider sending a donation.\nIt helps keep the bot grow, and keeps things running. 🙂\n${mediaLinks}`
+      );
 
-    await interaction.editReply({
-      content: `Done. The file below contains all the emojis from **${interaction.guild.name}**.`,
-      embeds: [embedSuccess],
-      files: [zipPath],
-    });
+      await interaction.editReply({
+        content: `Backup complete! Here's your zip file containing emojis from **${interaction.guild.name}**.`,
+        embeds: [embedSuccess],
+        files: [zipPath],
+      });
 
-    deleteZip(zipPath);
+      await deleteZip(zipPath);
+    } catch (error) {
+      console.error('Failed to backup emojis:', error);
+      await interaction.editReply({ content: 'Failed to backup emojis. Please try again later.' });
+    }
   },
 };

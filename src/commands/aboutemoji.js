@@ -30,7 +30,7 @@ export default {
       const embedSuccess = new EmbedBuilder()
         .setTitle(`${emoji.name}`)
         .setDescription(mediaLinks)
-        .setThumbnail(`${emoji.url}`)
+        .setThumbnail(`${emoji.imageURL()}`)
         .addFields(
           { name: 'Author:', value: author.toString() },
           { name: 'Date Added:', value: emoji.createdAt.toString() },
