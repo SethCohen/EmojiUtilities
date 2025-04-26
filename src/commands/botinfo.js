@@ -5,46 +5,37 @@ import { mediaLinks } from '../helpers/constants.js';
 
 const getAllGuildsEmojiCount = async (interaction) => {
   const emojiRecordsCollection = interaction.client.db.collection('emoji_records');
-  const totalCount = await emojiRecordsCollection.countDocuments();
-  return totalCount;
+  return await emojiRecordsCollection.countDocuments();
+};
+
+const buildBotInfoEmbed = (client, emojiUsageCount) => {
+  return new EmbedBuilder()
+    .setTitle(client.user.username)
+    .setDescription(mediaLinks)
+    .setThumbnail(client.user.avatarURL() || client.user.defaultAvatarURL)
+    .addFields(
+      { name: 'Guilds In:', value: client.guilds.cache.size.toString(), inline: true },
+      { name: 'Current Uptime:', value: ms(client.uptime), inline: true },
+      { name: 'Bot Created:', value: client.user.createdAt.toDateString(), inline: true },
+      { name: 'Emoji Usages Recorded:', value: emojiUsageCount.toString(), inline: true }
+    );
 };
 
 export default {
-  data: new SlashCommandBuilder().setName('botinfo').setDescription('Displays info about the bot.'),
+  data: new SlashCommandBuilder()
+    .setName('botinfo')
+    .setDescription('Displays info about the bot.'),
+    
   async execute(interaction) {
     await interaction.deferReply();
-
+    
     try {
-      const guildsCount = interaction.client.guilds.cache.size;
-      const uptime = interaction.client.uptime;
-      const botCreatedDate = interaction.client.user.createdAt.toDateString();
-
-      const results = await getAllGuildsEmojiCount(interaction);
-
-      const embedSuccess = new EmbedBuilder()
-        .setTitle(`${interaction.client.user.username}`)
-        .setDescription(mediaLinks)
-        .setThumbnail(`${interaction.client.user.avatarURL()}`)
-        .addFields(
-          { name: 'Guilds In:', value: guildsCount.toString(), inline: true },
-          { name: 'Current Uptime:', value: ms(uptime), inline: true },
-          { name: 'Bot Created:', value: botCreatedDate, inline: true },
-          {
-            name: 'Emoji Usages Recorded:',
-            value: results.toString(),
-            inline: true,
-          }
-        );
-
-      return await interaction.editReply({ embeds: [embedSuccess] });
+      const emojiUsageCount = await getAllGuildsEmojiCount(interaction);
+      const embed = buildBotInfoEmbed(interaction.client, emojiUsageCount);
+      await interaction.editReply({ embeds: [embed] });
     } catch (error) {
-      switch (error.message) {
-        default:
-          console.error(`Command:\n${interaction.commandName}\nError Message:\n${error.message}`);
-          return await interaction.editReply({
-            embeds: [sendErrorFeedback(interaction.commandName)],
-          });
-      }
+      console.error(`Command:\n${interaction.commandName}\nError:\n${error.stack}`);
+      await interaction.editReply({ embeds: [sendErrorFeedback(interaction.commandName)] });
     }
   },
 };
