@@ -1,157 +1,179 @@
-import { SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } from 'discord.js';
 import { confirmationButtons, sendErrorFeedback } from '../helpers/utilities.js';
 import { getDisplayStats } from '../helpers/mongodbModel.js';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('removeunused')
-    .setDescription('Removes one or more of the least used emojis')
-    .addIntegerOption((option) =>
+    .setDescription('Removes one or more of the least used emojis.')
+    .addIntegerOption(option =>
       option.setName('number').setDescription('How many emojis to remove. Default: 1')
     ),
-  async execute(interactionCommand) {
-    await interactionCommand.deferReply();
+
+  async execute(interaction) {
+    await interaction.deferReply();
 
     try {
-      if (
-        !interactionCommand.member.permissions.has(
-          PermissionsBitField.Flags.ManageEmojisAndStickers
-        )
-      ) {
-        return interactionCommand.reply({
-          content:
-            'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+      if (!hasEmojiManagePermission(interaction.member)) {
+        return await replyNoPermission(interaction);
+      }
+
+      const number = interaction.options.getInteger('number') ?? 1;
+      const emojisToRemove = await findLeastUsedEmojis(interaction, number);
+
+      if (emojisToRemove.length === 0) {
+        return await interaction.editReply({ content: 'No removable emojis found.' });
+      }
+
+      await showEmojisToRemove(interaction, emojisToRemove);
+      await handleUserInteraction(interaction, emojisToRemove);
+
+    } catch (error) {
+      await handleExecuteError(error, interaction);
+    }
+  },
+};
+
+// --- Helper Functions ---
+
+function hasEmojiManagePermission(member) {
+  return member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers);
+}
+
+async function replyNoPermission(interaction) {
+  return interaction.reply({
+    content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+    ephemeral: true,
+  });
+}
+
+async function findLeastUsedEmojis(interaction, number) {
+  const occurrences = await getDisplayStats(interaction.client.db, interaction.guild.id, '0');
+
+  const usageList = interaction.guild.emojis.cache
+    .filter(emoji => !emoji.managed) // 🛡️ Filter out managed emojis
+    .map(emoji => {
+      const usage = occurrences.find(row => row.emoji === emoji.id);
+      return {
+        emoji,
+        count: usage ? usage['COUNT(emoji)'] : 0,
+      };
+    })
+    .sort((a, b) => b.count - a.count) // Descending: most used → least used
+    .splice(-number);                  // Take last N (least used)
+
+  return usageList.map(entry => entry.emoji);
+}
+
+async function showEmojisToRemove(interaction, emojis) {
+  const emojiList = emojis.map(e => e.toString()).join(' ');
+  await interaction.editReply({
+    content: `Emojis selected for removal: ${emojiList}`,
+    components: [confirmationButtons(true)],
+  });
+}
+
+async function handleUserInteraction(interaction, emojis) {
+  const message = await interaction.fetchReply();
+  const filter = i => {
+    if (i.user.id !== interaction.user.id) {
+      i.reply({ content: "You can't use these buttons.", ephemeral: true });
+      return false;
+    }
+    return true;
+  };
+
+  const collector = message.createMessageComponentCollector({ filter, time: 30000 });
+
+  collector.on('collect', async i => {
+    await i.deferUpdate();
+
+    if (i.customId === 'confirm') {
+      if (!hasEmojiManagePermission(i.member)) {
+        await interaction.editReply({
+          content: 'Cancelling deletion. You lack **Manage Emojis** permission.',
+          components: [confirmationButtons(false)],
+        });
+        return i.followUp({
+          content: 'You need **Manage Emojis** permission to delete emojis.',
           ephemeral: true,
         });
       }
 
-      const number = interactionCommand.options.getInteger('number')
-        ? interactionCommand.options.getInteger('number')
-        : 1;
-      const occurrences = await getDisplayStats(
-        interactionCommand.client.db,
-        interactionCommand.guild.id,
-        '0'
-      );
-
-      // Gets all emojis:count in guild by descending count and splices array to just bottom n rows.
-      // Essentially returns the n least-used emojis in the server.
-      const toRemove = interactionCommand.guild.emojis.cache
-        .map((emoji) => {
-          const item = occurrences.find((row) => row.emoji === emoji.id);
-          return item
-            ? { emoji: emoji.id, count: item['COUNT(emoji)'] }
-            : { emoji: emoji.id, count: 0 };
-        })
-        .sort((a, b) => {
-          return b.count - a.count;
-        })
-        .splice(-number);
-
-      // Fetches and stores Emoji objects for later removal.
-      const emojis = [];
-      for await (const key of toRemove) {
-        const emoji = await interactionCommand.guild.emojis.fetch(key.emoji);
-        emojis.push(emoji);
-      }
-      await interactionCommand.editReply({
-        content: `Emojis to remove: ${emojis}`,
-        components: [confirmationButtons(true)],
+      await interaction.editReply({
+        content: 'Deleting selected emojis...',
+        components: [confirmationButtons(false)],
       });
 
-      // Create button listeners
-      const message = await interactionCommand.fetchReply();
-      const filter = async (i) => {
-        await i.deferUpdate();
-        if (i.user.id !== interactionCommand.user.id) {
-          await i.followUp({
-            content: "You can't interact with this button. You are not the command author.",
-            ephemeral: true,
-          });
-        }
-        return i.user.id === interactionCommand.user.id;
-      };
-      message
-        .awaitMessageComponent({ filter, time: 30000 })
-        .then(async (interactionButton) => {
-          if (interactionButton.customId === 'confirm') {
-            if (
-              !interactionButton.memberPermissions.has(
-                PermissionsBitField.Flags.ManageEmojisAndStickers
-              )
-            ) {
-              await interactionCommand.editReply({
-                content: 'Cancelling emoji adding. Interaction author lacks permissions.',
-              });
-              return await interactionButton.followUp({
-                content:
-                  'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
-                ephemeral: true,
-              });
-            }
+      const results = await deleteEmojisParallel(emojis);
+      await reportDeletionResults(interaction, results);
 
-            for await (const emoji of emojis) {
-              await emoji.delete();
-            }
-            return await interactionCommand.editReply({
-              content: 'Emojis deleted.',
-            });
-          } else if (interactionButton.customId === 'cancel') {
-            return await interactionButton.editReply({
-              content: `Emojis to remove: ${emojis}.\nCanceled.`,
-            });
-          }
-        })
-        .catch(async (error) => {
-          switch (error.message) {
-            case 'Unknown Message':
-              // Ignore unknown interactions (Often caused from deleted interactions).
-              break;
-            case 'Unknown Emoji':
-              await interactionCommand.editReply({
-                content: "Can't delete emoji. Emoji not found.",
-              });
-              break;
-            case 'Collector received no interactions before ending with reason: time':
-              await interactionCommand.editReply({
-                content: 'User took too long. Interaction timed out.',
-              });
-              break;
-            default:
-              console.error(
-                `**Command:**\n${interactionCommand.commandName}\n**Error Message:**\n${
-                  error.message
-                }\n**Raw Input:**\n${interactionCommand.options.getInteger('number')}`
-              );
-          }
-        })
-        .finally(async () => {
-          await interactionCommand.editReply({
-            components: [confirmationButtons(false)],
-          });
-        });
-    } catch (error) {
-      switch (error.message) {
-        case 'Invalid Form Body\ncontent[BASE_TYPE_MAX_LENGTH]: Must be 2000 or fewer in length.':
-          await interactionCommand.editReply({
-            embeds: [
-              sendErrorFeedback(
-                interactionCommand.commandName,
-                'Too many emojis specified in `number` field to delete.\nPlease try again with a smaller number.'
-              ),
-            ],
-          });
-          break;
-        default:
-          console.error(
-            `Command:\n${interactionCommand.commandName}\nError Message:\n${
-              error.message
-            }\nRaw Input:\n${interactionCommand.options.getInteger('number')}`
-          );
-          return await interactionCommand.editReply({
-            embeds: [sendErrorFeedback(interactionCommand.commandName)],
-          });
-      }
+    } else if (i.customId === 'cancel') {
+      const emojiList = emojis.map(e => e.toString()).join(' ');
+      await interaction.editReply({
+        content: `Cancelled. Emojis selected were: ${emojiList}`,
+        components: [confirmationButtons(false)],
+      });
     }
-  },
-};
+  });
+
+  collector.on('end', async (_, reason) => {
+    if (reason === 'time') {
+      await interaction.editReply({
+        content: 'User took too long. Deletion cancelled due to timeout.',
+        components: [confirmationButtons(false)],
+      });
+    }
+  });
+}
+
+async function deleteEmojisParallel(emojis) {
+  const deletionPromises = emojis.map(emoji => {
+    if (emoji.managed) {
+      return Promise.resolve({ emoji, success: false, error: new Error('Managed emoji, skipped.') });
+    }
+    return emoji.delete()
+      .then(() => ({ emoji, success: true }))
+      .catch(error => ({ emoji, success: false, error }));
+  });
+
+  return Promise.allSettled(deletionPromises);
+}
+
+async function reportDeletionResults(interaction, results) {
+  const successes = results
+    .filter(r => r.status === 'fulfilled' && r.value.success)
+    .map(r => r.value.emoji.toString());
+
+  const failures = results
+    .filter(r => r.status === 'fulfilled' && !r.value.success)
+    .map(r => `${r.value.emoji.name} (${r.value.error.message})`);
+
+  const embed = new EmbedBuilder()
+    .setTitle('Emoji Deletion Results')
+    .setDescription([
+      successes.length > 0 ? `✅ Deleted: ${successes.join(' ')}` : '✅ No emojis deleted.',
+      failures.length > 0 ? `❌ Failed: ${failures.join(', ')}` : '',
+    ].join('\n'))
+    .setColor(successes.length > 0 ? 0x00FF00 : 0xFF0000);
+
+  await interaction.editReply({ embeds: [embed] });
+}
+
+async function handleExecuteError(error, interaction) {
+  if (error.message.includes('content[BASE_TYPE_MAX_LENGTH]')) {
+    await interaction.editReply({
+      embeds: [
+        sendErrorFeedback(
+          interaction.commandName,
+          'Too many emojis selected. Try again with a smaller number.'
+        ),
+      ],
+    });
+  } else {
+    console.error(`Command: ${interaction.commandName}\nError: ${error.message}`);
+    await interaction.editReply({
+      embeds: [sendErrorFeedback(interaction.commandName)],
+    });
+  }
+}
