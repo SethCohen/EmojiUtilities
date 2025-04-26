@@ -2,111 +2,83 @@ import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { navigationButtons, sendErrorFeedback } from '../helpers/utilities.js';
 import { getDisplayStats } from '../helpers/mongodbModel.js';
 
-const validateDateRange = (dateRange) => {
-  let dateString;
-
-  switch (dateRange) {
-    case 0:
-      // all time
-      dateString = 'All-Time';
-      dateRange = '0';
-      break;
-    case 365:
-      // yearly
-      dateString = 'Yearly';
-      dateRange = new Date();
-      dateRange.setDate(dateRange.getDate() - 365);
-      dateRange = dateRange.toISOString();
-      break;
-    case 30:
-      // monthly
-      dateString = 'Monthly';
-      dateRange = new Date();
-      dateRange.setMonth(dateRange.getMonth() - 1);
-      dateRange = dateRange.toISOString();
-      break;
-    case 7:
-      // weekly
-      dateString = 'Weekly';
-      dateRange = new Date();
-      dateRange.setDate(dateRange.getDate() - 7);
-      dateRange = dateRange.toISOString();
-      break;
-    case 1:
-      // daily
-      dateString = 'Daily';
-      dateRange = new Date();
-      dateRange.setDate(dateRange.getDate() - 1);
-      dateRange = dateRange.toISOString();
-      break;
-    case 60:
-      // hourly
-      dateString = 'Hourly';
-      dateRange = new Date();
-      dateRange.setHours(dateRange.getHours() - 1);
-      dateRange = dateRange.toISOString();
-      break;
-    default:
-      dateString = 'All-Time';
-      dateRange = '0';
+const validateDateRange = (range) => {
+  const now = new Date();
+  switch (range) {
+    case 0: return { dateString: 'All-Time', dateValue: '0' };
+    case 365: now.setDate(now.getDate() - 365); return { dateString: 'Yearly', dateValue: now.toISOString() };
+    case 30: now.setMonth(now.getMonth() - 1); return { dateString: 'Monthly', dateValue: now.toISOString() };
+    case 7: now.setDate(now.getDate() - 7); return { dateString: 'Weekly', dateValue: now.toISOString() };
+    case 1: now.setDate(now.getDate() - 1); return { dateString: 'Daily', dateValue: now.toISOString() };
+    case 60: now.setHours(now.getHours() - 1); return { dateString: 'Hourly', dateValue: now.toISOString() };
+    default: return { dateString: 'All-Time', dateValue: '0' };
   }
-
-  return { dateString, dateRange };
 };
 
 const getSortedOccurrences = (interaction, data) => {
-  return interaction.guild.emojis.cache
-    .map((emoji) => {
-      const item = data.find((row) => row.emoji === emoji.id);
-      return item ? { emoji: emoji.id, count: item.count } : { emoji: emoji.id, count: 0 };
-    })
-    .sort((a, b) => {
-      return b.count - a.count;
-    });
+  return interaction.guild.emojis.cache.map(emoji => {
+    const item = data.find(row => row.emoji === emoji.id);
+    return { emoji: emoji.id, count: item ? item.count : 0 };
+  }).sort((a, b) => b.count - a.count);
 };
 
-const getPages = async (user, date, interaction, occurrences) => {
-  // Divide occurrences into chunks
+const getPages = (user, date, interaction, occurrences) => {
   const chunkSize = 24;
   const chunks = [];
-  for (let i = 0, j = occurrences.length; i < j; i += chunkSize) {
-    const chunk = occurrences.slice(i, i + chunkSize);
-    chunks.push(chunk);
+  for (let i = 0; i < occurrences.length; i += chunkSize) {
+    chunks.push(occurrences.slice(i, i + chunkSize));
   }
 
-  // Map chunks to an embed page
   const embedPages = [];
-  let pageNumber = 1;
-  for (const chunk of chunks) {
+  chunks.forEach((chunk, index) => {
     const embed = new EmbedBuilder()
       .setTitle(`---------- ${user ? user.username : 'Server'}'s Statistics ----------`)
       .setDescription(date.dateString)
-      .setFooter({
-        text: `Page ${pageNumber++}/${chunks.length}`,
-      });
-    for await (const row of chunk) {
-      const count = row.count;
-      const emojiId = row.emoji;
-      try {
-        const emoji = await interaction.guild.emojis.fetch(emojiId);
-        embed.addFields([{ name: `${emoji}`, value: `${count}`, inline: true }]);
-      } catch (ignoreError) {
-        // Ignore empty rows
+      .setFooter({ text: `Page ${index + 1}/${chunks.length}` });
+
+    for (const row of chunk) {
+      const emoji = interaction.guild.emojis.cache.get(row.emoji);
+      if (emoji) {
+        embed.addFields({ name: `${emoji}`, value: `${row.count}`, inline: true });
       }
     }
     embedPages.push(embed);
-  }
+  });
 
   return embedPages;
+};
+
+const setupPageNavigation = (interaction, message, pages) => {
+  let currentPageIndex = 0;
+
+  const collector = message.createMessageComponentCollector({ time: 30000 });
+
+  collector.on('collect', async button => {
+    if (button.user.id !== interaction.user.id) {
+      await button.reply({ content: "You can't interact with this button.", ephemeral: true });
+      return;
+    }
+
+    if (button.customId === 'next') {
+      currentPageIndex = (currentPageIndex + 1) % pages.length;
+    } else if (button.customId === 'prev') {
+      currentPageIndex = (currentPageIndex - 1 + pages.length) % pages.length;
+    }
+
+    await button.update({ embeds: [pages[currentPageIndex]] });
+  });
+
+  collector.on('end', async () => {
+    await interaction.editReply({ components: [navigationButtons(false)] });
+  });
 };
 
 export default {
   data: new SlashCommandBuilder()
     .setName('displaystats')
     .setDescription('Displays all emote usages to chat.')
-    .addIntegerOption((option) =>
-      option
-        .setName('daterange')
+    .addIntegerOption(option =>
+      option.setName('daterange')
         .setDescription('The date range to query for.')
         .setRequired(true)
         .addChoices(
@@ -118,92 +90,47 @@ export default {
           { name: 'Hourly', value: 60 }
         )
     )
-    .addUserOption((option) =>
-      option
-        .setName('user')
-        .setDescription("The user to query for. Not specifying grabs entire server's statistics.")
+    .addUserOption(option =>
+      option.setName('user')
+        .setDescription("The user to query for. Not specifying grabs server stats.")
     ),
-  async execute(interactionCommand) {
-    await interactionCommand.deferReply();
+
+  async execute(interaction) {
+    await interaction.deferReply();
 
     try {
-      const dateRange = interactionCommand.options.getInteger('daterange');
-      const user = interactionCommand.options.getUser('user');
-      const date = validateDateRange(dateRange);
-      const data = user
-        ? await getDisplayStats(
-            interactionCommand.client.db,
-            interactionCommand.guild.id,
-            date.dateRange,
-            user.id
-          )
-        : await getDisplayStats(
-            interactionCommand.client.db,
-            interactionCommand.guild.id,
-            date.dateRange
-          );
+      const range = interaction.options.getInteger('daterange');
+      const user = interaction.options.getUser('user');
+      const { dateString, dateValue } = validateDateRange(range);
 
-      const occurrences = getSortedOccurrences(interactionCommand, data);
+      const data = await getDisplayStats(
+        interaction.client.db,
+        interaction.guild.id,
+        dateValue,
+        user?.id
+      );
 
-      // Display output
-      const pages = await getPages(user, date, interactionCommand, occurrences);
-      let currentPageIndex = 0;
-      if (pages.length) {
-        await interactionCommand.editReply({
-          embeds: [pages[currentPageIndex]],
-          components: [navigationButtons(true)],
-        });
-      } else {
-        await interactionCommand.editReply({
-          content: "Sorry, there's no info to display!",
-        });
+      const occurrences = getSortedOccurrences(interaction, data);
+      const pages = getPages(user, { dateString }, interaction, occurrences);
+
+      if (!pages.length) {
+        await interaction.editReply({ content: "Sorry, there's no info to display!" });
+        return;
       }
 
-      // Get page button pressing
-      const message = await interactionCommand.fetchReply();
-      const collector = message.createMessageComponentCollector({
-        time: 30000,
+      await interaction.editReply({
+        embeds: [pages[0]],
+        components: [navigationButtons(true)],
       });
-      collector.on('collect', async (interactionButton) => {
-        if (interactionButton.member === interactionCommand.member) {
-          if (interactionButton.customId === 'next' && currentPageIndex < pages.length - 1) {
-            ++currentPageIndex;
-          } else if (interactionButton.customId === 'prev' && currentPageIndex > 0) {
-            --currentPageIndex;
-          } else if (currentPageIndex === 0) {
-            currentPageIndex = pages.length - 1;
-          } else if (currentPageIndex === pages.length - 1) {
-            currentPageIndex = 0;
-          }
-          await interactionButton.update({ embeds: [pages[currentPageIndex]] });
-        } else {
-          await interactionButton.reply({
-            content: "You can't interact with this button. You are not the command author.",
-            ephemeral: true,
-          });
-        }
-      });
-      // eslint-disable-next-line no-unused-vars
-      collector.on('end', async (collected) => {
-        await interactionCommand.editReply({
-          components: [navigationButtons(false)],
-        });
-        // console.log(`Collected ${collected.size} interactions.`);
-      });
+
+      const message = await interaction.fetchReply();
+      setupPageNavigation(interaction, message, pages);
+
     } catch (error) {
-      switch (error.message) {
-        default:
-          console.error(
-            `Command:\n${interactionCommand.commandName}\nError Message:\n${
-              error.message
-            }\nRaw Input:\n${interactionCommand.options.getInteger(
-              'daterange'
-            )}\n${interactionCommand.options.getUser('user')}`
-          );
-          return await interactionCommand.editReply({
-            embeds: [sendErrorFeedback(interactionCommand.commandName)],
-          });
-      }
+      console.error(`Command:\n${interaction.commandName}\nError:\n${error.stack}\nRaw Input:\n${interaction.options.getInteger('daterange')}\n${interaction.options.getUser('user')}`);
+      await interaction.editReply({
+        embeds: [sendErrorFeedback(interaction.commandName)],
+      });
     }
   },
 };
