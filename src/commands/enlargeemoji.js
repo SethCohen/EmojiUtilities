@@ -1,48 +1,38 @@
 import { sendErrorFeedback, verifyEmojiString } from '../helpers/utilities.js';
 import { SlashCommandBuilder } from 'discord.js';
 
-const getEmojiUrl = (emoji) => {
-  if (emoji[1]) {
-    return `https://cdn.discordapp.com/emojis/${emoji[3]}.gif`;
-  } else {
-    return `https://cdn.discordapp.com/emojis/${emoji[3]}.png`;
-  }
-};
+const getEmojiUrl = (emoji) => 
+  `https://cdn.discordapp.com/emojis/${emoji[3]}.${emoji[1] ? 'gif' : 'png'}`;
 
 export default {
   data: new SlashCommandBuilder()
     .setName('enlargeemoji')
-    .setDescription("Pastes a custom emoji's url to chat.")
-    .addStringOption((option) =>
+    .setDescription("Pastes a custom emoji's URL to chat.")
+    .addStringOption(option =>
       option.setName('emoji').setDescription('The emoji to display.').setRequired(true)
     ),
+
   async execute(interaction) {
     await interaction.deferReply();
 
-    const stringEmoji = interaction.options.getString('emoji');
-    const verifiedEmoji = verifyEmojiString(stringEmoji);
-
     try {
-      const url = getEmojiUrl(verifiedEmoji);
+      const stringEmoji = interaction.options.getString('emoji');
+      const verifiedEmoji = verifyEmojiString(stringEmoji);
 
-      return interaction.editReply({ content: `${url}` });
-    } catch (error) {
-      switch (error.message) {
-        case "Cannot read properties of null (reading '1')":
-          await interaction.editReply({
-            embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')],
-          });
-          break;
-        default:
-          console.error(
-            `Command:\n${interaction.commandName}\nError Message:\n${
-              error.message
-            }\nRaw Input:\n${interaction.options.getString('emoji')}`
-          );
-          return await interaction.editReply({
-            embeds: [sendErrorFeedback(interaction.commandName)],
-          });
+      if (!verifiedEmoji) {
+        return await interaction.editReply({
+          embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')],
+        });
       }
+
+      const url = getEmojiUrl(verifiedEmoji);
+      await interaction.editReply({ content: url });
+
+    } catch (error) {
+      console.error(`Command:\n${interaction.commandName}\nError:\n${error.stack}\nRaw Input:\n${interaction.options.getString('emoji')}`);
+      await interaction.editReply({
+        embeds: [sendErrorFeedback(interaction.commandName)],
+      });
     }
   },
 };
