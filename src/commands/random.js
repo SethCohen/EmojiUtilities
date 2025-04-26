@@ -7,180 +7,118 @@ export default {
   data: new SlashCommandBuilder()
     .setName('random')
     .setDescription('Gets a random emoji as an image.')
-    .addBooleanOption((option) =>
+    .addBooleanOption(option =>
       option.setName('includensfw').setDescription('Includes NSFW results. Default: False')
     ),
-  async execute(interactionCommand) {
-    await interactionCommand.deferReply();
+
+  async execute(interaction) {
+    await interaction.deferReply();
 
     try {
-      const response = await axios.get('https://emoji.gg/api/');
-      const nsfw = interactionCommand.options.getBoolean('includensfw')
-        ? interactionCommand.options.getBoolean('includensfw')
-        : false;
-      const guildInfo = await getGuildInfo(
-        interactionCommand.client.db,
-        interactionCommand.guild
-      );
+      const [response, guildInfo] = await Promise.all([
+        axios.get('https://emoji.gg/api/'),
+        getGuildInfo(interaction.client.db, interaction.guild)
+      ]);
 
-      let data;
-      if (nsfw) {
-        if (!interactionCommand.channel.nsfw) {
-          return await interactionCommand.editReply({
-            content: 'Sorry, but NSFW content is only allowed in NSFW channels.',
-          });
+      const nsfwRequested = interaction.options.getBoolean('includensfw') ?? false;
+      const emojis = nsfwRequested ? response.data : response.data.filter(e => e.category !== 9);
+
+      if (nsfwRequested) {
+        if (!interaction.channel.nsfw) {
+          return interaction.editReply({ content: 'NSFW content is only allowed in NSFW channels.' });
         }
         if (!guildInfo.settings.allownsfw) {
-          return await interactionCommand.editReply({
-            content: 'Sorry, but searching for NSFW is disabled in this server.',
-          });
+          return interaction.editReply({ content: 'NSFW searching is disabled on this server.' });
         }
-        data = response.data;
-      } else {
-        data = response.data.filter((json) => {
-          return json.category !== 9;
-        });
       }
 
-      const randomEmoji = data[Math.floor(Math.random() * data.length)];
+      const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
       const embed = new EmbedBuilder()
         .setTitle(randomEmoji.title)
         .setDescription('Found a random emoji. Would you like to upload it to the server?')
         .setImage(randomEmoji.image);
-      await interactionCommand.editReply({
+
+      await interaction.editReply({
         embeds: [embed],
         components: [confirmationButtons(true)],
       });
 
-      // Create button listeners
-      const message = await interactionCommand.fetchReply();
-      const filter = async (i) => {
-        await i.deferUpdate();
-        if (i.user.id !== interactionCommand.user.id) {
-          await i.followUp({
-            content: "You can't interact with this button. You are not the command author.",
-            ephemeral: true,
-          });
+      const message = await interaction.fetchReply();
+
+      const filter = i => {
+        if (i.user.id !== interaction.user.id) {
+          i.reply({ content: "You can't use these buttons.", ephemeral: true });
+          return false;
         }
-        return i.user.id === interactionCommand.user.id;
+        return true;
       };
-      message
-        .awaitMessageComponent({ filter, time: 30000 })
-        .then(async (interactionButton) => {
-          if (interactionButton.customId === 'confirm') {
-            await interactionCommand.editReply({ embeds: [embed] });
 
-            if (
-              !interactionButton.memberPermissions.has(
-                PermissionsBitField.Flags.ManageEmojisAndStickers
-              )
-            ) {
-              await interactionCommand.editReply({
-                content: 'Cancelling emoji adding. Interaction author lacks permissions.',
-              });
-              return await interactionButton.followUp({
-                content:
-                  'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
-                ephemeral: true,
-              });
-            }
+      const collector = message.createMessageComponentCollector({ filter, time: 30000 });
 
-            interactionCommand.guild.emojis
-              .create({
-                attachment: randomEmoji.image,
-                name: randomEmoji.title,
-              })
-              .then((emoji) => {
-                return interactionCommand.editReply({
-                  content: `Added ${emoji} to server!`,
-                });
-              })
-              .catch((error) => {
-                switch (error.message) {
-                  case 'Maximum number of emojis reached (50)':
-                    interactionCommand.followUp({
-                      embeds: [
-                        sendErrorFeedback(
-                          interactionCommand.commandName,
-                          'No emoji slots available in server.'
-                        ),
-                      ],
-                    });
-                    break;
-                  case 'Invalid Form Body\nimage: File cannot be larger than 256.0 kb.':
-                    interactionCommand.followUp({
-                      embeds: [
-                        sendErrorFeedback(
-                          interactionCommand.commandName,
-                          'Image filesize is too big. Cannot add to server, sorry.'
-                        ),
-                      ],
-                    });
-                    break;
-                  case 'Missing Permissions':
-                    interactionCommand.followUp({
-                      embeds: [
-                        sendErrorFeedback(
-                          interactionCommand.commandName,
-                          'Cannot add emoji to server.\nBot is missing Manage Emojis & Stickers permission.'
-                        ),
-                      ],
-                    });
-                    break;
-                  default:
-                    console.error(
-                      `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}\nRaw Input:\n${interactionCommand}`
-                    );
-                    return interactionCommand.followUp({
-                      embeds: [sendErrorFeedback(interactionCommand.commandName)],
-                    });
-                }
-              });
-          } else if (interactionButton.customId === 'cancel') {
-            return await interactionCommand.editReply({
-              content: 'Canceled.',
+      collector.on('collect', async i => {
+        await i.deferUpdate();
+
+        if (i.customId === 'confirm') {
+          if (!i.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+            await interaction.editReply({
+              content: 'Cancelling upload. You lack **Manage Emojis** permission.',
               embeds: [embed],
+              components: [confirmationButtons(false)],
             });
+            return i.followUp({ content: 'You need **Manage Emojis** permission to use this.', ephemeral: true });
           }
-        })
-        .catch(async (error) => {
-          switch (error.message) {
-            case 'Unknown Message':
-              // Ignore unknown interactions (Often caused from deleted interactions).
-              break;
-            case 'Collector received no interactions before ending with reason: time':
-              await interactionCommand.editReply({
-                content: 'User took too long. Interaction timed out.',
-                embeds: [embed],
-              });
-              break;
-            default:
-              console.error(
-                `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`
-              );
+
+          try {
+            const emoji = await interaction.guild.emojis.create({
+              attachment: randomEmoji.image,
+              name: randomEmoji.title,
+            });
+            await interaction.editReply({
+              content: `Added ${emoji} to the server!`,
+              components: [confirmationButtons(false)],
+            });
+          } catch (error) {
+            await handleEmojiCreationError(error, interaction);
           }
-        })
-        .finally(async () => {
-          await interactionCommand.editReply({
+        } else if (i.customId === 'cancel') {
+          await interaction.editReply({
+            content: 'Cancelled.',
+            embeds: [embed],
             components: [confirmationButtons(false)],
           });
-        });
-    } catch (error) {
-      switch (error.message) {
-        default:
-          console.error(
-            `Command:\n${interactionCommand.commandName}\nError Message:\n${
-              error.message
-            }\nRaw Input:\n${interactionCommand.options.getString(
-              'type'
-            )}\n${interactionCommand.options.getString(
-              'emoji'
-            )}\n${interactionCommand.options.getInteger('daterange')}`
-          );
-          return await interactionCommand.editReply({
-            embeds: [sendErrorFeedback(interactionCommand.commandName)],
+        }
+      });
+
+      collector.on('end', async (_, reason) => {
+        if (reason === 'time') {
+          await interaction.editReply({
+            content: 'User took too long. Interaction timed out.',
+            embeds: [embed],
+            components: [confirmationButtons(false)],
           });
-      }
+        }
+      });
+
+    } catch (error) {
+      console.error(`Command: ${interaction.commandName}\nError: ${error.message}`);
+      await interaction.editReply({
+        embeds: [sendErrorFeedback(interaction.commandName)],
+      });
     }
   },
 };
+
+async function handleEmojiCreationError(error, interaction) {
+  let errorMessage = 'Unknown error adding emoji.';
+  if (error.message.includes('Maximum number of emojis')) {
+    errorMessage = 'No emoji slots available on the server.';
+  } else if (error.message.includes('File cannot be larger than 256.0 kb')) {
+    errorMessage = 'Image file too large to upload.';
+  } else if (error.message.includes('Missing Permissions')) {
+    errorMessage = 'Bot is missing **Manage Emojis & Stickers** permission.';
+  }
+
+  await interaction.followUp({
+    embeds: [sendErrorFeedback(interaction.commandName, errorMessage)],
+  });
+}
