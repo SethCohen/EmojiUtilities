@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { SlashCommandBuilder, PermissionsBitField, MessageFlags } from 'discord.js';
 import { confirmationButtons, sendErrorFeedback } from '../helpers/utilities.js';
 import { resetDb } from '../helpers/mongodbModel.js';
 
@@ -6,74 +6,88 @@ export default {
   data: new SlashCommandBuilder()
     .setName('resetdb')
     .setDescription("Clears your server's databases."),
-  async execute(interactionCommand) {
-    await interactionCommand.deferReply({ ephemeral: true });
 
-    if (!interactionCommand.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-      return interactionCommand.reply({
-        content:
-          'You do not have enough permissions to use this command.\nRequires **Administrator**.',
-        ephemeral: true,
+  async execute(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+      return interaction.editReply({
+        content: 'You do not have enough permissions to use this command.\nRequires **Administrator**.',
+        flags: MessageFlags.Ephemeral,
       });
     }
 
-    await interactionCommand.editReply({
-      content:
-        "Are you sure you want to reset your server's database?\nThis is a permanent decision. There is no undoing this action.",
+    await interaction.editReply({
+      content: "Are you sure you want to reset your server's database?\nThis is a permanent decision. There is no undoing this action.",
       components: [confirmationButtons(true)],
+      flags: MessageFlags.Ephemeral,
     });
 
-    // Create button listeners
-    const message = await interactionCommand.fetchReply();
+    const message = await interaction.fetchReply();
+
     const filter = async (i) => {
+      if (i.user.id !== interaction.user.id) {
+        await i.reply({ 
+          content: "You can't interact with this button. You are not the command author.", 
+          flags: MessageFlags.Ephemeral 
+        });
+        return false;
+      }
       await i.deferUpdate();
-      if (i.user.id !== interactionCommand.user.id) {
-        await i.followUp({
-          content: "You can't interact with this button. You are not the command author.",
-          ephemeral: true,
+      return true;
+    };
+
+    try {
+      const firstInteraction = await message.awaitMessageComponent({ filter, time: 30_000 });
+
+      if (firstInteraction.customId === 'cancel') {
+        await interaction.followUp({ 
+          content: 'Canceled reset.', 
+          flags: MessageFlags.Ephemeral 
+        });
+        return await interaction.editReply({ components: [confirmationButtons(false)], flags: MessageFlags.Ephemeral });
+      }
+
+      // Step 2: Double confirmation
+      await interaction.editReply({
+        content: "⚠️ **Final Warning** ⚠️\nAre you absolutely sure you want to reset the database?\nThis cannot be undone.",
+        components: [confirmationButtons(true)],
+        flags: MessageFlags.Ephemeral,
+      });
+
+      const secondMessage = await interaction.fetchReply();
+      const secondInteraction = await secondMessage.awaitMessageComponent({ filter, time: 30_000 });
+
+      if (secondInteraction.customId === 'confirm') {
+        await resetDb(interaction.client.db, interaction.guild.id);
+        await secondInteraction.followUp({ 
+          content: '✅ Database reset!', 
+          flags: MessageFlags.Ephemeral 
+        });
+      } else if (secondInteraction.customId === 'cancel') {
+        await secondInteraction.followUp({ 
+          content: 'Canceled at final confirmation.', 
+          flags: MessageFlags.Ephemeral 
         });
       }
-      return i.user.id === interactionCommand.user.id;
-    };
-    message
-      .awaitMessageComponent({ filter, time: 30000 })
-      .then(async (interactionButton) => {
-        if (interactionButton.customId === 'confirm') {
-          await resetDb(interactionCommand.client.db, interactionCommand.guild.id);
-          await interactionButton.followUp({
-            content: 'Database reset!',
-            ephemeral: true,
-          });
-        } else if (interactionButton.customId === 'cancel') {
-          await interactionButton.followUp({
-            content: 'Canceled reset.',
-            ephemeral: true,
-          });
-        }
-      })
-      .catch(async (error) => {
-        switch (error.message) {
-          case 'Unknown Message':
-            // Ignore unknown interactions (Often caused from deleted interactions).
-            break;
-          case 'Collector received no interactions before ending with reason: time':
-            await interactionCommand.followUp({
-              content: 'User took too long. Interaction timed out.',
-            });
-            break;
-          default:
-            console.error(
-              `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`
-            );
-            return await interactionCommand.followUp({
-              embeds: [sendErrorFeedback(interactionCommand.commandName)],
-            });
-        }
-      })
-      .finally(async () => {
-        await interactionCommand.editReply({
-          components: [confirmationButtons(false)],
+    } catch (error) {
+      if (error.message === 'Collector received no interactions before ending with reason: time') {
+        await interaction.followUp({ 
+          content: 'User took too long. Interaction timed out.', 
+          flags: MessageFlags.Ephemeral 
         });
+      } else if (error.message !== 'Unknown Message') {
+        console.error(`Command: ${interaction.commandName}\nError: ${error}`);
+        await interaction.followUp({ 
+          embeds: [sendErrorFeedback(interaction.commandName)], 
+          flags: MessageFlags.Ephemeral 
+        });
+      }
+    } finally {
+      await interaction.editReply({ 
+        components: [confirmationButtons(false)],
+        flags: MessageFlags.Ephemeral,
       });
+    }
   },
 };
