@@ -2,57 +2,58 @@ import { mediaLinks } from '../helpers/constants.js';
 import { insertGuild } from '../helpers/mongodbModel.js';
 import { EmbedBuilder, ChannelType, PermissionsBitField, Events } from 'discord.js';
 
-const postToAnyChannel = async (guild, embed) => {
+const sendEmbedToChannel = async (channel, embed) => {
   try {
-    const channels = await guild.channels.cache;
-    const foundChannel = await channels.find(
-      (channel) =>
-        channel.type === ChannelType.GuildText &&
-        channel.permissionsFor(guild.members.me).has(PermissionsBitField.Flags.SendMessages) &&
-        channel.permissionsFor(guild.members.me).has(PermissionsBitField.Flags.ViewChannel),
-    );
-    if (foundChannel) {
-      foundChannel.send({ embeds: [embed] });
-    }
-    else {
-      console.error('No channel access found. Welcome message not sent.');
+    await channel.send({ embeds: [embed] });
+  } catch (error) {
+    console.error(`Failed to send embed to ${channel.name}: ${error.message}`);
+  }
+};
+
+const findFirstAccessibleTextChannel = (guild) => {
+  return guild.channels.cache.find((channel) =>
+    channel.type === ChannelType.GuildText &&
+    channel.permissionsFor(guild.members.me)?.has([
+      PermissionsBitField.Flags.ViewChannel,
+      PermissionsBitField.Flags.SendMessages,
+    ])
+  );
+};
+
+const postWelcomeEmbed = async (guild, embed) => {
+  const publicChannel = guild.publicUpdatesChannel;
+  if (publicChannel) {
+    try {
+      await sendEmbedToChannel(publicChannel, embed);
+      return;
+    } catch (error) {
+      console.error(
+        `Can't post to public updates channel in ${guild.name}: ${error.message}\nFalling back to another channel.`
+      );
     }
   }
-  catch (e) {
-    console.error(e);
+
+  const fallbackChannel = findFirstAccessibleTextChannel(guild);
+  if (fallbackChannel) {
+    await sendEmbedToChannel(fallbackChannel, embed);
+  } else {
+    console.error(`No accessible text channels found in ${guild.name}. Welcome message not sent.`);
   }
 };
 
 export default {
   name: Events.GuildCreate,
   async execute(guild) {
-    // console.log(`guildCreate: ${guild.name}, ${guild.id}.`);
+    console.log(`Guild Created (${guild.name}). Current Server Count: ${guild.client.guilds.cache.size}`);
 
-    const guildsCount = guild.client.guilds.cache.size;
-    console.log(`Guild Created. Current Count: ${guildsCount}`);
-
-    // await createDatabase(guild.id);
     await insertGuild(guild.client.db, guild);
 
-    // Send greeting
     const embed = new EmbedBuilder()
       .setTitle('Hello! Nice to meet you!')
       .setDescription(
-        mediaLinks +
-        '\n\nThanks For Adding Me To Your Server!\nDon\'t worry, everything has been setup for you.\nJust make sure I have **View** access to all the channels otherwise I won\'t be able to track emoji usage.\nDo `/help` for a list of commands and if you have any issues or questions, feel free to join our support server.\n\nThanks again and have a nice day! 🙂',
+        `${mediaLinks}\n\nThanks For Adding Me To Your Server!\nDon't worry, everything has been setup for you.\nJust make sure I have **View** access to all the channels otherwise I won't be able to track emoji usage.\nUse \`/help\` for a list of commands. If you have any issues, feel free to join our support server.\n\nThanks again and have a nice day! 🙂`
       );
 
-    const publicUpdatesChannel = await guild.publicUpdatesChannel;
-    if (publicUpdatesChannel) {
-      publicUpdatesChannel.send({ embeds: [embed] }).catch(async (error) => {
-        console.error(
-          `Can't post to public updates channel in ${guild.name}: ${error.message}\nDefaulting to first available text channel.`,
-        );
-        await postToAnyChannel(guild, embed);
-      });
-    }
-    else {
-      await postToAnyChannel(guild, embed);
-    }
+    await postWelcomeEmbed(guild, embed);
   },
 };

@@ -1,44 +1,49 @@
 import { Events } from 'discord.js';
 import { getGuildInfo, addEmojiRecords, insertGuild } from '../helpers/mongodbModel.js';
-import {
-  createEmojiRecord,
-  extractEmojis,
-  getUserOpt,
-  shouldProcessMessage,
-} from '../helpers/utilities.js';
+import { createEmojiRecord, extractEmojis, getUserOpt, shouldProcessMessage } from '../helpers/utilities.js';
 
-async function processEmojis(message) {
+const processEmojis = async (message) => {
   const emojis = extractEmojis(message);
+  if (!emojis.length) return false;
 
-  const emojiRecords = [];
-  for (const emoji of emojis) {
-    const guildEmoji = await message.guild.emojis.fetch(emoji[3]).catch(() => null);
-    if (!guildEmoji) continue;
-    const emojiRecord = createEmojiRecord(
-      message.guildId,
-      message.id,
-      guildEmoji.id,
-      message.author.id,
-      message.createdAt,
-      'message'
-    );
 
-    emojiRecords.push(emojiRecord);
+  // Batch-fetch all server emojis once
+  const emojiCache = await message.guild.emojis.fetch().catch(() => null);
+  if (!emojiCache) {
+    console.warn(`Could not fetch emojis for guild ${message.guild?.name}.`);
+    return false;
   }
 
-  if (emojiRecords.length === 0) return false;
+  const emojiRecords = emojis
+    .map((emoji) => {
+      const emojiId = emoji[3];
+      const guildEmoji = emojiCache.get(emojiId);
+      if (!guildEmoji) return null;
+
+      return createEmojiRecord(
+        message.guildId,
+        message.id,
+        guildEmoji.id,
+        message.author.id,
+        message.createdAt,
+        'message'
+      );
+    })
+    .filter(Boolean);
+
+  if (!emojiRecords.length) return false;
 
   await addEmojiRecords(message.client.db, emojiRecords);
-}
+};
 
-async function processMessageCreate(message) {
+const processMessageCreate = async (message) => {
   const guildInfo = await getGuildInfo(message.client.db, message.guild);
   const userOpt = await getUserOpt(guildInfo, message.author.id);
 
   if (shouldProcessMessage(message, guildInfo, userOpt)) {
-    await processEmojis(message, guildInfo);
+    await processEmojis(message);
   }
-}
+};
 
 export default {
   name: Events.MessageCreate,
@@ -46,10 +51,11 @@ export default {
     try {
       await processMessageCreate(message);
     } catch (error) {
-      if (error.message == `Cannot read properties of null (reading 'usersOpt')`) {
+      if (error.message === `Cannot read properties of null (reading 'usersOpt')`) {
+        console.warn(`Guild data missing for ${message.guild?.name} (${message.guildId}). Reinserting...`);
         await insertGuild(message.client.db, message.guild);
       } else {
-        console.error(Events.MessageCreate, error);
+        console.error(`Error in ${Events.MessageCreate}:`, error);
       }
     }
   },

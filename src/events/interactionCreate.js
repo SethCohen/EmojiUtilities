@@ -3,29 +3,33 @@ import { sendErrorFeedback } from '../helpers/utilities.js';
 
 export default {
   name: Events.InteractionCreate,
-  execute(interaction) {
-    // console.log(`${interaction.user.tag} in #${interaction.channel.name} triggered an interaction.`);
+  async execute(interaction) {
     if (!interaction.isCommand()) return;
 
     const command = interaction.client.commands.get(interaction.commandName);
-
     if (!command) return;
 
     try {
-      command.execute(interaction);
-    }
-    catch (error) {
-      switch (error.message) {
-        case 'Cannot read properties of null (reading \'1\')':
-          interaction.reply({
-            embeds: [sendErrorFeedback(interaction.commandName, 'No emoji found in `emoji`.')],
-          });
-          break;
-        default:
-          console.error(`interactionCreate error\n${interaction.commandName}\n${error}`);
-          return interaction.reply({
-            embeds: [sendErrorFeedback(interaction.commandName)],
-          });
+      await command.execute(interaction);
+    } catch (error) {
+      console.error(`Error running command "${interaction.commandName}":\n`, error);
+
+      const errorMessage = 
+        error.message === "Cannot read properties of null (reading '1')" 
+          ? 'No emoji found in `emoji`.'
+          : undefined;
+
+      // Always check if a reply was already sent
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({
+          embeds: [sendErrorFeedback(interaction.commandName, errorMessage)],
+          ephemeral: true,
+        });
+      } else {
+        await interaction.reply({
+          embeds: [sendErrorFeedback(interaction.commandName, errorMessage)],
+          ephemeral: true,
+        });
       }
     }
   },

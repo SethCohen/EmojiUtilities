@@ -73,8 +73,9 @@ async function getUserOpt(guildInfo, userId) {
 }
 
 function extractEmojis(message) {
+  if (!message?.content) return [];
   const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/g;
-  return message.content.matchAll(re);
+  return [...message.content.matchAll(re)];
 }
 
 function isMessageAuthorNull(message) {

@@ -3,46 +3,47 @@ import { processMessageReactionRemove } from './messageReactionRemove.js';
 import { getUserOpt, shouldProcessReaction } from '../helpers/utilities.js';
 import { deleteEmojiRecords, getGuildInfo, insertGuild } from '../helpers/mongodbModel.js';
 
-async function processMessageReactionRemoveAll(message, reactions) {
+const processMessageReactionRemoveAll = async (message, reactions) => {
   const guildInfo = await getGuildInfo(message.client.db, message.guild);
   const messageUserOpt = await getUserOpt(guildInfo, message.author.id);
 
+  // Process individual reactions
   for (const reaction of reactions.values()) {
     for (const user of reaction.users.cache.values()) {
-      processMessageReactionRemove(reaction, user);
+      await processMessageReactionRemove(reaction, user);
     }
   }
 
-  const users = [];
+  const users = new Set();
   const tags = ['sent-reaction', 'received-reaction'];
 
-  const guildEmojiMessageReactions = reactions.filter((reaction) =>
+  const guildReactions = reactions.filter((reaction) =>
     message.guild.emojis.resolve(reaction.emoji)
   );
 
-  for (const messageReaction of guildEmojiMessageReactions.values()) {
-    for (const reactionUser of messageReaction.users.cache.values()) {
-      const reactionUserOpt = await getUserOpt(guildInfo, reactionUser.id);
-      if (shouldProcessReaction(messageReaction, guildInfo, reactionUserOpt)) {
-        users.push(reactionUser.id);
-        tags.push('sent-reaction');
+  for (const reaction of guildReactions.values()) {
+    for (const user of reaction.users.cache.values()) {
+      const reactionUserOpt = await getUserOpt(guildInfo, user.id);
+      if (shouldProcessReaction(reaction, guildInfo, reactionUserOpt)) {
+        users.add(user.id);
       }
-      if (shouldProcessReaction(messageReaction, guildInfo, messageUserOpt)) {
-        users.push(message.author.id);
-        tags.push('received-reaction');
-      }
+    }
+
+    if (shouldProcessReaction(reaction, guildInfo, messageUserOpt)) {
+      users.add(message.author.id);
     }
   }
 
-  const filter = {
-    guild: message.guildId,
-    message: message.id,
-    user: { $in: users },
-    tag: { $in: tags },
-  };
-
-  await deleteEmojiRecords(message.client.db, filter);
-}
+  if (users.size > 0) {
+    const filter = {
+      guild: message.guildId,
+      message: message.id,
+      user: { $in: [...users] },
+      tag: { $in: tags },
+    };
+    await deleteEmojiRecords(message.client.db, filter);
+  }
+};
 
 export default {
   name: Events.MessageReactionRemoveAll,
@@ -50,10 +51,11 @@ export default {
     try {
       await processMessageReactionRemoveAll(message, reactions);
     } catch (error) {
-      if (error.message == `Cannot read properties of null (reading 'usersOpt')`) {
+      if (error.message === `Cannot read properties of null (reading 'usersOpt')`) {
+        console.warn(`Guild data missing for ${message.guild?.name} (${message.guildId}). Reinserting...`);
         await insertGuild(message.client.db, message.guild);
       } else {
-        console.error(Events.MessageReactionRemoveAll, error);
+        console.error(`Error in ${Events.MessageReactionRemoveAll}:`, error);
       }
     }
   },

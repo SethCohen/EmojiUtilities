@@ -2,11 +2,11 @@ import { Events } from 'discord.js';
 import { processMessageDelete } from './messageDelete.js';
 import { insertGuild } from '../helpers/mongodbModel.js';
 
-async function processMessageDeleteBulk(messages) {
+const processMessageDeleteBulk = async (messages) => {
   for (const message of messages.values()) {
     await processMessageDelete(message);
   }
-}
+};
 
 export default {
   name: Events.MessageBulkDelete,
@@ -14,10 +14,11 @@ export default {
     try {
       await processMessageDeleteBulk(messages);
     } catch (error) {
-      if (error.message == `Cannot read properties of null (reading 'usersOpt')`) {
+      if (error.message === `Cannot read properties of null (reading 'usersOpt')`) {
+        console.warn(`Guild data missing for ${channel.guild?.name} (${channel.guildId}). Reinserting...`);
         await insertGuild(channel.client.db, channel.guild);
       } else {
-        console.error(Events.MessageBulkDelete, error);
+        console.error(`Error in ${Events.MessageBulkDelete}:`, error);
       }
     }
   },
