@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { findBestMatch } from 'string-similarity';
-import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, PermissionsBitField, MessageFlags } from 'discord.js';
 import { sendErrorFeedback, confirmationButtons } from '../helpers/utilities.js';
 import { getGuildInfo } from '../helpers/mongodbModel.js';
 
@@ -8,12 +8,11 @@ export default {
   data: new SlashCommandBuilder()
     .setName('search')
     .setDescription('Searches for an emoji from emoji.gg')
-    .addStringOption((option) =>
+    .addStringOption(option =>
       option.setName('name').setDescription('Name of an emoji to search for.').setRequired(true)
     )
-    .addIntegerOption((option) =>
-      option
-        .setName('category')
+    .addIntegerOption(option =>
+      option.setName('category')
         .setDescription('The category to search in for the emoji.')
         .addChoices(
           { name: 'Original Style', value: 1 },
@@ -38,211 +37,147 @@ export default {
           { name: 'Hearts', value: 20 }
         )
     )
-    .addBooleanOption((option) =>
-      option.setName('includensfw').setDescription('Includes NSFW results. Default: False')
+    .addBooleanOption(option =>
+      option.setName('includensfw')
+        .setDescription('Includes NSFW results. Default: False')
     ),
-  async execute(interactionCommand) {
-    await interactionCommand.deferReply();
+
+  async execute(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     try {
       const response = await axios.get('https://emoji.gg/api');
 
-      const name = interactionCommand.options.getString('name');
-      const nsfw = interactionCommand.options.getBoolean('includensfw')
-        ? interactionCommand.options.getBoolean('includensfw')
-        : false;
-      const category = interactionCommand.options.getInteger('category');
-      const guildInfo = await getGuildInfo(
-        interactionCommand.client.db,
-        interactionCommand.guild
-      );
+      const name = interaction.options.getString('name');
+      const nsfw = interaction.options.getBoolean('includensfw') ?? false;
+      const category = interaction.options.getInteger('category');
+      const guildInfo = await getGuildInfo(interaction.client.db, interaction.guild);
 
       let data;
+
       if (nsfw) {
-        // Checks if user is searching for nsfw emojis
-        if (!interactionCommand.channel.nsfw) {
-          return await interactionCommand.editReply({
-            content: 'Sorry, but NSFW content is only allowed NSFW channels.',
-          });
+        if (!interaction.channel.nsfw) {
+          return await interaction.editReply({ content: 'Sorry, NSFW content is only allowed in NSFW channels.', flags: MessageFlags.Ephemeral });
         }
         if (!guildInfo.settings.allownsfw) {
-          return await interactionCommand.editReply({
-            content: 'Sorry, but searching for NSFW is disabled in this server.',
-          });
+          return await interaction.editReply({ content: 'Sorry, searching for NSFW is disabled in this server.', flags: MessageFlags.Ephemeral });
         }
         data = category
-          ? response.data.filter((json) => {
-              return json.category === category;
-            })
+          ? response.data.filter(e => e.category === category)
           : response.data;
       } else {
         if (category === 9) {
-          return await interactionCommand.editReply({
-            content:
-              'Sorry, but searching through the NSFW category requires **includensfw: True**.',
-          });
+          return await interaction.editReply({ content: 'Searching the NSFW category requires **includensfw: True**.', flags: MessageFlags.Ephemeral });
         }
-
         data = category
-          ? response.data.filter((json) => {
-              return json.category === category;
-            })
-          : response.data.filter((json) => {
-              return json.category !== 9;
-            });
+          ? response.data.filter(e => e.category === category)
+          : response.data.filter(e => e.category !== 9);
       }
 
-      // Searches for best match
-      const match = findBestMatch(
-        name,
-        data.map((json) => {
-          return json.title;
-        })
-      );
+      const match = findBestMatch(name, data.map(e => e.title));
 
       const embed = new EmbedBuilder()
         .setTitle(data[match.bestMatchIndex].title)
-        .setDescription(
-          `This emoji had the highest percent likeness to your search parameters at ${(
-            match.bestMatch.rating * 100
-          ).toFixed(2)}%\nWould you like to upload it to the server?`
-        )
+        .setDescription(`This emoji had the highest match to your search at ${(match.bestMatch.rating * 100).toFixed(2)}%.\nWould you like to upload it to the server?`)
         .setImage(data[match.bestMatchIndex].image);
 
-      await interactionCommand.editReply({
+      await interaction.editReply({
         embeds: [embed],
         components: [confirmationButtons(true)],
+        flags: MessageFlags.Ephemeral,
       });
 
-      // Create button listeners
-      const message = await interactionCommand.fetchReply();
+      const message = await interaction.fetchReply();
+
       const filter = async (i) => {
+        if (i.user.id !== interaction.user.id) {
+          await i.reply({ 
+            content: "You can't interact with this button. You are not the command author.", 
+            flags: MessageFlags.Ephemeral 
+          });
+          return false;
+        }
         await i.deferUpdate();
-        if (i.user.id !== interactionCommand.user.id) {
-          await i.followUp({
-            content: "You can't interact with this button. You are not the command author.",
-            ephemeral: true,
+        return true;
+      };
+
+      const buttonInteraction = await message.awaitMessageComponent({ filter, time: 30_000 });
+
+      if (buttonInteraction.customId === 'confirm') {
+        if (!buttonInteraction.memberPermissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
+          await interaction.editReply({
+            content: 'Cancelling emoji adding. User lacks Manage Emojis permission.',
+            flags: MessageFlags.Ephemeral,
+            components: [],
+          });
+          return await buttonInteraction.followUp({
+            content: 'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
+            flags: MessageFlags.Ephemeral,
           });
         }
-        return i.user.id === interactionCommand.user.id;
-      };
-      message
-        .awaitMessageComponent({ filter, time: 30000 })
-        .then(async (interactionButton) => {
-          if (interactionButton.customId === 'confirm') {
-            if (
-              !interactionButton.memberPermissions.has(
-                PermissionsBitField.Flags.ManageEmojisAndStickers
-              )
-            ) {
-              await interactionCommand.editReply({
-                content: 'Cancelling emoji adding. Interaction author lacks permissions.',
-              });
-              return await interactionButton.followUp({
-                content:
-                  'You do not have enough permissions to use this command.\nRequires **Manage Emojis**.',
-                ephemeral: true,
-              });
-            }
 
-            interactionCommand.guild.emojis
-              .create({
-                attachment: data[match.bestMatchIndex].image,
-                name: data[match.bestMatchIndex].title,
-              })
-              .then(async (emoji) => {
-                return await interactionCommand.editReply({
-                  content: `Added ${emoji} to server!`,
-                });
-              })
-              .catch((error) => {
-                switch (error.message) {
-                  case 'Maximum number of emojis reached (50)':
-                    interactionCommand.followUp({
-                      embeds: [
-                        sendErrorFeedback(
-                          interactionCommand.commandName,
-                          'No emoji slots available in server.'
-                        ),
-                      ],
-                    });
-                    break;
-                  case 'Invalid Form Body\nimage: File cannot be larger than 256.0 kb.':
-                    interactionCommand.followUp({
-                      embeds: [
-                        sendErrorFeedback(
-                          interactionCommand.commandName,
-                          'Image filesize is too big. Cannot add to server, sorry.'
-                        ),
-                      ],
-                    });
-                    break;
-                  default:
-                    console.error(
-                      `Command:\n${interactionCommand.commandName}\nError Message:\n${
-                        error.message
-                      }\nRaw Input:\n${interactionCommand.options.getString(
-                        'name'
-                      )}\n${interactionCommand.options.getInteger(
-                        'category'
-                      )}\n${interactionCommand.options.getBoolean('includensfw')}`
-                    );
-                    return interactionCommand.followUp({
-                      embeds: [sendErrorFeedback(interactionCommand.commandName)],
-                    });
-                }
-              });
-          } else if (interactionButton.customId === 'cancel') {
-            return await interactionCommand.editReply({ content: 'Canceled.' });
-          }
-        })
-        .catch(async (error) => {
+        try {
+          const emoji = await interaction.guild.emojis.create({
+            attachment: data[match.bestMatchIndex].image,
+            name: data[match.bestMatchIndex].title,
+          });
+
+          await interaction.editReply({
+            content: `✅ Added ${emoji} to the server!`,
+            flags: MessageFlags.Ephemeral,
+            components: [],
+          });
+        } catch (error) {
           switch (error.message) {
-            case 'Unknown Message':
-              // Ignore unknown interactions (Often caused from deleted interactions).
+            case 'Maximum number of emojis reached (50)':
+              await interaction.followUp({
+                embeds: [
+                  sendErrorFeedback(interaction.commandName, 'No emoji slots available in server.'),
+                ],
+                flags: MessageFlags.Ephemeral,
+              });
               break;
-            case 'Collector received no interactions before ending with reason: time':
-              await interactionCommand.editReply({
-                content: 'User took too long. Interaction timed out.',
+            case 'Invalid Form Body\nimage: File cannot be larger than 256.0 kb.':
+              await interaction.followUp({
+                embeds: [
+                  sendErrorFeedback(interaction.commandName, 'Image filesize is too big. Cannot add to server.'),
+                ],
+                flags: MessageFlags.Ephemeral,
               });
               break;
             default:
-              console.error(
-                `Command:\n${interactionCommand.commandName}\nError Message:\n${error.message}`
-              );
+              console.error(`Command: ${interaction.commandName}\nError: ${error.message}`);
+              await interaction.followUp({
+                embeds: [sendErrorFeedback(interaction.commandName)],
+                flags: MessageFlags.Ephemeral,
+              });
           }
-        })
-        .finally(async () => {
-          return await interactionCommand.editReply({
-            components: [confirmationButtons(false)],
-          });
-        });
-    } catch (error) {
-      switch (error.message) {
-        case 'no such table: serverSettings':
-          await interactionCommand.editReply({
-            embeds: [
-              sendErrorFeedback(
-                interactionCommand.commandName,
-                'Guild database was not found!\nA new database was created just now.\nPlease try the command again.'
-              ),
-            ],
-          });
-          break;
-        default:
-          console.error(
-            `Command:\n${interactionCommand.commandName}\nError Message:\n${
-              error.message
-            }\nRaw Input:\n${interactionCommand.options.getString(
-              'type'
-            )}\n${interactionCommand.options.getString(
-              'emoji'
-            )}\n${interactionCommand.options.getInteger('daterange')}`
-          );
-          return await interactionCommand.editReply({
-            embeds: [sendErrorFeedback(interactionCommand.commandName)],
-          });
+        }
+      } else if (buttonInteraction.customId === 'cancel') {
+        await interaction.editReply({ content: 'Canceled.', flags: MessageFlags.Ephemeral, components: [] });
       }
+
+    } catch (error) {
+      if (error.message === 'no such table: serverSettings') {
+        await interaction.editReply({
+          embeds: [
+            sendErrorFeedback(
+              interaction.commandName,
+              'Guild database not found!\nA new one was created.\nPlease try again.'
+            ),
+          ],
+          flags: MessageFlags.Ephemeral,
+        });
+      } else {
+        console.error(`Command: ${interaction.commandName}\nError: ${error.message}`);
+        await interaction.editReply({
+          embeds: [sendErrorFeedback(interaction.commandName)],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+    } finally {
+      // Disable buttons after any outcome
+      await interaction.editReply({ components: [confirmationButtons(false)], flags: MessageFlags.Ephemeral });
     }
   },
 };
