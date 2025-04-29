@@ -1,13 +1,21 @@
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
-import * as url from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import { MongoClient } from 'mongodb';
 
 dotenv.config();
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
+// Resolve __dirname in ESM
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Extend Client to hold our db and commands collection
+/**
+ * @typedef {import('discord.js').Client & { commands: Collection<string, any>, db?: import('mongodb').Db }} BotClient
+ */
+
+/** @type {BotClient} */
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -18,53 +26,70 @@ const client = new Client({
   ],
   partials: [Partials.Message, Partials.User, Partials.Channel, Partials.Reaction],
 });
-
-// Commands
 client.commands = new Collection();
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith('.js'));
-(async () => {
-  for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    const command = (await import(url.pathToFileURL(filePath))).default;
-    if ('data' in command && 'execute' in command) {
-      client.commands.set(command.data.name, command);
-    }
-    else {
-      console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
-    }
-  }
-})();
 
-// Events
-const eventsPath = path.join(__dirname, 'events');
-const eventFiles = fs.readdirSync(eventsPath).filter((file) => file.endsWith('.js'));
-(async () => {
-  for (const file of eventFiles) {
-    const filePath = path.join(eventsPath, file);
-    const event = (await import(url.pathToFileURL(filePath))).default;
-    if (event.once) {
-      client.once(event.name, (...args) => event.execute(...args));
-    }
-    else {
-      client.on(event.name, (...args) => event.execute(...args));
-    }
-  }
-})();
+/**
+ * Load and register command modules
+ */
+async function loadCommands() {
+  const commandsDir = path.join(__dirname, 'commands');
+  const files = (await fs.readdir(commandsDir)).filter(f => f.endsWith('.js'));
+  await Promise.all(
+    files.map(async file => {
+      const filePath = path.join(commandsDir, file);
+      const { default: cmd } = await import(pathToFileURL(filePath).href);
+      if (cmd?.data?.name && typeof cmd.execute === 'function') {
+        client.commands.set(cmd.data.name, cmd);
+      } else {
+        console.warn(`[WARNING] ${file} is missing a valid data or execute export.`);
+      }
+    })
+  );
+}
 
-// MongoDB
-const mongoClient = new MongoClient(process.env.MONGODB_URI);
-(async () => {
+/**
+ * Load and attach event handlers
+ */
+async function loadEvents() {
+  const eventsDir = path.join(__dirname, 'events');
+  const files = (await fs.readdir(eventsDir)).filter(f => f.endsWith('.js'));
+  await Promise.all(
+    files.map(async file => {
+      const filePath = path.join(eventsDir, file);
+      const { default: evt } = await import(pathToFileURL(filePath).href);
+      const listener = (...args) => evt.execute(...args).catch(console.error);
+      if (evt.once) client.once(evt.name, listener);
+      else client.on(evt.name, listener);
+    })
+  );
+}
+
+/**
+ * Main initialization
+ */
+async function init() {
   try {
+    await loadCommands();
+    await loadEvents();
+
+    const mongoClient = new MongoClient(process.env.MONGODB_URI, { useUnifiedTopology: true });
     await mongoClient.connect();
+    client.db = mongoClient.db('data');
 
-    const db = mongoClient.db('data');
-    client.db = db;
+    await client.login(process.env.BOT_TOKEN);
 
-    client.login(process.env.BOT_TOKEN);
+    // Graceful shutdown
+    const cleanExit = async () => {
+      console.log('Shutting down...');
+      await mongoClient.close();
+      process.exit(0);
+    };
+    process.on('SIGINT', cleanExit);
+    process.on('SIGTERM', cleanExit);
+  } catch (err) {
+    console.error('❌ Initialization error:', err);
+    process.exit(1);
   }
-  catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    mongoClient.close();
-  }
-})();
+}
+
+init();

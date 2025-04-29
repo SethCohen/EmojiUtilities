@@ -1,73 +1,90 @@
 import { Events } from 'discord.js';
-import {
-  getGuildInfo,
-  addEmojiRecords,
-  deleteEmojiRecords,
-  insertGuild,
-} from '../helpers/mongodbModel.js';
-import {
-  createEmojiRecord,
-  extractEmojis,
-  getUserOpt,
-  shouldProcessMessage,
-} from '../helpers/utilities.js';
+import { getGuildInfo, addEmojiRecords, deleteEmojiRecords, insertGuild } from '../helpers/mongodbModel.js';
+import { createEmojiRecord, extractEmojis, getUserOpt, shouldProcessMessage } from '../helpers/utilities.js';
 
-async function processEmojis(message, action) {
-  const guildId = message.guildId;
-  const messageAuthorId = message.author.id;
-  const emojis = extractEmojis(message);
-  const emojiRecords = [];
+const tally = ids =>
+  ids.reduce((acc, id) => { acc[id] = (acc[id] || 0) + 1; return acc; }, {});
 
-  for (const emoji of emojis) {
-    const guildEmoji = await message.guild.emojis.fetch(emoji[3]).catch(() => null);
-    if (!guildEmoji) continue;
-    const emojiRecord = createEmojiRecord(
-      guildId,
-      message.id,
-      guildEmoji.id,
-      messageAuthorId,
-      message.createdAt,
-      'message'
+const diffList = (fromCount, toCount) =>
+  Object.entries(fromCount)
+    .flatMap(([id, cnt]) =>
+      Array(Math.max(cnt - (toCount[id] || 0), 0)).fill(id)
     );
-    emojiRecords.push(emojiRecord);
-  }
 
-  if (emojiRecords.length === 0) return false;
+const fetchEmoji = (guild, id) =>
+  guild.emojis.cache.get(id) || guild.emojis.fetch(id).catch(() => null);
 
-  if (action === 'add') {
-    await addEmojiRecords(message.client.db, emojiRecords);
-  } else if (action === 'delete') {
-    const deleteFilter = { $or: emojiRecords };
-    await deleteEmojiRecords(message.client.db, deleteFilter);
-  }
+async function addEmojis(db, guild, message, ids) {
+  if (!ids.length) return;
+  const records = (
+    await Promise.all(
+      ids.map(async id => {
+        const emoji = await fetchEmoji(guild, id);
+        return emoji && createEmojiRecord(
+          message.guildId,
+          message.id,
+          emoji.id,
+          message.author.id,
+          message.createdAt,
+          'message'
+        );
+      })
+    )
+  ).filter(Boolean);
+  if (records.length) await addEmojiRecords(db, records);
 }
 
-async function processMessageUpdate(oldMessage, newMessage) {
-  if(newMessage.partial) await newMessage.fetch();
-
-  const guildInfo = await getGuildInfo(newMessage.client.db, newMessage.guild);
-  const userOpt = await getUserOpt(guildInfo, newMessage.author.id);
-
-  if (shouldProcessMessage(oldMessage, guildInfo, userOpt)) {
-    await processEmojis(oldMessage, 'delete');
-  }
-
-  if (shouldProcessMessage(newMessage, guildInfo, userOpt)) {
-    await processEmojis(newMessage, 'add');
-  }
+async function removeEmojis(db, guild, message, ids) {
+  if (!ids.length) return;
+  const records = (
+    await Promise.all(
+      ids.map(async id => {
+        const emoji = await fetchEmoji(guild, id);
+        return emoji && createEmojiRecord(
+          message.guildId,
+          message.id,
+          emoji.id,
+          message.author.id,
+          message.createdAt,
+          'message'
+        );
+      })
+    )
+  ).filter(Boolean);
+  if (records.length) await deleteEmojiRecords(db, { $or: records });
 }
 
 export default {
   name: Events.MessageUpdate,
   async execute(oldMessage, newMessage) {
     try {
-      await processMessageUpdate(oldMessage, newMessage);
+      if (newMessage.partial) await newMessage.fetch();
+      const { client, guild, author } = newMessage;
+      const guildInfo = await getGuildInfo(client.db, guild);
+      const userOpt = await getUserOpt(guildInfo, author.id);
+
+      const oldIds =
+        shouldProcessMessage(oldMessage, guildInfo, userOpt)
+          ? extractEmojis(oldMessage).map(e => e[3])
+          : [];
+      const newIds =
+        shouldProcessMessage(newMessage, guildInfo, userOpt)
+          ? extractEmojis(newMessage).map(e => e[3])
+          : [];
+
+      const toAdd = diffList(tally(newIds), tally(oldIds));
+      const toRemove = diffList(tally(oldIds), tally(newIds));
+
+      await Promise.all([
+        addEmojis(client.db, guild, newMessage, toAdd),
+        removeEmojis(client.db, guild, newMessage, toRemove)
+      ]);
     } catch (error) {
-      if (error.message == `Cannot read properties of null (reading 'usersOpt')`) {
+      if (error.message.includes('usersOpt')) {
         await insertGuild(newMessage.client.db, newMessage.guild);
       } else {
         console.error(Events.MessageUpdate, error);
       }
     }
-  },
+  }
 };
