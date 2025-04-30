@@ -1,4 +1,64 @@
 # Changelog
+## [1.24.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.5...v1.24.0) (2025-04-30)
+
+
+### Features
+
+* **config.js:** enhance config command by adding MessageFlags for ephemeral replies and improve error handling for better user feedback ([71c250b](https://github.com/SethCohen/EmojiUtilities/commit/71c250bacf890dfc8bc722d1edfd1c91b04ec800))
+* **displaystats.js:** enhance pagination functionality with a dedicated setupPageNavigation function for better user interaction ([15ec7e7](https://github.com/SethCohen/EmojiUtilities/commit/15ec7e7513d290417ab583d046d53506297a28ba))
+* **events:** enhance message reaction handling to support bulk reactions and improve user experience ([0ebca2d](https://github.com/SethCohen/EmojiUtilities/commit/0ebca2d52f72641c3a8e4f1ce4eeb465133e254a))
+* **getcount.js:** optimize emote usage statistics retrieval by using Promise.all for concurrent database calls and improve error handling for better debugging ([ca526dd](https://github.com/SethCohen/EmojiUtilities/commit/ca526ddf19255f93db7f7a32eb5f494564d531e8))
+* **help.js:** add footer to help embed for improved information presentation ([379b6f2](https://github.com/SethCohen/EmojiUtilities/commit/379b6f2c96258f592ce389145400aa64ead38218))
+* **messageUpdate.js:** refactor emoji processing logic to improve clarity and efficiency by separating add and remove functionalities ([8f1c37e](https://github.com/SethCohen/EmojiUtilities/commit/8f1c37e46576d1056281f0be0238b997b713fee4))
+* **optself.js:** enhance optself command with improved interaction handling and message flags for better user experience ([fc3d935](https://github.com/SethCohen/EmojiUtilities/commit/fc3d9353bcad1b63fc073031eee41fa6af7d3dfb))
+* **packsearch.js:** refactor emoji pack search command to improve error handling and response structure ([ae93544](https://github.com/SethCohen/EmojiUtilities/commit/ae93544eb86dca5ce30543923c65f3ee10cf7d47))
+* **random.js:** refactor random emoji command to improve readability and error handling, and add support for NSFW options and permissions checks ([97d3ba1](https://github.com/SethCohen/EmojiUtilities/commit/97d3ba1f9fa44ed8f78081a62808ba3bc456acf7))
+* **resetdb:** enhance reset command with double confirmation and ephemeral messages for better user experience ([fc8a625](https://github.com/SethCohen/EmojiUtilities/commit/fc8a6254cea7db362fa3cf882a7fdf16f8fee113))
+* **search.js:** add support for ephemeral message replies and enhance error handling for emoji commands ([8e97066](https://github.com/SethCohen/EmojiUtilities/commit/8e9706632f1d8a8be0dad98dfef644c2f161da5c))
+* **stickerfy:** enhance sticker creation command with improved error handling and temporary directory management ([35d5fa8](https://github.com/SethCohen/EmojiUtilities/commit/35d5fa8b2669fec7f2710d43a3a55deef091a19e))
+* **stickersteal:** enhance command with improved error handling and permission checks for better user feedback ([7429542](https://github.com/SethCohen/EmojiUtilities/commit/742954274d2ef2c9d64cbd01619471e183b6be9a))
+* **uploademoji:** enhance emoji upload command with improved error handling and support for ephemeral replies ([10d70c9](https://github.com/SethCohen/EmojiUtilities/commit/10d70c97c98e579c1eff922e23e53fc31a09df42))
+
+
+### Bug Fixes
+
+* **aboutemoji.js:** update thumbnail method to use emoji.imageURL() for consistency ([14a7619](https://github.com/SethCohen/EmojiUtilities/commit/14a7619c532a25992241b18b8137f5b3bc7aaba3))
+* **displaystats.js:** streamline error handling and ensure consistent response structure in command execution ([15ec7e7](https://github.com/SethCohen/EmojiUtilities/commit/15ec7e7513d290417ab583d046d53506297a28ba))
+* **events:** ensure proper handling of guild data retrieval errors and provide fallback mechanisms for missing data ([0ebca2d](https://github.com/SethCohen/EmojiUtilities/commit/0ebca2d52f72641c3a8e4f1ce4eeb465133e254a))
+* **help.js:** update interaction.deferReply to use ephemeral replies for better user experience ([379b6f2](https://github.com/SethCohen/EmojiUtilities/commit/379b6f2c96258f592ce389145400aa64ead38218))
+* **packsearch.js:** ensure proper validation of pack data and enhance user feedback for permission issues and upload errors ([ae93544](https://github.com/SethCohen/EmojiUtilities/commit/ae93544eb86dca5ce30543923c65f3ee10cf7d47))
+* **search.js:** refactor interaction handling to use new MessageFlags for ephemeral replies and improve code readability ([8e97066](https://github.com/SethCohen/EmojiUtilities/commit/8e9706632f1d8a8be0dad98dfef644c2f161da5c))
+* **unlockemoji.js:** update emoji unlock command to provide clearer feedback and ensure proper permission checks ([634c4cc](https://github.com/SethCohen/EmojiUtilities/commit/634c4cc3302856476c01883f5320f124ccb66589))
+
+
+### Miscellaneous
+
+* **package.json:** update dependencies and devDependencies to latest versions for improved stability and features ([aadef18](https://github.com/SethCohen/EmojiUtilities/commit/aadef185cd6a532c6ea00b72d24e2fc109334ec9))
+
+
+### Code Refactoring
+
+* **backupemojis.js:** streamline emoji backup process by ensuring temp directory creation and improving error handling during emoji fetching and zipping process ([14a7619](https://github.com/SethCohen/EmojiUtilities/commit/14a7619c532a25992241b18b8137f5b3bc7aaba3))
+* **botinfo.js:** simplify bot info command by extracting embed building logic and reducing redundancy in code structure ([23bca6e](https://github.com/SethCohen/EmojiUtilities/commit/23bca6ee2d9a3cc59db3bfb9cabcd947af5d1739))
+* **clapify.js:** simplify clapifyText function and improve error handling for text length validation ([09735b7](https://github.com/SethCohen/EmojiUtilities/commit/09735b70efc2325d3fc35a6635d63576cfe458ff))
+* **dancify.js:** simplify dancifyText function and improve error handling for better readability and maintainability ([477aaff](https://github.com/SethCohen/EmojiUtilities/commit/477aaff6342ba49bb4a9424869a4fbe84c39831e))
+* **displaystats.js:** simplify date range validation and improve readability by using early returns and destructuring ([15ec7e7](https://github.com/SethCohen/EmojiUtilities/commit/15ec7e7513d290417ab583d046d53506297a28ba))
+* **emojisteal.js:** simplify emoji URL generation and error handling for better readability and maintainability ([82a6920](https://github.com/SethCohen/EmojiUtilities/commit/82a6920dcedd14f43b368c7289ab979ab013b946))
+* **enlargeemoji.js:** simplify getEmojiUrl function and improve error handling for emoji verification process ([03f63e0](https://github.com/SethCohen/EmojiUtilities/commit/03f63e043c4fd5b3f6e21f98966db7d1f3432a2f))
+* **events:** improve emoji processing and error handling in message events for better maintainability and clarity ([0ebca2d](https://github.com/SethCohen/EmojiUtilities/commit/0ebca2d52f72641c3a8e4f1ce4eeb465133e254a))
+* **index.js:** restructure command and event loading into separate functions for better organization and maintainability ([8f1c37e](https://github.com/SethCohen/EmojiUtilities/commit/8f1c37e46576d1056281f0be0238b997b713fee4))
+* **leaderboard.js:** simplify date range validation logic and improve error handling for emoji fetching in leaderboard command ([034a1ab](https://github.com/SethCohen/EmojiUtilities/commit/034a1abe152e06528b2c92de15b061d06634c7b4))
+* **listemojis.js:** simplify emoji pagination logic and improve readability ([e075b51](https://github.com/SethCohen/EmojiUtilities/commit/e075b5112e673f5340ce09ff3e0be5a801d5e834))
+* **lockemoji.js:** streamline error handling and response logic for emoji locking command ([e075b51](https://github.com/SethCohen/EmojiUtilities/commit/e075b5112e673f5340ce09ff3e0be5a801d5e834))
+* **optself.js:** streamline code structure and improve readability by reducing nesting and using consistent naming conventions ([fc3d935](https://github.com/SethCohen/EmojiUtilities/commit/fc3d9353bcad1b63fc073031eee41fa6af7d3dfb))
+* **random.js:** simplify emoji command logic by extracting helper functions for better readability and maintainability ([953967c](https://github.com/SethCohen/EmojiUtilities/commit/953967c3506e52a3ee60d526cbbce5ba46e6b557))
+* **removeunused.js:** restructure emoji removal command for better readability and maintainability by extracting helper functions and improving permission checks ([d20d355](https://github.com/SethCohen/EmojiUtilities/commit/d20d355d86c50c2d170395c0eb9fc10ca37eac15))
+* **renameemoji.js:** simplify emoji renaming logic and error handling for better readability and maintainability ([f7c277e](https://github.com/SethCohen/EmojiUtilities/commit/f7c277e77fbd547156987886d606cbace05dcb4c))
+* **resetdb:** update interaction handling to use new MessageFlags for ephemeral responses and improve code readability ([fc8a625](https://github.com/SethCohen/EmojiUtilities/commit/fc8a6254cea7db362fa3cf882a7fdf16f8fee113))
+* **stickersteal:** streamline code by consolidating error handling and updating message descriptions for clarity ([7429542](https://github.com/SethCohen/EmojiUtilities/commit/742954274d2ef2c9d64cbd01619471e183b6be9a))
+* **unlockemoji.js:** simplify error handling and improve code readability by restructuring try-catch blocks and removing redundant code ([634c4cc](https://github.com/SethCohen/EmojiUtilities/commit/634c4cc3302856476c01883f5320f124ccb66589))
+* **uploademoji:** streamline code for better readability and maintainability, including variable naming and response messages ([10d70c9](https://github.com/SethCohen/EmojiUtilities/commit/10d70c97c98e579c1eff922e23e53fc31a09df42))
+
 ## [1.23.5](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.4...v1.23.5) (2023-09-01)
 
 
