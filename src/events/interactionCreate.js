@@ -12,7 +12,7 @@ function incrementUserCount(userId) {
 
   entry.timeout = setTimeout(() => {
     userCommandCounts.delete(userId);
-  }, 60 * 60 * 1000); // 1 hour
+  }, 60 * 60 * 1000);
 
   userCommandCounts.set(userId, entry);
   return entry.count;
@@ -31,10 +31,10 @@ export default {
 
       const count = incrementUserCount(interaction.user.id);
       console.log(`User ${interaction.user.tag} (${interaction.user.id}) executed command "${interaction.commandName}". Count: ${count}`);
-      if (count % 5 === 0) {
+
+      if (count === 1 || (count > 1 && count % 7 === 0)) {
         setTimeout(async () => {
           const supportEmbed = createSupportMessage(interaction.client);
-
           await interaction.followUp({
             embeds: [supportEmbed],
             ephemeral: true,

@@ -7,7 +7,7 @@ export default {
     .setDescription('Prints a list of useful bot-related resources to chat.'),
 
   async execute(interaction) {
-    await interaction.deferReply({ ephemeral: MessageFlags.Ephemeral });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const embed = new EmbedBuilder()
       .setTitle('Help')
