@@ -7,6 +7,15 @@ import { MongoClient } from 'mongodb';
 
 dotenv.config();
 
+// Global error handlers
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 Unhandled Promise Rejection:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('💥 Uncaught Exception:', err);
+});
+
 // Resolve __dirname in ESM
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -21,7 +30,7 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.GuildEmojisAndStickers,
+    GatewayIntentBits.GuildExpressions,
     GatewayIntentBits.MessageContent,
   ],
   partials: [Partials.Message, Partials.User, Partials.Channel, Partials.Reaction],
@@ -72,7 +81,7 @@ async function init() {
     await loadCommands();
     await loadEvents();
 
-    const mongoClient = new MongoClient(process.env.MONGODB_URI, { useUnifiedTopology: true });
+    const mongoClient = new MongoClient(process.env.MONGODB_URI);
     await mongoClient.connect();
     client.db = mongoClient.db('data');
 
@@ -87,7 +96,7 @@ async function init() {
     process.on('SIGINT', cleanExit);
     process.on('SIGTERM', cleanExit);
   } catch (err) {
-    console.error('❌ Initialization error:', err);
+    console.error('Initialization error:', err);
     process.exit(1);
   }
 }

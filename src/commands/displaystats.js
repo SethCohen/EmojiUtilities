@@ -5,58 +5,53 @@ import { getDisplayStats } from '../helpers/mongodbModel.js';
 const validateDateRange = (range) => {
   const now = new Date();
   switch (range) {
-    case 0: return { dateString: 'All-Time', dateValue: '0' };
     case 365: now.setDate(now.getDate() - 365); return { dateString: 'Yearly', dateValue: now.toISOString() };
     case 30: now.setMonth(now.getMonth() - 1); return { dateString: 'Monthly', dateValue: now.toISOString() };
     case 7: now.setDate(now.getDate() - 7); return { dateString: 'Weekly', dateValue: now.toISOString() };
     case 1: now.setDate(now.getDate() - 1); return { dateString: 'Daily', dateValue: now.toISOString() };
     case 60: now.setHours(now.getHours() - 1); return { dateString: 'Hourly', dateValue: now.toISOString() };
-    default: return { dateString: 'All-Time', dateValue: '0' };
+    case 0:
+    default:
+      return { dateString: 'All-Time', dateValue: '0' };
   }
 };
 
-const getSortedOccurrences = (interaction, data) => {
-  return interaction.guild.emojis.cache.map(emoji => {
+const getSortedOccurrences = (interaction, data) => (
+  interaction.guild.emojis.cache.map(emoji => {
     const item = data.find(row => row.emoji === emoji.id);
-    return { emoji: emoji.id, count: item ? item.count : 0 };
-  }).sort((a, b) => b.count - a.count);
-};
+    return { emoji: emoji.id, count: item?.count || 0 };
+  }).sort((a, b) => b.count - a.count)
+);
 
-const getPages = (user, date, interaction, occurrences) => {
+const createPages = (user, rangeInfo, interaction, occurrences) => {
   const chunkSize = 24;
-  const chunks = [];
-  for (let i = 0; i < occurrences.length; i += chunkSize) {
-    chunks.push(occurrences.slice(i, i + chunkSize));
-  }
+  const pages = [];
 
-  const embedPages = [];
-  chunks.forEach((chunk, index) => {
+  for (let i = 0; i < occurrences.length; i += chunkSize) {
+    const chunk = occurrences.slice(i, i + chunkSize);
     const embed = new EmbedBuilder()
       .setTitle(`---------- ${user ? user.username : 'Server'}'s Statistics ----------`)
-      .setDescription(date.dateString)
-      .setFooter({ text: `Page ${index + 1}/${chunks.length}` });
+      .setDescription(rangeInfo.dateString)
+      .setFooter({ text: `Page ${pages.length + 1}/${Math.ceil(occurrences.length / chunkSize)}` });
 
-    for (const row of chunk) {
-      const emoji = interaction.guild.emojis.cache.get(row.emoji);
-      if (emoji) {
-        embed.addFields({ name: `${emoji}`, value: `${row.count}`, inline: true });
-      }
-    }
-    embedPages.push(embed);
-  });
+    chunk.forEach(({ emoji, count }) => {
+      const emojiObj = interaction.guild.emojis.cache.get(emoji);
+      if (emojiObj) embed.addFields({ name: `${emojiObj}`, value: `${count}`, inline: true });
+    });
 
-  return embedPages;
+    pages.push(embed);
+  }
+
+  return pages;
 };
 
-const setupPageNavigation = (interaction, message, pages) => {
+const createCollector = (interaction, message, pages) => {
   let currentPageIndex = 0;
-
   const collector = message.createMessageComponentCollector({ time: 30000 });
 
   collector.on('collect', async button => {
     if (button.user.id !== interaction.user.id) {
-      await button.reply({ content: "You can't interact with this button.", ephemeral: true });
-      return;
+      return button.reply({ content: "You can't interact with this button.", ephemeral: true });
     }
 
     if (button.customId === 'next') {
@@ -69,7 +64,11 @@ const setupPageNavigation = (interaction, message, pages) => {
   });
 
   collector.on('end', async () => {
-    await interaction.editReply({ components: [navigationButtons(false)] });
+    try {
+      await interaction.editReply({ components: [navigationButtons(false)] });
+    } catch (err) {
+      if (err.code !== 10008) console.error('Failed to update message after collector ended:', err);
+    }
   });
 };
 
@@ -101,21 +100,20 @@ export default {
     try {
       const range = interaction.options.getInteger('daterange');
       const user = interaction.options.getUser('user');
-      const { dateString, dateValue } = validateDateRange(range);
+      const rangeInfo = validateDateRange(range);
 
       const data = await getDisplayStats(
         interaction.client.db,
         interaction.guild.id,
-        dateValue,
+        rangeInfo.dateValue,
         user?.id
       );
 
       const occurrences = getSortedOccurrences(interaction, data);
-      const pages = getPages(user, { dateString }, interaction, occurrences);
+      const pages = createPages(user, rangeInfo, interaction, occurrences);
 
       if (!pages.length) {
-        await interaction.editReply({ content: "Sorry, there's no info to display!" });
-        return;
+        return await interaction.editReply({ content: "Sorry, there's no info to display!" });
       }
 
       await interaction.editReply({
@@ -124,13 +122,13 @@ export default {
       });
 
       const message = await interaction.fetchReply();
-      setupPageNavigation(interaction, message, pages);
+      createCollector(interaction, message, pages);
 
     } catch (error) {
-      console.error(`Command:\n${interaction.commandName}\nError:\n${error.stack}\nRaw Input:\n${interaction.options.getInteger('daterange')}\n${interaction.options.getUser('user')}`);
+      console.error(`Command: ${interaction.commandName}\nError:\n${error.stack}`);
       await interaction.editReply({
         embeds: [sendErrorFeedback(interaction.commandName)],
-      });
+      }).catch(console.error); // in case editReply fails too
     }
   },
 };
