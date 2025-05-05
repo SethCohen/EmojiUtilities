@@ -1,8 +1,6 @@
 import { oneLine } from 'common-tags';
 
-const mediaLinks = oneLine`
-    [Support Me](https://sethdev.ca/support-me) | 
-    [Server](https://discord.gg/XaeERFAVfb) | 
+export const mediaLinks = oneLine`
+    [Buy Me A Coffee](https://sethdev.ca/support-me) | 
+    [Join The Discord](https://discord.gg/XaeERFAVfb) | 
     [Github](https://github.com/SethCohen/EmojiUtilities)`;
-
-export { mediaLinks };

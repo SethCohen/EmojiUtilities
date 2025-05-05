@@ -57,9 +57,6 @@ export default {
 
         const embed = new EmbedBuilder()
           .setTitle(`${updatedEmoji} has been renamed to ${updatedEmoji.name}.`)
-          .setDescription(
-            `If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`
-          );
 
         return await interaction.editReply({ embeds: [embed] });
 

@@ -68,13 +68,8 @@ export default {
     try {
       const zipPath = await createZip(interaction);
 
-      const embedSuccess = new EmbedBuilder().setDescription(
-        `If you've enjoyed this bot so far, please consider sending a donation.\nIt helps keep the bot grow, and keeps things running. 🙂\n${mediaLinks}`
-      );
-
       await interaction.editReply({
         content: `Backup complete! Here's your zip file containing emojis from **${interaction.guild.name}**.`,
-        embeds: [embedSuccess],
         files: [zipPath],
       });
 

@@ -48,9 +48,6 @@ export default {
 
       const embed = new EmbedBuilder()
         .setTitle(`✅ Unlocked ${editedEmoji} for @everyone.`)
-        .setDescription(
-          `If you've enjoyed this bot so far, please consider voting for it!\nIt helps the bot grow. 🙂\n${mediaLinks}`
-        );
 
       return interaction.editReply({ embeds: [embed] });
 

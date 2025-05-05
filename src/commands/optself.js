@@ -41,7 +41,7 @@ export default {
         i.reply({
           content: "You can't interact with this button. You are not the command author.",
           flags: MessageFlags.Ephemeral,
-        }).catch(() => {}); // ignore if reply fails
+        }).catch(() => {});
         return false;
       }
       return true;

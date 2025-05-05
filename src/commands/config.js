@@ -57,7 +57,6 @@ export default {
 
       const embedSuccess = new EmbedBuilder()
         .setTitle(`\`${setting}\` set to \`${flag}\`.`)
-        .setDescription(`If you've enjoyed this bot so far, please consider voting for it.\nIt helps the bot grow. 🙂\n${mediaLinks}`);
 
       await setSetting(interaction.client.db, interaction.guild.id, setting, flag);
       await interaction.editReply({ embeds: [embedSuccess] });

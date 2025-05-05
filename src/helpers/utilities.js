@@ -1,4 +1,5 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { mediaLinks } from './constants.js';
 
 function verifyEmojiString(input) {
   const re = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
@@ -132,6 +133,37 @@ function isDifferentAuthor(messageAuthorId, reactionAuthorId) {
 function isTrackingSelfReacts(guildInfo) {
   return guildInfo.settings.countselfreacts;
 }
+
+export const createSupportMessage = (client) => {
+  const monthlyPrice = 16.05;
+  const createdDate = client.user.createdAt;
+  const now = new Date();
+
+  const totalMonths =
+      (now.getFullYear() - createdDate.getFullYear()) * 12 +
+      (now.getMonth() - createdDate.getMonth());
+
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+  const totalSpent = totalMonths * monthlyPrice;
+
+  const durationText =
+      years > 0
+          ? `${years} year${years !== 1 ? 's' : ''}${months > 0 ? ` and ${months} month${months !== 1 ? 's' : ''}` : ''}`
+          : `${months} month${months !== 1 ? 's' : ''}`;
+
+  const description =
+      `Hi there! I'm a solo developer, and this bot is a passion project funded entirely out of my own pocket.\n\n` +
+      `For full transparency, it's been running for **${durationText}**, during which I've personally spent over **$${totalSpent.toFixed(2)} CAD** to keep it online at **$${monthlyPrice}/month**.\n\n` +
+      `If you've enjoyed using it, please consider supporting its development. Your help keeps the bot running and growing! 🙂\n\n` +
+      mediaLinks;
+
+  return new EmbedBuilder()
+      .setColor("#82b6e0")
+      .setTitle('Enjoying the bot?')
+      .setDescription(description)
+      .setFooter({ text: 'Thank you for your support! 💖' });
+};
 
 export {
   isDifferentAuthor,

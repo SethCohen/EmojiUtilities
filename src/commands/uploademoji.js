@@ -66,9 +66,6 @@ export default {
 
         const embed = new EmbedBuilder()
           .setTitle(`✅ Added ${createdEmoji} to the server!`)
-          .setDescription(
-            `If you've enjoyed this bot so far, please consider voting for it!\nIt helps the bot grow. 🙂\n${mediaLinks}`
-          );
 
         await interaction.editReply({ embeds: [embed] });
 

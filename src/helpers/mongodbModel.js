@@ -211,7 +211,7 @@ async function setOpt(db, guildId, userId, flag) {
       );
     }
 
-    console.log('User opt set.');
+    // console.log('User opt set.');
   } catch (error) {
     console.error('Error setting user opt:', error);
     throw error;
