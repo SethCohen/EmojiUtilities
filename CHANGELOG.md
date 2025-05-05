@@ -1,4 +1,35 @@
 # Changelog
+## [1.25.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.24.0...v1.25.0) (2025-05-05)
+
+
+### Features
+
+* **events:** implement user command tracking and support message for engagement ([e27efb0](https://github.com/SethCohen/EmojiUtilities/commit/e27efb0795c25d04a7d2e3af411653659aacf249))
+
+
+### Bug Fixes
+
+* **constants:** update media links for clarity and consistency in messaging ([e27efb0](https://github.com/SethCohen/EmojiUtilities/commit/e27efb0795c25d04a7d2e3af411653659aacf249))
+* **displaystats.js:** handle unhandled promise rejections and uncaught exceptions globally in index.js for better error management ([c2420ca](https://github.com/SethCohen/EmojiUtilities/commit/c2420ca11fe68caa56d5a49cd49a23471ee35ef4))
+* **help.js:** update interaction.deferReply flags property to match latest API changes ([84841b8](https://github.com/SethCohen/EmojiUtilities/commit/84841b88b14ad10362c8a7766608a58daf8a2cc8))
+
+
+### Styles
+
+* **helpers:** clean up console log statements for better code maintainability ([e27efb0](https://github.com/SethCohen/EmojiUtilities/commit/e27efb0795c25d04a7d2e3af411653659aacf249))
+
+
+### Miscellaneous
+
+* **commands:** remove donation prompts from embed descriptions to streamline user experience ([e27efb0](https://github.com/SethCohen/EmojiUtilities/commit/e27efb0795c25d04a7d2e3af411653659aacf249))
+* **index.js:** update GatewayIntentBits from GuildEmojisAndStickers to GuildExpressions for compatibility with Discord API changes ([c2420ca](https://github.com/SethCohen/EmojiUtilities/commit/c2420ca11fe68caa56d5a49cd49a23471ee35ef4))
+
+
+### Code Refactoring
+
+* **displaystats.js:** improve date range validation and page creation logic for better readability and maintainability ([c2420ca](https://github.com/SethCohen/EmojiUtilities/commit/c2420ca11fe68caa56d5a49cd49a23471ee35ef4))
+* **interactionCreate.js:** modify command execution count logic to trigger support message on first command and every seventh command thereafter ([84841b8](https://github.com/SethCohen/EmojiUtilities/commit/84841b88b14ad10362c8a7766608a58daf8a2cc8))
+
 ## [1.24.0](https://github.com/SethCohen/EmojiUtilities/compare/v1.23.5...v1.24.0) (2025-04-30)
 
 
